@@ -55,7 +55,7 @@ public class Scheduler {
 				process.setState(new FileExtracted());
 			} catch (LoadProcessException e) {
 				// TODO log
-				processRegistry.unregister(cafile);
+				processRegistry.unregister(process.toString());
 			}
         }
     }
