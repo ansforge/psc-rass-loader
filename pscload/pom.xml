@@ -115,6 +115,14 @@
 			<artifactId>apache-any23-encoding</artifactId>
 			<version>1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock-jre8</artifactId>
+			<version>2.32.0</version>
+			<scope>test</scope>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
