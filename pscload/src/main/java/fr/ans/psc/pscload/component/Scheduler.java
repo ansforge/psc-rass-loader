@@ -13,6 +13,7 @@ import fr.ans.psc.pscload.state.Idle;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
 import java.io.IOException;
+import java.rmi.registry.Registry;
 import java.security.GeneralSecurityException;
 
 /**
@@ -21,48 +22,52 @@ import java.security.GeneralSecurityException;
 @Component
 public class Scheduler {
 
-    @Autowired
-    private ProcessRegistry processRegistry;
-    
-    @Autowired
-    private CustomMetrics customMetrics;
+	@Autowired
+	private ProcessRegistry processRegistry;
 
-    @Value("${enable.scheduler:true}")
-    private boolean enabled;
+	@Autowired
+	private CustomMetrics customMetrics;
 
-    @Value("${extract.download.url}")
-    private String extractDownloadUrl;
-    
-    @Value("${cert.path}")
-    private String certfile;
+	@Value("${enable.scheduler:true}")
+	private boolean enabled;
 
-    @Value("${key.path}")
-    private String keyfile;
+	@Value("${extract.download.url}")
+	private String extractDownloadUrl;
 
-    @Value("${ca.path}")
-    private String cafile;
-    
-    /**
-     * Download and parse.
-     */
-    @Scheduled(fixedDelayString = "${schedule.rate.ms}")
-    public void run() throws GeneralSecurityException, IOException {
-        if (enabled) {
-        	LoadProcess process = new LoadProcess(new Idle(true, keyfile, certfile, cafile));
-        	processRegistry.register(process.toString(), process);
-            try {
-            	// On lance le premier step
-				process.runtask();
-				process.setState(new FileDownloaded());
-				customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(10);
-				// Step Deux : Extraction
-				process.runtask();
-				process.setState(new FileExtracted());
-				customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(20);
-			} catch (LoadProcessException e) {
-				// TODO log
-				processRegistry.unregister(process.toString());
+	@Value("${cert.path}")
+	private String certfile;
+
+	@Value("${key.path}")
+	private String keyfile;
+
+	@Value("${ca.path}")
+	private String cafile;
+
+	/**
+	 * Download and parse.
+	 */
+	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
+	public void run() throws GeneralSecurityException, IOException {
+		if (enabled) {
+			if (processRegistry.isEmpty()) {
+				LoadProcess process = new LoadProcess(new Idle(true, keyfile, certfile, cafile));
+				processRegistry.register(process.toString(), process);
+				try {
+					// On lance le premier step
+					process.runtask();
+					process.setState(new FileDownloaded());
+					customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(10);
+					// Step Deux : Extraction
+					process.runtask();
+					process.setState(new FileExtracted());
+					customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(20);
+				} catch (LoadProcessException e) {
+					// TODO log
+					processRegistry.unregister(process.toString());
+				}
+			}else {
+				//TODO  ajouter un log et ne rien faire car un process est déjà en cours.
 			}
-        }
-    }
+		}
+	}
 }

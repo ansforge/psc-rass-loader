@@ -22,4 +22,8 @@ public class ProcessRegistry {
 	public void clear() {
 		registry.clear();
 	}
+	
+	public boolean isEmpty() {
+		return registry.isEmpty();
+	}
 }
