@@ -1,5 +1,8 @@
 package fr.ans.psc.pscload.component;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,10 +14,6 @@ import fr.ans.psc.pscload.state.FileDownloaded;
 import fr.ans.psc.pscload.state.FileExtracted;
 import fr.ans.psc.pscload.state.Idle;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
-
-import java.io.IOException;
-import java.rmi.registry.Registry;
-import java.security.GeneralSecurityException;
 
 /**
  * The type Scheduler.
@@ -44,26 +43,27 @@ public class Scheduler {
 	private String cafile;
 
 	/**
-	 * Download and parse.
+	 * Run the process
 	 */
 	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
 	public void run() throws GeneralSecurityException, IOException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				LoadProcess process = new LoadProcess(new Idle(true, keyfile, certfile, cafile));
-				processRegistry.register(process.toString(), process);
+				String id = Integer.toString(processRegistry.nextId());
+				processRegistry.register(id, process);
 				try {
-					// On lance le premier step
+					// Step 1 : Download
 					process.runtask();
 					process.setState(new FileDownloaded());
 					customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(10);
-					// Step Deux : Extraction
+					// Step 2 : Extract
 					process.runtask();
 					process.setState(new FileExtracted());
 					customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(20);
 				} catch (LoadProcessException e) {
 					// TODO log
-					processRegistry.unregister(process.toString());
+					processRegistry.unregister(id);
 				}
 			}else {
 				//TODO  ajouter un log et ne rien faire car un process est déjà en cours.

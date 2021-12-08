@@ -1,6 +1,8 @@
 package fr.ans.psc.pscload.service;
 
 
+import java.io.Serializable;
+
 import com.google.common.collect.MapDifference;
 
 import fr.ans.psc.model.Ps;
@@ -8,15 +10,17 @@ import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
-public class LoadProcess {
+public class LoadProcess implements Serializable {
 	
+	private static final long serialVersionUID = -3353029432198849016L;
+
 	private String donwloadedFilename;
 	
 	private String extractedFilename;
 	
-	private MapDifference<String,Ps> currentMap;
+	private transient MapDifference<String,Ps> currentMap;
 	
-	private MapDifference<String, Structure> lastMap;
+	private transient MapDifference<String, Structure> lastMap;
 	
 	private ProcessState state;
 
