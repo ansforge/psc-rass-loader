@@ -30,6 +30,8 @@ public class FileDownloaded extends ProcessState {
      * The logger.
      */
     private static final Logger log = LoggerFactory.getLogger(FileDownloaded.class);
+    
+    
 	@Override
 	public void runTask() throws LoadProcessException {
 		try {
@@ -48,20 +50,8 @@ public class FileDownloaded extends ProcessState {
      * @return true if a new file is found and unzipped successfully
      * @throws IOException io exception
      */
-    public boolean unzip(String zipFilePath) throws IOException {
+    private boolean unzip(String zipFilePath) throws IOException {
         return unzip(zipFilePath, false);
-    }
-
-    public String getDateStringFromFileName(File file) {
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMddhhmm");
-
-        String regex = ".*(\\d{12}).*";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher m = pattern.matcher(file.getName());
-        if (m.find()) {
-            return m.group(1);
-        }
-        return dateFormatter.format(new Date(0));
     }
 
     /**
@@ -72,7 +62,7 @@ public class FileDownloaded extends ProcessState {
      * @return true if a new file is found and unzipped successfully
      * @throws IOException io exception
      */
-    public boolean unzip(String zipFilePath, boolean clean) throws IOException {
+    private boolean unzip(String zipFilePath, boolean clean) throws IOException {
         File zip = new File(zipFilePath);
         File destDir = zip.getParentFile();
         File[] existingFiles = zipsTextsNSers(destDir.listFiles()).get("txts").toArray(new File[0]);
@@ -133,81 +123,8 @@ public class FileDownloaded extends ProcessState {
         return destFile;
     }
 
-    /**
-     * Deletes all except latest files.
-     *
-     * @param filesDirectory the files directory
-     * @throws IOException io exception
-     */
-    public void cleanup(String filesDirectory) throws IOException {
-        log.info("Cleaning files repository, removing all but latest files");
-        Map<String, List<File>> filesMap = zipsTextsNSers(new File(filesDirectory).listFiles());
 
-        List<File> listOfZips = filesMap.get("zips");
-        List<File> listOfExtracts = filesMap.get("txts");
-        List<File> listOfSers = filesMap.get("sers");
 
-        // Order files lists from oldest to newest by comparing parsed dates,
-        // but honestly same result if we had used file name String to compare
-        listOfZips.sort(this::compare);
-        listOfExtracts.sort(this::compare);
-        listOfSers.sort(this::compare);
-
-        if (listOfZips.size() > 0) {
-            listOfZips.remove(listOfZips.size() -1);
-        }
-        if (listOfExtracts.size() > 0) {
-            listOfExtracts.remove(listOfExtracts.size() -1);
-        }
-        if (listOfSers.size() > 0) {
-            listOfSers.remove(listOfSers.size() -1);
-        }
-
-        for (File file : listOfZips) {
-            file.delete();
-        }
-        for (File file : listOfExtracts) {
-            file.delete();
-        }
-        for (File file : listOfSers) {
-            file.delete();
-        }
-    }
-
-    /**
-     * Gets latest extract and ser.
-     *
-     * @param filesDirectory the files directory
-     * @return the latest ext and ser files as map, null value if file doesnt exist
-     * @throws IOException the io exception
-     */
-    public Map<String, File> getLatestExtAndSer(String filesDirectory) throws IOException {
-        Map<String, List<File>> filesMap = zipsTextsNSers(new File(filesDirectory).listFiles());
-
-        List<File> listOfExtracts = filesMap.get("txts");
-        List<File> listOfSers = filesMap.get("sers");
-
-        // Order files lists from oldest to newest by comparing parsed dates,
-        // but honestly same result if we had used file name String to compare
-        listOfExtracts.sort(this::compare);
-        listOfSers.sort(this::compare);
-
-        Map<String, File> latestFiles = new HashMap<>();
-
-        if (listOfExtracts.isEmpty()) {
-            latestFiles.put("txt", null);
-        } else {
-            latestFiles.put("txt", listOfExtracts.get(listOfExtracts.size() -1));
-        }
-
-        if (listOfSers.isEmpty()) {
-            latestFiles.put("ser", null);
-        } else {
-            latestFiles.put("ser", listOfSers.get(listOfSers.size() -1));
-        }
-
-        return latestFiles;
-    }
 
     /**
      * Zips and texts map.
