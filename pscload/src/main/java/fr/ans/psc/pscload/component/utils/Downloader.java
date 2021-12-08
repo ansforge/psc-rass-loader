@@ -45,14 +45,23 @@ public class Downloader {
     
     @Value("${files.directory}")
     private String filesDirectory;
-    
-    @Value("${test.download.url}")
-    private String testDownloadUrl;
 
     @Value("${extract.download.url}")
     private String extractDownloadUrl;
 
-    /**
+    
+    
+    public Downloader() {
+		super();
+	}
+
+    public Downloader(String extractDownloadUrl) {
+		super();
+		this.extractDownloadUrl = extractDownloadUrl;
+	}
+
+
+	/**
      * Init ssl context.
      *
      * @param certFile   the cert file
@@ -161,8 +170,6 @@ public class Downloader {
         if (responseCode == HttpsURLConnection.HTTP_OK) {
             String fileName = "";
             String disposition = httpConn.getHeaderField("Content-Disposition");
-            String contentType = httpConn.getContentType();
-            int contentLength = httpConn.getContentLength();
 
             if (disposition != null) {
                 // extracts file name from header field
@@ -174,11 +181,7 @@ public class Downloader {
                 // extracts file name from URL
                 fileName = extractDownloadUrl.substring(extractDownloadUrl.lastIndexOf("/") + 1);
             }
-
-            log.info("Content-Type = {}", contentType);
-            log.info("Content-Disposition = {}", disposition);
-            log.info("Content-Length = {}", contentLength);
-            log.info("fileName = {}", fileName);
+            
             String zipFile = filesDirectory + File.separator + fileName;
 
             // Check if zip already exists before download
