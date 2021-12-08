@@ -20,7 +20,11 @@ public class DownloadWireMockTest {
             		.keystoreType("JKS")
             		.needClientAuth(true)
             		.trustStorePath("/path/to/trust-store.jks")
-            		.trustStorePassword("trustme"))
+            		.trustStorePassword("trustme")
+            		.withRootDirectory(Thread.currentThread()
+            				.getContextClassLoader()
+            				.getResource("/wiremock")
+            				.getPath()))
             .build();
 
     @Test
