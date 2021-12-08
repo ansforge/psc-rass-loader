@@ -35,7 +35,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**PsRef**](PsRef.md)|  | [optional]
+ **body** | [**PsRef**](PsRef.md)|  |
 
 ### Return type
 

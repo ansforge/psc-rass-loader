@@ -24,7 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T07:57:42.156Z[GMT]")@Component("fr.ans.psc.api.PsApi")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")@Component("fr.ans.psc.api.PsApi")
 public class PsApi {
     private ApiClient apiClient;
 
@@ -56,6 +56,10 @@ public class PsApi {
      */
     public void createNewPs(Ps body) throws RestClientException {
         Object postBody = body;
+        // verify the required parameter 'body' is set
+        if (body == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling createNewPs");
+        }
         String path = UriComponentsBuilder.fromPath("/ps").build().toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
@@ -196,6 +200,10 @@ public class PsApi {
      */
     public void updatePs(Ps body) throws RestClientException {
         Object postBody = body;
+        // verify the required parameter 'body' is set
+        if (body == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling updatePs");
+        }
         String path = UriComponentsBuilder.fromPath("/ps").build().toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();

@@ -39,7 +39,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Ps**](Ps.md)| The Ps to be created | [optional]
+ **body** | [**Ps**](Ps.md)| The Ps to be created |
 
 ### Return type
 
@@ -216,7 +216,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Ps**](Ps.md)|  | [optional]
+ **body** | [**Ps**](Ps.md)|  |
 
 ### Return type
 

@@ -8,4 +8,4 @@ Name | Type | Description | Notes
 **activitySectorCode** | **String** |  |  [optional]
 **pharmacistTableSectionCode** | **String** |  |  [optional]
 **roleCode** | **String** |  |  [optional]
-**structures** | [**List&lt;Structure&gt;**](Structure.md) |  |  [optional]
+**structures** | [**List&lt;StructureRef&gt;**](StructureRef.md) |  |  [optional]

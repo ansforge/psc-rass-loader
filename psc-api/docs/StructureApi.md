@@ -38,7 +38,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Structure**](Structure.md)|  | [optional]
+ **body** | [**Structure**](Structure.md)|  |
 
 ### Return type
 
@@ -171,7 +171,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Structure**](Structure.md)|  | [optional]
+ **body** | [**Structure**](Structure.md)|  |
 
 ### Return type
 

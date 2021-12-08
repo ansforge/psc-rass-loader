@@ -17,7 +17,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import fr.ans.psc.model.Structure;
+import fr.ans.psc.model.StructureRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +25,10 @@ import java.io.Serializable;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 /**
- * WorkSituation
+ * Situation d exercice
  */
-
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T07:57:42.156Z[GMT]")
+@Schema(description = "Situation d exercice")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")
 public class WorkSituation implements Serializable{
   private static final long serialVersionUID = 1L;
   @JsonProperty("situId")
@@ -47,7 +47,7 @@ public class WorkSituation implements Serializable{
   private String roleCode = null;
 
   @JsonProperty("structures")
-  private List<Structure> structures = null;
+  private List<StructureRef> structures = null;
 
   public WorkSituation situId(String situId) {
     this.situId = situId;
@@ -139,14 +139,14 @@ public class WorkSituation implements Serializable{
     this.roleCode = roleCode;
   }
 
-  public WorkSituation structures(List<Structure> structures) {
+  public WorkSituation structures(List<StructureRef> structures) {
     this.structures = structures;
     return this;
   }
 
-  public WorkSituation addStructuresItem(Structure structuresItem) {
+  public WorkSituation addStructuresItem(StructureRef structuresItem) {
     if (this.structures == null) {
-      this.structures = new ArrayList<Structure>();
+      this.structures = new ArrayList<StructureRef>();
     }
     this.structures.add(structuresItem);
     return this;
@@ -158,11 +158,11 @@ public class WorkSituation implements Serializable{
   **/
   @Valid
   @Schema(description = "")
-  public List<Structure> getStructures() {
+  public List<StructureRef> getStructures() {
     return structures;
   }
 
-  public void setStructures(List<Structure> structures) {
+  public void setStructures(List<StructureRef> structures) {
     this.structures = structures;
   }
 

@@ -2,7 +2,7 @@
 
 psc-api-maj-v2
 - API version: 1.0
-  - Build date: 2021-12-08T07:57:42.156Z[GMT]
+  - Build date: 2021-12-08T16:04:23.441Z[GMT]
 
 API CRUD for Personnels et Structures de santé
 
@@ -209,6 +209,7 @@ Class | Method | HTTP request | Description
  - [Ps](docs/Ps.md)
  - [PsRef](docs/PsRef.md)
  - [Structure](docs/Structure.md)
+ - [StructureRef](docs/StructureRef.md)
  - [WorkSituation](docs/WorkSituation.md)
 
 ## Documentation for Authorization

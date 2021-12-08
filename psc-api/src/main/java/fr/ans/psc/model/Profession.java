@@ -29,7 +29,7 @@ import javax.validation.Valid;
  * Profession
  */
 @Schema(description = "Profession")
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T07:57:42.156Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")
 public class Profession implements Serializable{
   private static final long serialVersionUID = 1L;
   @JsonProperty("exProId")
