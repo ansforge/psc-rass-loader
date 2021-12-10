@@ -2,6 +2,7 @@ package fr.ans.psc.pscload.service;
 
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import com.google.common.collect.MapDifference;
 
@@ -14,7 +15,7 @@ public class LoadProcess implements Serializable {
 	
 	private static final long serialVersionUID = -3353029432198849016L;
 
-	private String donwloadedFilename;
+	private String downloadedFilename;
 	
 	private String extractedFilename;
 	
@@ -22,12 +23,16 @@ public class LoadProcess implements Serializable {
 	
 	private transient MapDifference<String, Structure> lastMap;
 	
+	private long timestamp;
+	
 	private ProcessState state;
 
 	
 	public LoadProcess(ProcessState state) {
 		super();
 		this.state = state;
+		this.state.setProcess(this);
+		timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 
 	public void runtask() throws LoadProcessException {
@@ -44,13 +49,13 @@ public class LoadProcess implements Serializable {
 	}
 
 
-	public String getDonwloadedFilename() {
-		return donwloadedFilename;
+	public String getDownloadedFilename() {
+		return downloadedFilename;
 	}
 
 
-	public void setDonwloadedFilename(String donwloadedFilename) {
-		this.donwloadedFilename = donwloadedFilename;
+	public void setDownloadedFilename(String downloadedFilename) {
+		this.downloadedFilename = downloadedFilename;
 	}
 
 
@@ -83,7 +88,9 @@ public class LoadProcess implements Serializable {
 		this.lastMap = lastMap;
 	}
 
-
+	public long getTimestamp() {
+		return timestamp;
+	}
 	
 
 }

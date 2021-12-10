@@ -26,6 +26,7 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 public class FileDownloaded extends ProcessState {
 
 	
+	private static final long serialVersionUID = -1938173997893575974L;
 	/**
      * The logger.
      */
@@ -35,7 +36,7 @@ public class FileDownloaded extends ProcessState {
 	@Override
 	public void runTask() throws LoadProcessException {
 		try {
-			unzip(process.getDonwloadedFilename());
+			unzip(process.getDownloadedFilename());
 		} catch (IOException e) {
 			// TODO log
 			throw new ExtractException(e);
@@ -68,46 +69,46 @@ public class FileDownloaded extends ProcessState {
         File[] existingFiles = zipsTextsNSers(destDir.listFiles()).get("txts").toArray(new File[0]);
 
         byte[] buffer = new byte[1024];
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath));
-        ZipEntry zipEntry = zis.getNextEntry();
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath))) {
+			ZipEntry zipEntry = zis.getNextEntry();
 
-        boolean goAhead = false;
-        while (zipEntry != null) {
-            File newFile = newFile(destDir, zipEntry);
-            // check only entries that are files
-            if (!zipEntry.isDirectory()) {
-                // check if newer than what exists, otherwise go to next entry
-                if (isNew(newFile, existingFiles)) {
-                    goAhead = true;
-                } else {
-                    log.info("{} is not new, will not be extracted", newFile.getName());
-                    zipEntry = zis.getNextEntry();
-                    continue;
-                }
-                // fix for Windows-created archives
-                File parent = newFile.getParentFile();
-                if (!parent.isDirectory() && !parent.mkdirs()) {
-                    throw new IOException("Failed to create directory " + parent);
-                }
-                // write file content
-                log.info("unzipping into {}", newFile.getName());
-                FileOutputStream fos = new FileOutputStream(newFile);
-                int len;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
-                fos.close();
-                log.info("unzip complete!");
-            }
-            zipEntry = zis.getNextEntry();
-        }
-        zis.closeEntry();
-        zis.close();
-        if (clean) {
-            log.info("clean set to true, deleting {}", zip.getName());
-            zip.delete();
-        }
-        return goAhead;
+			boolean goAhead = false;
+			while (zipEntry != null) {
+			    File newFile = newFile(destDir, zipEntry);
+			    // check only entries that are files
+			    if (!zipEntry.isDirectory()) {
+			        // check if newer than what exists, otherwise go to next entry
+			        if (isNew(newFile, existingFiles)) {
+			            goAhead = true;
+			        } else {
+			            log.info("{} is not new, will not be extracted", newFile.getName());
+			            zipEntry = zis.getNextEntry();
+			            continue;
+			        }
+			        // fix for Windows-created archives
+			        File parent = newFile.getParentFile();
+			        if (!parent.isDirectory() && !parent.mkdirs()) {
+			            throw new IOException("Failed to create directory " + parent);
+			        }
+			        // write file content
+			        log.info("unzipping into {}", newFile.getName());
+			        FileOutputStream fos = new FileOutputStream(newFile);
+			        int len;
+			        while ((len = zis.read(buffer)) > 0) {
+			            fos.write(buffer, 0, len);
+			        }
+			        fos.close();
+			        log.info("unzip complete!");
+			    }
+			    zipEntry = zis.getNextEntry();
+			}
+			zis.closeEntry();
+			if (clean) {
+			    log.info("clean set to true, deleting {}", zip.getName());
+			    zip.delete();
+			}
+			return goAhead;
+		}
     }
 
     private File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
@@ -156,7 +157,7 @@ public class FileDownloaded extends ProcessState {
         try {
             return getDateFromFileName(f1).compareTo(getDateFromFileName(f2));
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("Error when date compare", e);;
         }
         return 0;
     }

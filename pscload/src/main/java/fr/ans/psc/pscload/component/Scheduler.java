@@ -49,18 +49,18 @@ public class Scheduler {
 	public void run() throws GeneralSecurityException, IOException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
-				LoadProcess process = new LoadProcess(new Idle(true, keyfile, certfile, cafile));
+				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile));
 				String id = Integer.toString(processRegistry.nextId());
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download
 					process.runtask();
 					process.setState(new FileDownloaded());
-					customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(10);
+					// TODO set customMetrics
 					// Step 2 : Extract
 					process.runtask();
 					process.setState(new FileExtracted());
-					customMetrics.getAppGauges().get(CustomMetrics.CustomMetric.STAGE).set(20);
+					// TODO set customMetrics;
 				} catch (LoadProcessException e) {
 					// TODO log
 					processRegistry.unregister(id);

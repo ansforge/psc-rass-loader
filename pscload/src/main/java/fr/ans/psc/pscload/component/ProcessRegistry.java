@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -67,6 +70,14 @@ public class ProcessRegistry implements Serializable {
 		registry.remove(id);
 	}
 	
+
+	public LoadProcess getCurrentProcess() {
+		List<String> sortedKeys=new ArrayList<>(registry.keySet());
+		Collections.sort(sortedKeys);
+		return registry.get(sortedKeys.get(sortedKeys.size()-1));
+			
+	}
+	
 	public void clear() {
 		registry.clear();
 	}
@@ -74,5 +85,6 @@ public class ProcessRegistry implements Serializable {
 	public boolean isEmpty() {
 		return registry.isEmpty();
 	}
+	
 	
 }

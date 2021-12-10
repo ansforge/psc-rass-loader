@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Idle extends ProcessState {
 	
+
+	private static final long serialVersionUID = -2723088250644528474L;
+
 	private boolean customSSLContext;
 	
 	private String certfile;
@@ -18,20 +21,44 @@ public class Idle extends ProcessState {
 	private String keyfile;
 	
 	private String cafile;
-
-	public Idle(boolean customSSLContext, String keyfile, String certfile, String cafile ) {
+	
+	private transient Downloader downloader;
+	
+	public Idle() {
 		super();
-		this.customSSLContext = customSSLContext;
+		this.customSSLContext = false;
+		downloader = new Downloader();
+	}
+	
+	public Idle(String extractDownloadUrl, String filesDirectory) {
+		super();
+		this.customSSLContext = false;
+		downloader = new Downloader(extractDownloadUrl ,filesDirectory);
+	}
+
+	public Idle(String keyfile, String certfile, String cafile ) {
+		super();
+		this.customSSLContext = true;
 		this.certfile = certfile;
 		this.keyfile = keyfile;
 		this.cafile = cafile;
+		downloader = new Downloader();
 	}
-
+	
+	
+	public Idle(String keyfile , String certfile, String cafile, String filesDirectory,
+			String extractDownloadUrl) {
+		super();
+		this.customSSLContext = true;
+		this.certfile = certfile;
+		this.keyfile = keyfile;
+		this.cafile = cafile;
+		downloader = new Downloader(extractDownloadUrl ,filesDirectory);
+	}
+	
 	@Override
 	public void runTask() throws LoadProcessException {
 
-		Downloader downloader = new Downloader();
-		
 		// downloads only if zip doesn't exist in our files directory
 		String zipFile;
 		try {
@@ -49,7 +76,7 @@ public class Idle extends ProcessState {
 		}
 		// If download is OK next step !
         if (zipFile != null) {
-        	process.setDonwloadedFilename(zipFile);
+        	process.setDownloadedFilename(zipFile);
         }
 
 	}
