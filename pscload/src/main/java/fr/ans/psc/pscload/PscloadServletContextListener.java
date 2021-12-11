@@ -65,5 +65,6 @@ public class PscloadServletContextListener implements ServletContextListener {
 				Log.error("Unable to restore registry : file not compatible", e);
 			}
 		}
+		//TODO republish stage metrics
 	}
 }
