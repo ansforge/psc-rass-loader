@@ -1,15 +1,20 @@
 package fr.ans.psc.pscload.state;
 
-import java.io.Serializable;
+import java.io.Externalizable;
 
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
-public abstract class ProcessState implements Serializable {
+public abstract class ProcessState implements Externalizable {
+
+	private static final long serialVersionUID = 5783897138047021249L;
 	
-	private static final long serialVersionUID = -7973864026513440841L;
 	protected LoadProcess process;
 	
+	
+	public ProcessState() {
+	}
+
 	abstract public void runTask() throws LoadProcessException;
 	
 	public LoadProcess getProcess() {

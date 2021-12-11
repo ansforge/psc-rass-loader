@@ -1,33 +1,40 @@
 package fr.ans.psc.pscload.service;
 
-
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Calendar;
-
-import com.google.common.collect.MapDifference;
+import java.util.Map;
 
 import fr.ans.psc.model.Ps;
 import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
-public class LoadProcess implements Serializable {
-	
-	private static final long serialVersionUID = -3353029432198849016L;
+public class LoadProcess implements Externalizable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5600982089854286505L;
 
 	private String downloadedFilename;
-	
+
 	private String extractedFilename;
-	
-	private transient MapDifference<String,Ps> currentMap;
-	
-	private transient MapDifference<String, Structure> lastMap;
-	
+
+	private Map<String, Ps> psMap;
+
+	private Map<String, Structure> structureMap;
+
 	private long timestamp;
-	
+
 	private ProcessState state;
 
-	
+	public LoadProcess() {
+		super();
+	}
+
 	public LoadProcess(ProcessState state) {
 		super();
 		this.state = state;
@@ -43,54 +50,64 @@ public class LoadProcess implements Serializable {
 		return state;
 	}
 
-
 	public void setState(ProcessState state) {
 		this.state = state;
 	}
-
 
 	public String getDownloadedFilename() {
 		return downloadedFilename;
 	}
 
-
 	public void setDownloadedFilename(String downloadedFilename) {
 		this.downloadedFilename = downloadedFilename;
 	}
-
 
 	public String getExtractedFilename() {
 		return extractedFilename;
 	}
 
-
 	public void setExtractedFilename(String extractedFilename) {
 		this.extractedFilename = extractedFilename;
 	}
 
-
-	public MapDifference<String, Ps> getCurrentMap() {
-		return currentMap;
+	public Map<String, Ps> getPsMap() {
+		return psMap;
 	}
 
-
-	public void setCurrentMap(MapDifference<String, Ps> currentMap) {
-		this.currentMap = currentMap;
+	public void setPsMap(Map<String, Ps> psMap) {
+		this.psMap = psMap;
 	}
 
-
-	public MapDifference<String, Structure> getLastMap() {
-		return lastMap;
+	public Map<String, Structure> getStructureMap() {
+		return structureMap;
 	}
 
-
-	public void setLastMap(MapDifference<String, Structure> lastMap) {
-		this.lastMap = lastMap;
+	public void setStructureMap(Map<String, Structure> structureMap) {
+		this.structureMap = structureMap;
 	}
 
 	public long getTimestamp() {
 		return timestamp;
 	}
-	
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeLong(timestamp);
+		out.writeObject(downloadedFilename);
+		out.writeObject(extractedFilename);
+		out.writeObject(state);
+		out.writeObject(psMap);
+		out.writeObject(structureMap);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		timestamp = in.readLong();
+		downloadedFilename = (String) in.readObject();
+		extractedFilename = (String) in.readObject();
+		state = (ProcessState) in.readObject();
+		psMap = (Map<String, Ps>) in.readObject();
+		structureMap = (Map<String, Structure>) in.readObject();
+	}
 
 }

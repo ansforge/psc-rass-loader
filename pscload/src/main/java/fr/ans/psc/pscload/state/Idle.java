@@ -1,6 +1,8 @@
 package fr.ans.psc.pscload.state;
 
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.security.GeneralSecurityException;
 
 import fr.ans.psc.pscload.component.utils.Downloader;
@@ -10,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Idle extends ProcessState {
-	
 
-	private static final long serialVersionUID = -2723088250644528474L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8215232377218261245L;
 
 	private boolean customSSLContext;
 	
@@ -79,6 +83,23 @@ public class Idle extends ProcessState {
         	process.setDownloadedFilename(zipFile);
         }
 
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeBoolean(customSSLContext);
+		out.writeObject(cafile);
+		out.writeObject(certfile);
+		out.writeObject(keyfile);
+		
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		customSSLContext = in.readBoolean();
+		cafile = (String) in.readObject();
+		certfile = (String) in.readObject();
+		keyfile = (String) in.readObject();
 	}
 
 }
