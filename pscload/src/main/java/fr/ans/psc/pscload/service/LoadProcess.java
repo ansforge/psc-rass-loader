@@ -7,6 +7,8 @@ import java.io.ObjectOutput;
 import java.util.Calendar;
 import java.util.Map;
 
+import com.google.common.collect.MapDifference;
+
 import fr.ans.psc.model.Ps;
 import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
@@ -23,9 +25,9 @@ public class LoadProcess implements Externalizable {
 
 	private String extractedFilename;
 
-	private Map<String, Ps> psMap;
+	private MapDifference<String, Ps> psMap;
 
-	private Map<String, Structure> structureMap;
+	private MapDifference<String, Structure> structureMap;
 
 	private long timestamp;
 
@@ -70,19 +72,19 @@ public class LoadProcess implements Externalizable {
 		this.extractedFilename = extractedFilename;
 	}
 
-	public Map<String, Ps> getPsMap() {
+	public MapDifference<String, Ps> getPsMap() {
 		return psMap;
 	}
 
-	public void setPsMap(Map<String, Ps> psMap) {
+	public void setPsMap(MapDifference<String, Ps> psMap) {
 		this.psMap = psMap;
 	}
 
-	public Map<String, Structure> getStructureMap() {
+	public MapDifference<String, Structure> getStructureMap() {
 		return structureMap;
 	}
 
-	public void setStructureMap(Map<String, Structure> structureMap) {
+	public void setStructureMap(MapDifference<String, Structure> structureMap) {
 		this.structureMap = structureMap;
 	}
 
@@ -106,8 +108,8 @@ public class LoadProcess implements Externalizable {
 		downloadedFilename = (String) in.readObject();
 		extractedFilename = (String) in.readObject();
 		state = (ProcessState) in.readObject();
-		psMap = (Map<String, Ps>) in.readObject();
-		structureMap = (Map<String, Structure>) in.readObject();
+		psMap = (MapDifference<String, Ps>) in.readObject();
+		structureMap = (MapDifference<String, Structure>) in.readObject();
 	}
 
 }
