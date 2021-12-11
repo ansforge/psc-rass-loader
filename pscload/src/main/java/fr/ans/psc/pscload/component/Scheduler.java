@@ -56,11 +56,11 @@ public class Scheduler {
 					// Step 1 : Download
 					process.runtask();
 					process.setState(new FileDownloaded());
-					// TODO set customMetrics
+					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(10);
 					// Step 2 : Extract
 					process.runtask();
 					process.setState(new FileExtracted());
-					// TODO set customMetrics;
+					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(20);
 				} catch (LoadProcessException e) {
 					// TODO log
 					processRegistry.unregister(id);

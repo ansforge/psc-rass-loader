@@ -71,6 +71,7 @@ public class ProcessRegistry implements  Externalizable  {
 		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		id = in.readInt();
