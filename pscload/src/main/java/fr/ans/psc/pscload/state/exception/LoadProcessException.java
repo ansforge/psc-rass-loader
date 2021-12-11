@@ -13,5 +13,15 @@ public class LoadProcessException extends Exception {
 		super(cause);
 	}
 
+
+	public LoadProcessException() {
+		super();
+	}
+
+
+	public LoadProcessException(String message) {
+		super(message);
+	}
+
 	
 }

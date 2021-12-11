@@ -10,4 +10,12 @@ public class ExtractException extends LoadProcessException {
 		super(cause);
 	}
 
+	public ExtractException() {
+		super();
+	}
+
+	public ExtractException(String message) {
+		super(message);
+	}
+
 }

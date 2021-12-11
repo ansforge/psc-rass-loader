@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Calendar;
-import java.util.Map;
 
 import com.google.common.collect.MapDifference;
 
@@ -102,6 +101,7 @@ public class LoadProcess implements Externalizable {
 		out.writeObject(structureMap);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		timestamp = in.readLong();
