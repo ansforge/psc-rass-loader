@@ -11,9 +11,8 @@ public abstract class ProcessState implements Externalizable {
 	
 	protected LoadProcess process;
 	
-	
-	public ProcessState() {
-	}
+	// Constructor for deserializing process.
+	public ProcessState() {}
 
 	abstract public void runTask() throws LoadProcessException;
 	

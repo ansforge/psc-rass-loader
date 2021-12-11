@@ -2,6 +2,11 @@ package fr.ans.psc.pscload.state.exception;
 
 public class ExtractException extends LoadProcessException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8360043811806913205L;
+
 	public ExtractException(String message, Throwable cause) {
 		super(message, cause);
 	}
