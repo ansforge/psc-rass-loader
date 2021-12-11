@@ -114,7 +114,7 @@ public class FileDownloaded extends ProcessState {
 					zip.delete();
 				}
 				zf.close();
-				return filename;
+				return destDir.getParent() + filename;
 			} else {
 				zf.close();
 				throw new ExtractException("Zip contains multiples files");

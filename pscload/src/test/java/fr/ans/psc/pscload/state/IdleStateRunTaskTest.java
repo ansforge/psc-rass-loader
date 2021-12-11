@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -23,7 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.esotericsoftware.minlog.Log;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
@@ -126,8 +124,8 @@ public class IdleStateRunTaskTest {
 	    return bytes;
 	}
 	
-	private static void zipFile(String filename) {
-		try {
+	private static void zipFile(String filename) throws Exception {
+
 			String filePath = Thread.currentThread().getContextClassLoader().getResource(filename).getPath();
 			File file = new File(filePath);
 			String zipFileName = file.getPath().concat(".zip");
@@ -141,11 +139,5 @@ public class IdleStateRunTaskTest {
 			zos.write(bytes, 0, bytes.length);
 			zos.closeEntry();
 			zos.close();
-
-		} catch (FileNotFoundException ex) {
-			System.err.format("The file %s does not exist", filename);
-		} catch (IOException ex) {
-			Log.error("I/O error: " + ex);
-		}
 	}
 }

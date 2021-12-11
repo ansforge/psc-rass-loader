@@ -15,8 +15,6 @@ import javax.servlet.ServletContextListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.esotericsoftware.minlog.Log;
-
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +41,7 @@ public class PscloadServletContextListener implements ServletContextListener {
 		     = new ObjectOutputStream(fileOutputStream);
 		    registry.writeExternal(oos);
 		} catch (IOException e) {
-			Log.error("Unable to save registry", e);
+			log.error("Unable to save registry", e);
 		}
 	}
 
@@ -60,9 +58,9 @@ public class PscloadServletContextListener implements ServletContextListener {
 				registry.readExternal(ois);
 				registryFile.delete();	
 			} catch (IOException e) {
-				Log.error("Unable to restore registry I/O error", e);
+				log.error("Unable to restore registry I/O error", e);
 			} catch (ClassNotFoundException e) {
-				Log.error("Unable to restore registry : file not compatible", e);
+				log.error("Unable to restore registry : file not compatible", e);
 			}
 		}
 		//TODO republish stage metrics
