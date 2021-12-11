@@ -1,0 +1,21 @@
+{
+
+  "mappings": [
+		{
+		    "request": {
+		
+		        "method": "GET",
+		        "url": "/structure/1"
+		    },
+		    "response": {
+		
+		        "status": 200,
+		        "bodyFileName": "structure1.json",
+		        "headers": {
+		
+		            "Content-Type": "application/json"
+		        }
+		    }
+		}
+	]
+}
