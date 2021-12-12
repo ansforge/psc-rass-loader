@@ -18,14 +18,12 @@ public class RefStructure extends StructureRef implements Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
-
+		out.writeObject(getStructureId());
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-
+		setStructureId((String) in.readObject());
 	}
 
 }

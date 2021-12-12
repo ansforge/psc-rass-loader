@@ -13,7 +13,7 @@ public class ChangesApplied extends ProcessState {
 
 	@Override
 	public void runTask() {
-		// TODO Auto-generated method stub
+		// TODO call pscextract and deregister process now because we can't know the status of pscextract.
 
 	}
 

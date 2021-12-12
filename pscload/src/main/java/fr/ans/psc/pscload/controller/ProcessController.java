@@ -12,7 +12,9 @@ import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 public class ProcessController {
 	

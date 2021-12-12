@@ -24,13 +24,14 @@ public class SavoirFaire extends Expertise implements Externalizable{
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
+		out.writeObject(getTypeCode());
+		out.writeObject(getCode());
 		
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-		
+		setCode((String) in.readObject());
+		setTypeCode((String) in.readObject());
 	}
 }

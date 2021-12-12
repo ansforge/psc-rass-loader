@@ -8,7 +8,6 @@ import java.util.Calendar;
 
 import com.google.common.collect.MapDifference;
 
-import fr.ans.psc.model.Ps;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
