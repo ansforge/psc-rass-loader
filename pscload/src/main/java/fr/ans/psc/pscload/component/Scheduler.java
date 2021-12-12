@@ -10,12 +10,10 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.MapDifference;
 
-import fr.ans.psc.pscload.PscloadServletContextListener;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.FileDownloaded;
 import fr.ans.psc.pscload.state.FileExtracted;
