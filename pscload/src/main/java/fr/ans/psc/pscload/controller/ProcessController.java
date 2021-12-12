@@ -45,7 +45,7 @@ public class ProcessController {
 				process.setState(new ChangesApplied());
 				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
 			} catch (LoadProcessException e) {				
-				//TODO log		
+				log.error("error when uploading changes", e);		
 			}
 			ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 			response.setResult(result);
