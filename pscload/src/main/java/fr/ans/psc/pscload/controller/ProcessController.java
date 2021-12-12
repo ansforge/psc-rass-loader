@@ -2,6 +2,7 @@ package fr.ans.psc.pscload.controller;
 
 import java.util.concurrent.ForkJoinPool;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class ProcessController {
 	
+	@Autowired
+	private CustomMetrics customMetrics;
 	private final ProcessRegistry registry;
 	
 	public ProcessController(ProcessRegistry registry) {
@@ -35,7 +40,10 @@ public class ProcessController {
 			ForkJoinPool.commonPool().submit(() -> {
 			try {
 				//upload changes
+				customMetrics.resetSizeMetrics();
 				process.runtask();
+				process.setState(new ChangesApplied());
+				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
 			} catch (LoadProcessException e) {				
 				//TODO log		
 			}

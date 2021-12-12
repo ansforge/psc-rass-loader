@@ -82,10 +82,7 @@ public class Scheduler {
 					publishStructureMetrics();
 					process.setState(new DiffComputed(excludedProfessions, apiBaseUrl));
 					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(30);
-					// Step 4 : Upload Changes
-					process.runtask();
-					process.setState(new ChangesApplied());
-					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
+					//End of scheduled steps
 				} catch (LoadProcessException e) {
 					// TODO log
 					processRegistry.unregister(id);
