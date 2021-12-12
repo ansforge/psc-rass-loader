@@ -41,8 +41,6 @@ public class FileExtracted extends ProcessState {
 
 	private static final long serialVersionUID = 1208602116799660764L;
 
-	private String[] excludedProfessions;
-
 	private final Map<String, Professionnel> newPsMap = new HashMap<>();
 
 	private final Map<String, Structure> newStructureMap = new HashMap<>();
@@ -53,9 +51,12 @@ public class FileExtracted extends ProcessState {
 
 	private CustomMetrics customMetrics;
 
-    public FileExtracted(String[] excludedProfessions, CustomMetrics customMetrics) {
+    public FileExtracted() {
 		super();
-		this.excludedProfessions = excludedProfessions;
+	}
+
+	public FileExtracted(CustomMetrics customMetrics) {
+		super();
 		this.customMetrics = customMetrics;
 	}
     
@@ -90,8 +91,67 @@ public class FileExtracted extends ProcessState {
 
 	}
 
+	/**
+	 * Diff PS maps.
+	 *
+	 * @param original OG PS map
+	 * @param revised  the revised PS map
+	 * @return the map difference
+	 */
+	public MapDifference<String, Professionnel> diffPsMaps(Map<String, Professionnel> original, Map<String, Professionnel> revised) {
+	    MapDifference<String, Professionnel> psDiff = Maps.difference(original, revised);
+	
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_ADELI_DELETE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_ADELI_CREATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_ADELI_UPDATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.leftValue().getIdType())).count()));
+	
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_FINESS_DELETE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_FINESS_CREATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_FINESS_UPDATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.leftValue().getIdType())).count()));
+	
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_SIRET_DELETE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_SIRET_CREATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_SIRET_UPDATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.leftValue().getIdType())).count()));
+	
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_RPPS_DELETE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_RPPS_CREATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
+	    customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_RPPS_UPDATE_SIZE).set(
+	            Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.leftValue().getIdType())).count()));
+	
+	    return psDiff;
+	}
+
+	/**
+	 * Diff structure maps.
+	 *
+	 * @param original the original
+	 * @param revised  the revised
+	 * @return the map difference
+	 */
+	public MapDifference<String, Structure> diffStructureMaps(Map<String, Structure> original, Map<String, Structure> revised) {
+	    MapDifference<String, Structure> structureDiff = Maps.difference(original, revised);
+	
+	    customMetrics.getAppStructureSizeGauges().get(CustomMetrics.StructureCustomMetric.STRUCTURE_DELETE_SIZE).set(structureDiff.entriesOnlyOnLeft().size());
+	    customMetrics.getAppStructureSizeGauges().get(CustomMetrics.StructureCustomMetric.STRUCTURE_CREATE_SIZE).set(structureDiff.entriesOnlyOnRight().size());
+	    customMetrics.getAppStructureSizeGauges().get(CustomMetrics.StructureCustomMetric.STRUCTURE_UPDATE_SIZE).set(structureDiff.entriesDiffering().size());
+	
+	    return structureDiff;
+	}
+
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		//TODO save metrics
 		out.writeObject(newPsMap);
 		out.writeObject(newStructureMap);
 	}
@@ -99,24 +159,10 @@ public class FileExtracted extends ProcessState {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		//TODO restore metrics
 		oldPsMap = (Map<String, Professionnel>) in.readObject();
 		oldStructureMap = (Map<String, Structure>) in.readObject();
 
-	}
-
-	private void serialize(String filename) throws IOException {
-		File mapsFile = new File(filename);
-		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
-		ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-		writeExternal(oos);
-		oos.close();
-	}
-
-	private void deserialize(String filename) throws IOException, ClassNotFoundException {
-		FileInputStream fileInputStream = new FileInputStream(filename);
-		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-		readExternal(ois);
-		ois.close();
 	}
 
 	private void loadMapsFromTextFile(File file)
@@ -160,16 +206,16 @@ public class FileExtracted extends ProcessState {
 				}
 			}
 		};
-
+	
 		CsvParserSettings parserSettings = new CsvParserSettings();
 		parserSettings.getFormat().setLineSeparator("\n");
 		parserSettings.getFormat().setDelimiter('|');
 		parserSettings.setProcessor(rowProcessor);
 		parserSettings.setHeaderExtractionEnabled(true);
 		parserSettings.setNullValue("");
-
+	
 		CsvParser parser = new CsvParser(parserSettings);
-
+	
 		// get file charset to secure data encoding
 		InputStream is = new FileInputStream(file);
 		try {
@@ -180,63 +226,20 @@ public class FileExtracted extends ProcessState {
 		}
 		log.info("loading complete!");
 	}
-	
-    /**
-     * Diff PS maps.
-     *
-     * @param original OG PS map
-     * @param revised  the revised PS map
-     * @return the map difference
-     */
-    public MapDifference<String, Professionnel> diffPsMaps(Map<String, Professionnel> original, Map<String, Professionnel> revised) {
-        MapDifference<String, Professionnel> psDiff = Maps.difference(original, revised);
 
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_ADELI_DELETE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_ADELI_CREATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_ADELI_UPDATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.leftValue().getIdType())).count()));
+	private void serialize(String filename) throws IOException {
+		File mapsFile = new File(filename);
+		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
+		ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
+		writeExternal(oos);
+		oos.close();
+	}
 
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_FINESS_DELETE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_FINESS_CREATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_FINESS_UPDATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.leftValue().getIdType())).count()));
-
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_SIRET_DELETE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_SIRET_CREATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_SIRET_UPDATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.leftValue().getIdType())).count()));
-
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_RPPS_DELETE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnLeft().values().stream().filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_RPPS_CREATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesOnlyOnRight().values().stream().filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
-        customMetrics.getPsSizeGauges().get(CustomMetrics.PsCustomMetric.PS_RPPS_UPDATE_SIZE).set(
-                Math.toIntExact(psDiff.entriesDiffering().values().stream().filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.leftValue().getIdType())).count()));
-
-        return psDiff;
-    }
-
-    /**
-     * Diff structure maps.
-     *
-     * @param original the original
-     * @param revised  the revised
-     * @return the map difference
-     */
-    public MapDifference<String, Structure> diffStructureMaps(Map<String, Structure> original, Map<String, Structure> revised) {
-        MapDifference<String, Structure> structureDiff = Maps.difference(original, revised);
-
-        customMetrics.getAppStructureSizeGauges().get(CustomMetrics.StructureCustomMetric.STRUCTURE_DELETE_SIZE).set(structureDiff.entriesOnlyOnLeft().size());
-        customMetrics.getAppStructureSizeGauges().get(CustomMetrics.StructureCustomMetric.STRUCTURE_CREATE_SIZE).set(structureDiff.entriesOnlyOnRight().size());
-        customMetrics.getAppStructureSizeGauges().get(CustomMetrics.StructureCustomMetric.STRUCTURE_UPDATE_SIZE).set(structureDiff.entriesDiffering().size());
-
-        return structureDiff;
-    }
+	private void deserialize(String filename) throws IOException, ClassNotFoundException {
+		FileInputStream fileInputStream = new FileInputStream(filename);
+		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
+		readExternal(ois);
+		ois.close();
+	}
 
 }
