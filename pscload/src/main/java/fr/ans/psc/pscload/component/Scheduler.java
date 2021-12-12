@@ -64,8 +64,8 @@ public class Scheduler {
 	public void run() throws GeneralSecurityException, IOException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
-				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile));
 				String id = Integer.toString(processRegistry.nextId());
+				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile), id);
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download

@@ -31,16 +31,19 @@ public class LoadProcess implements Externalizable {
 	private long timestamp;
 
 	private ProcessState state;
+	
+	private String id;
 
 	public LoadProcess() {
 		super();
 	}
 
-	public LoadProcess(ProcessState state) {
+	public LoadProcess(ProcessState state, String id) {
 		super();
 		this.state = state;
 		this.state.setProcess(this);
 		timestamp = Calendar.getInstance().getTimeInMillis();
+		this.id = id;
 	}
 
 	public void runtask() throws LoadProcessException {
@@ -93,6 +96,7 @@ public class LoadProcess implements Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(id);
 		out.writeLong(timestamp);
 		out.writeObject(downloadedFilename);
 		out.writeObject(extractedFilename);
@@ -104,12 +108,17 @@ public class LoadProcess implements Externalizable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		id = (String) in.readObject();
 		timestamp = in.readLong();
 		downloadedFilename = (String) in.readObject();
 		extractedFilename = (String) in.readObject();
 		state = (ProcessState) in.readObject();
 		psMap = (MapDifference<String, Professionnel>) in.readObject();
 		structureMap = (MapDifference<String, Structure>) in.readObject();
+	}
+
+	public String getId() {
+		return id;
 	}
 
 }

@@ -46,8 +46,7 @@ public class ProcessController {
 				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
 				// Step 5 : call pscload
 				process.runtask();
-				//TODO save the key in the process.
-				registry.unregister(Integer.toString(registry.currentId()));
+				registry.unregister(process.getId());
 				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
 			} catch (LoadProcessException e) {				
 				log.error("error when uploading changes", e);		
