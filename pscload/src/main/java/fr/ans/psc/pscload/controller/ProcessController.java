@@ -48,6 +48,7 @@ public class ProcessController {
 				process.runtask();
 				//TODO save the key in the process.
 				registry.unregister(Integer.toString(registry.currentId()));
+				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
 			} catch (LoadProcessException e) {				
 				log.error("error when uploading changes", e);		
 			}
