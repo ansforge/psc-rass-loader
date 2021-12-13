@@ -31,6 +31,8 @@ import fr.ans.psc.pscload.model.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.SituationExercice;
 import fr.ans.psc.pscload.model.Structure;
+import fr.ans.psc.pscload.state.exception.DiffException;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,15 +53,16 @@ public class FileExtracted extends ProcessState {
 	public FileExtracted() {
 		super();
 	}
-    
+
 	@Override
-	public void runTask() {
+	public void runTask() throws LoadProcessException {
 		// TODO load maps
 		File fileToLoad = new File(process.getExtractedFilename());
 		try {
 			loadMapsFromTextFile(fileToLoad);
 			// we serialize new map now in a temp file (maps.{timestamp}.lock
-			File tmpmaps = new File(fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
+			File tmpmaps = new File(
+					fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
 			serialize(tmpmaps.getPath());
 			// deserialize the old file if exists
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
@@ -67,26 +70,24 @@ public class FileExtracted extends ProcessState {
 				deserialize(fileToLoad.getParent() + File.separator + "maps.ser");
 			}
 			// Launch diff
-			//TODO check to return a modifiable map
+			// TODO check to return a modifiable map
 			process.setPsMap(Maps.difference(oldPsMap, newPsMap));
 			process.setStructureMap(Maps.difference(oldStructureMap, newStructureMap));
 			// Rename serialized file
 			maps.delete();
 			tmpmaps.renameTo(maps);
-			
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DiffException("I/O Error when deserializing file", e);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DiffException(".ser file not found", e);
 		}
 
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		//TODO save metrics
+		// TODO save metrics
 		out.writeObject(newPsMap);
 		out.writeObject(newStructureMap);
 	}
@@ -94,14 +95,13 @@ public class FileExtracted extends ProcessState {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		//TODO restore metrics
+		// TODO restore metrics
 		oldPsMap = (Map<String, Professionnel>) in.readObject();
 		oldStructureMap = (Map<String, Structure>) in.readObject();
 
 	}
 
-	private void loadMapsFromTextFile(File file)
-			throws IOException {
+	private void loadMapsFromTextFile(File file) throws IOException {
 		log.info("loading {} into list of Ps", file.getName());
 		newPsMap.clear();
 		newStructureMap.clear();
@@ -141,16 +141,16 @@ public class FileExtracted extends ProcessState {
 				}
 			}
 		};
-	
+
 		CsvParserSettings parserSettings = new CsvParserSettings();
 		parserSettings.getFormat().setLineSeparator("\n");
 		parserSettings.getFormat().setDelimiter('|');
 		parserSettings.setProcessor(rowProcessor);
 		parserSettings.setHeaderExtractionEnabled(true);
 		parserSettings.setNullValue("");
-	
+
 		CsvParser parser = new CsvParser(parserSettings);
-	
+
 		// get file charset to secure data encoding
 		InputStream is = new FileInputStream(file);
 		try {
