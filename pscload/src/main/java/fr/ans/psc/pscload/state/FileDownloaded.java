@@ -20,23 +20,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import fr.ans.psc.pscload.state.exception.ExtractException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class FileDownloaded extends ProcessState {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1938173997893575974L;
-	/**
-	 * The logger.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(FileDownloaded.class);
-
+	
 	@Override
 	public void runTask() throws LoadProcessException {
 		try {

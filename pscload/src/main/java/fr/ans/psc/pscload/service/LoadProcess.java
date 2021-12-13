@@ -60,6 +60,7 @@ public class LoadProcess implements Externalizable {
 
 	public void setState(ProcessState state) {
 		this.state = state;
+		state.setProcess(this);
 	}
 
 	public String getDownloadedFilename() {

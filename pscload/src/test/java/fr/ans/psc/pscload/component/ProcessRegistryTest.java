@@ -23,12 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 class ProcessRegistryTest {
-
-	ProcessRegistry registry = new ProcessRegistry(Thread.currentThread().getContextClassLoader().getResource(".").getPath());
+	String rootpath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+	ProcessRegistry registry = new ProcessRegistry(rootpath);
 	
 	@Test
 	void serializationTest() throws Exception {
-		File registryFile = new File("registry.ser");
+		File registryFile = new File(rootpath + File.separator + "registry.ser");
 		if(registryFile.exists()) {
 			registryFile.delete();
 		}
