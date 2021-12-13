@@ -67,8 +67,9 @@ public class FileExtracted extends ProcessState {
 				deserialize(fileToLoad.getParent() + File.separator + "maps.ser");
 			}
 			// Launch diff
-			process.setPsMap(diffPsMaps(oldPsMap, newPsMap));
-			process.setStructureMap(diffStructureMaps(oldStructureMap, newStructureMap));
+			//TODO check to return a modifiable map
+			process.setPsMap(Maps.difference(oldPsMap, newPsMap));
+			process.setStructureMap(Maps.difference(oldStructureMap, newStructureMap));
 			// Rename serialized file
 			maps.delete();
 			tmpmaps.renameTo(maps);
@@ -81,30 +82,6 @@ public class FileExtracted extends ProcessState {
 			e.printStackTrace();
 		}
 
-	}
-
-	/**
-	 * Diff PS maps.
-	 *
-	 * @param original OG PS map
-	 * @param revised  the revised PS map
-	 * @return the map difference
-	 */
-	public MapDifference<String, Professionnel> diffPsMaps(Map<String, Professionnel> original, Map<String, Professionnel> revised) {
-	    MapDifference<String, Professionnel> psDiff = Maps.difference(original, revised);
-	    return psDiff;
-	}
-
-	/**
-	 * Diff structure maps.
-	 *
-	 * @param original the original
-	 * @param revised  the revised
-	 * @return the map difference
-	 */
-	public MapDifference<String, Structure> diffStructureMaps(Map<String, Structure> original, Map<String, Structure> revised) {
-	    MapDifference<String, Structure> structureDiff = Maps.difference(original, revised);	
-	    return structureDiff;
 	}
 
 	@Override
