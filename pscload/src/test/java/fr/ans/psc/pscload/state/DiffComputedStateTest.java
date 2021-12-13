@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
-public class MockApiCallTest {
+public class DiffComputedStateTest {
 
 	@RegisterExtension
 	static WireMockExtension httpApiMockServer = WireMockExtension.newInstance()
