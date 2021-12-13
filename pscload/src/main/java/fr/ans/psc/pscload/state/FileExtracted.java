@@ -16,10 +16,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.any23.encoding.TikaEncodingDetector;
 
 import com.google.common.collect.MapDifference;
+import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.ObjectRowProcessor;
@@ -71,8 +74,23 @@ public class FileExtracted extends ProcessState {
 			}
 			// Launch diff
 			// TODO check to return a modifiable map
-			process.setPsMap(Maps.difference(oldPsMap, newPsMap));
-			process.setStructureMap(Maps.difference(oldStructureMap, newStructureMap));
+			MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
+			process.setPsToCreate((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnRight().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			process.setPsToUpdate((ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			//Structures
+			MapDifference<String, Structure> diffStructures = Maps.difference(oldStructureMap, newStructureMap);
+			process.setStructureToCreate((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnRight().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			process.setStructureToUpdate((ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			
+			
 			// Rename serialized file
 			maps.delete();
 			tmpmaps.renameTo(maps);

@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Calendar;
+import java.util.Map;
 
-import com.google.common.collect.MapDifference;
+import com.google.common.collect.MapDifference.ValueDifference;
 
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
@@ -24,9 +25,17 @@ public class LoadProcess implements Externalizable {
 
 	private String extractedFilename;
 
-	private MapDifference<String, Professionnel> psMap;
+	private Map<String, Professionnel> psToCreate;
+	
+	private Map<String, ValueDifference<Professionnel>> psToUpdate;
+	
+	private Map<String, Professionnel> psToDelete;
 
-	private MapDifference<String, Structure> structureMap;
+	private Map<String, Structure> structureToCreate;
+	
+	private Map<String, ValueDifference<Structure>> structureToUpdate;
+	
+	private Map<String, Structure> structureToDelete;
 
 	private long timestamp;
 
@@ -62,6 +71,54 @@ public class LoadProcess implements Externalizable {
 		this.state = state;
 		state.setProcess(this);
 	}
+	
+	public Map<String, Professionnel> getPsToCreate() {
+		return psToCreate;
+	}
+
+	public void setPsToCreate(Map<String, Professionnel> psToCreate) {
+		this.psToCreate = psToCreate;
+	}
+
+	public Map<String, ValueDifference<Professionnel>> getPsToUpdate() {
+		return psToUpdate;
+	}
+
+	public void setPsToUpdate(Map<String, ValueDifference<Professionnel>> psToUpdate) {
+		this.psToUpdate = psToUpdate;
+	}
+
+	public Map<String, Professionnel> getPsToDelete() {
+		return psToDelete;
+	}
+
+	public void setPsToDelete(Map<String, Professionnel> psToDelete) {
+		this.psToDelete = psToDelete;
+	}
+
+	public Map<String, Structure> getStructureToCreate() {
+		return structureToCreate;
+	}
+
+	public void setStructureToCreate(Map<String, Structure> structureToCreate) {
+		this.structureToCreate = structureToCreate;
+	}
+
+	public Map<String, ValueDifference<Structure>> getStructureToUpdate() {
+		return structureToUpdate;
+	}
+
+	public void setStructureToUpdate(Map<String, ValueDifference<Structure>> structureToUpdate) {
+		this.structureToUpdate = structureToUpdate;
+	}
+
+	public Map<String, Structure> getStructureToDelete() {
+		return structureToDelete;
+	}
+
+	public void setStructureToDelete(Map<String, Structure> structureToDelete) {
+		this.structureToDelete = structureToDelete;
+	}
 
 	public String getDownloadedFilename() {
 		return downloadedFilename;
@@ -77,22 +134,6 @@ public class LoadProcess implements Externalizable {
 
 	public void setExtractedFilename(String extractedFilename) {
 		this.extractedFilename = extractedFilename;
-	}
-
-	public MapDifference<String, Professionnel> getPsMap() {
-		return psMap;
-	}
-
-	public void setPsMap(MapDifference<String, Professionnel> mapDifference) {
-		this.psMap = mapDifference;
-	}
-
-	public MapDifference<String, Structure> getStructureMap() {
-		return structureMap;
-	}
-
-	public void setStructureMap(MapDifference<String, Structure> structureMap) {
-		this.structureMap = structureMap;
 	}
 
 	public long getTimestamp() {
@@ -114,8 +155,12 @@ public class LoadProcess implements Externalizable {
 		out.writeObject(downloadedFilename);
 		out.writeObject(extractedFilename);
 		out.writeObject(state);
-		out.writeObject(psMap);
-		out.writeObject(structureMap);
+		out.writeObject(psToCreate);
+		out.writeObject(psToUpdate);
+		out.writeObject(psToDelete);
+		out.writeObject(structureToCreate);
+		out.writeObject(structureToUpdate);
+		out.writeObject(structureToDelete);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -126,8 +171,12 @@ public class LoadProcess implements Externalizable {
 		downloadedFilename = (String) in.readObject();
 		extractedFilename = (String) in.readObject();
 		state = (ProcessState) in.readObject();
-		psMap = (MapDifference<String, Professionnel>) in.readObject();
-		structureMap = (MapDifference<String, Structure>) in.readObject();
+		psToCreate = (Map<String, Professionnel>) in.readObject();
+		psToUpdate = (Map<String, ValueDifference<Professionnel>>) in.readObject();
+		psToDelete = (Map<String, Professionnel>) in.readObject();
+		structureToCreate = (Map<String, Structure>) in.readObject();
+		structureToUpdate = (Map<String, ValueDifference<Structure>>) in.readObject();
+		structureToDelete = (Map<String, Structure>) in.readObject();
 	}
 
 }

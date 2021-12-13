@@ -23,8 +23,8 @@ class FileExtractedTest {
 		p.setExtractedFilename(Thread.currentThread().getContextClassLoader()
 				.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 		p.runtask();
-		assertEquals(5, p.getPsMap().entriesOnlyOnRight().size());
-		assertEquals(0, p.getPsMap().entriesOnlyOnLeft().size());
+		assertEquals(5, p.getPsToCreate().size());
+		assertEquals(0, p.getPsToDelete().size());
 	}
 
 	@Test
@@ -42,9 +42,9 @@ class FileExtractedTest {
 		LoadProcess p2 = new LoadProcess(new FileExtracted());
 		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
 		p2.runtask();
-		assertEquals(1,p2.getPsMap().entriesOnlyOnRight().size());
-		assertEquals(1,p2.getPsMap().entriesOnlyOnLeft().size());
-		assertEquals(2, p2.getPsMap().entriesDiffering().size());
+		assertEquals(1,p2.getPsToDelete().size());
+		assertEquals(1,p2.getPsToCreate().size());
+		assertEquals(2, p2.getPsToUpdate().size());
 	}
 
 }

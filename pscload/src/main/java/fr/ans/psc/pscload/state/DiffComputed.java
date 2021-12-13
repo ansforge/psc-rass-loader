@@ -5,11 +5,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.web.client.RestClientException;
 
-import com.google.common.collect.MapDifference;
+import com.google.common.collect.MapDifference.ValueDifference;
 
 import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.PsApi;
@@ -46,8 +47,15 @@ public class DiffComputed extends ProcessState {
 	@Override
 	public void runTask() throws LoadProcessException {
 		// TODOc check the case of exception
-		uploadPsChanges(process.getPsMap());
-		uploadStructuresChanges(process.getStructureMap());
+		uploadPsToCreate(process.getPsToCreate());
+		uploadPsToUpdate(process.getPsToUpdate());
+		uploadPsToDelete(process.getPsToDelete());
+		// Structures
+		uploadStructuresToCreate(process.getStructureToCreate());
+		uploadStructuresToUpdate(process.getStructureToUpdate());
+		//TODO log the entries still in the maps and clear the map.
+		
+		// TODO delete structures ?
 
 	}
 
@@ -65,79 +73,102 @@ public class DiffComputed extends ProcessState {
 
 	}
 
-	private void uploadStructuresChanges(MapDifference<String, Structure> diff) throws LoadProcessException {
+	private void uploadStructuresToCreate(Map<String, Structure> structuresToCreate) throws LoadProcessException {
 		ApiClient client = new ApiClient();
 		client.setBasePath(apiBaseUrl);
 		StructureApi structureapi = new StructureApi(client);
-		diff.entriesOnlyOnRight().values().parallelStream().forEach(structure -> {
+		structuresToCreate.values().parallelStream().forEach(structure -> {
 			try {
 				structureapi.createNewStructure(structure);
 				// Remove structure from map if return code is 201
 				// TODO Map is unmodifiable, check for another solution
-				// diff.entriesOnlyOnRight().remove(structure.getStructureTechnicalId());
+				structuresToCreate.remove(structure.getStructureTechnicalId());
 			} catch (RestClientException e) {
 				log.error("error when creation of structure : {}, return code : {}", structure.getStructureTechnicalId(), e.getLocalizedMessage());
 			}
 
 		});
-		diff.entriesDiffering().values().parallelStream().forEach(v -> {
+		
+	}
+	
+	private void uploadStructuresToUpdate(Map<String, ValueDifference<Structure>> structuresToUpdate) throws LoadProcessException {
+		ApiClient client = new ApiClient();
+		client.setBasePath(apiBaseUrl);
+		StructureApi structureapi = new StructureApi(client);
+
+		structuresToUpdate.values().parallelStream().forEach(v -> {
 			// TODO check if it is the good data !
 			try {
 				structureapi.updateStructure(v.rightValue());
 				// Remove entry if return code is 200
 				// TODO Map is unmodifiable, check for another solution
-				// diff.entriesDiffering().remove(v.rightValue().getStructureTechnicalId());
+				structuresToUpdate.remove(v.rightValue().getStructureTechnicalId());
 			} catch (RestClientException e) {
 				log.error("error when update of structure : {}, return code : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
 			}
 
 		});
-		// TODO delete ?
+		
 	}
 
-	private void uploadPsChanges(MapDifference<String, Professionnel> diff) throws LoadProcessException {
+	private void uploadPsToCreate(Map<String, Professionnel> psToCreate) throws LoadProcessException {
 		ApiClient client = new ApiClient();
 		client.setBasePath(apiBaseUrl);
 		PsApi psapi = new PsApi(client);
-		diff.entriesOnlyOnLeft().values().parallelStream().forEach(ps -> {
-			List<Profession> psExPros = ps.getProfessions();
-			AtomicBoolean deletable = new AtomicBoolean(true);
+		psToCreate.values().parallelStream().forEach(ps -> {
+		try {
+			psapi.createNewPs(ps);
+			// remove PS from map if status 201
+			// TODO Map is unmodifiable, check for another solution
+			psToCreate.remove(ps.getNationalId());
+		} catch (RestClientException e) {
+			log.error("error when creation of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
+		}
+	});
 
-			psExPros.forEach(exerciceProfessionnel -> {
-				if (excludedProfessions != null && Arrays.stream(excludedProfessions)
-						.anyMatch(profession -> exerciceProfessionnel.getCode().equals(profession))) {
-					deletable.set(false);
+	}
+	
+	private void uploadPsToDelete(Map<String, Professionnel> psToDelete) throws LoadProcessException {
+		ApiClient client = new ApiClient();
+		client.setBasePath(apiBaseUrl);
+		PsApi psapi = new PsApi(client);
+		psToDelete.values().parallelStream().forEach(ps -> {
+				List<Profession> psExPros = ps.getProfessions();
+				AtomicBoolean deletable = new AtomicBoolean(true);
+
+				psExPros.forEach(exerciceProfessionnel -> {
+					if (excludedProfessions != null && Arrays.stream(excludedProfessions)
+							.anyMatch(profession -> exerciceProfessionnel.getCode().equals(profession))) {
+						deletable.set(false);
+					}
+				});
+
+				if (deletable.get()) {
+					try {
+						psapi.deletePsById(ps.getNationalId());
+						// remove PS from map if status 200
+						// TODO Map is unmodifiable, check for another solution
+						// diff.entriesOnlyOnLeft().remove(ps.getNationalId());
+					} catch (RestClientException e) {
+						log.error("error when deletion of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
+					}
 				}
 			});
+	}
+			
+			
+			
+		private void uploadPsToUpdate(Map<String, ValueDifference<Professionnel>> psToUpdate) throws LoadProcessException {
+			ApiClient client = new ApiClient();
+			client.setBasePath(apiBaseUrl);
+			PsApi psapi = new PsApi(client);
 
-			if (deletable.get()) {
-				try {
-					psapi.deletePsById(ps.getNationalId());
-					// remove PS from map if status 200
-					// TODO Map is unmodifiable, check for another solution
-					// diff.entriesOnlyOnLeft().remove(ps.getNationalId());
-				} catch (RestClientException e) {
-					log.error("error when deletion of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
-				}
-			}
-		});
-
-		diff.entriesOnlyOnRight().values().parallelStream().forEach(ps -> {
-			try {
-				psapi.createNewPs(ps);
-				// remove PS from map if status 201
-				// TODO Map is unmodifiable, check for another solution
-				// diff.entriesOnlyOnRight().remove(ps.getNationalId());
-			} catch (RestClientException e) {
-				log.error("error when creation of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
-			}
-		});
-		diff.entriesDiffering().values().parallelStream().forEach(v -> {
+			psToUpdate.values().parallelStream().forEach(v -> {
 			try {
 				psapi.updatePs(v.rightValue());
 				// remove PS from map if status 200
 				// TODO Map is unmodifiable, check for another solution
-				// diff.entriesDiffering().remove(v.rightValue().getNationalId());
+				psToUpdate.remove(v.rightValue().getNationalId());
 			} catch (RestClientException e) {
 				log.error("error when update of ps : {}, return code : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
 			}
