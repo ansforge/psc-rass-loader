@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 
 import com.google.common.collect.MapDifference;
@@ -19,7 +18,6 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import fr.ans.psc.pscload.state.exception.UploadChangesException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
