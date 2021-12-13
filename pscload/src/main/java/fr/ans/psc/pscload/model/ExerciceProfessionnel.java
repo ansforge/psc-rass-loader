@@ -4,8 +4,11 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.List;
 
+import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
@@ -26,14 +29,27 @@ public class ExerciceProfessionnel extends Profession implements Externalizable 
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
-		
+		out.writeObject(getCode());
+		out.writeObject(getCategoryCode());
+		out.writeObject(getSalutationCode());
+		out.writeObject(getLastName());
+		out.writeObject(getFirstName());
+		out.writeObject(getExpertises());
+		out.writeObject(getWorkSituations());
+
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-		
+		setCode((String) in.readObject());
+		setCategoryCode((String) in.readObject());
+		setSalutationCode((String) in.readObject());
+		setLastName((String) in.readObject());
+		setFirstName((String) in.readObject());
+		setExpertises((List<Expertise>) in.readObject());
+		setWorkSituations((List<WorkSituation>) in.readObject());
+
 	}
 
 }

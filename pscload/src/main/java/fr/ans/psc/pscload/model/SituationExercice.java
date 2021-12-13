@@ -4,7 +4,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.List;
 
+import fr.ans.psc.model.StructureRef;
 import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
 
@@ -22,13 +24,18 @@ public class SituationExercice extends WorkSituation implements Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
+
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
+		setModeCode((String) in.readObject());
+		setActivitySectorCode((String) in.readObject());
+		setPharmacistTableSectionCode((String) in.readObject());
+		setRoleCode((String) in.readObject());
+		setStructures((List<StructureRef>) in.readObject());
 
 	}
 
