@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.tomcat.jni.OS;
 import org.springframework.web.client.RestClientException;
 
 import com.google.common.collect.MapDifference.ValueDifference;
@@ -147,8 +148,7 @@ public class DiffComputed extends ProcessState {
 					try {
 						psapi.deletePsById(ps.getNationalId());
 						// remove PS from map if status 200
-						// TODO Map is unmodifiable, check for another solution
-						// diff.entriesOnlyOnLeft().remove(ps.getNationalId());
+						psToDelete.remove(ps.getNationalId());
 					} catch (RestClientException e) {
 						log.error("error when deletion of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
 					}

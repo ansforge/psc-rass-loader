@@ -80,8 +80,9 @@ public class DiffComputedStateTest {
 		String[] excludedProfessions = {"90"};
 		p2.setState(new DiffComputed(excludedProfessions, httpApiMockServer.baseUrl() ));
 		p2.runtask();
-		//TODO add assertions (not possible to check the size of maps because they are unmodifiables
-
+		assertEquals(0,p2.getPsToCreate().size());
+		assertEquals(0,p2.getPsToDelete().size());
+		assertEquals(0,p2.getPsToUpdate().size());
 	}
 	
 	@Test
@@ -112,6 +113,9 @@ public class DiffComputedStateTest {
 		String[] excludedProfessions = {"90"};
 		p2.setState(new DiffComputed(excludedProfessions, httpApiMockServer.baseUrl() ));
 		p2.runtask();
+		assertEquals(0,p2.getPsToCreate().size());
+		assertEquals(1,p2.getPsToDelete().size());
+		assertEquals(0,p2.getPsToUpdate().size());
 		//TODO add assertions (not possible to check the size of maps because they are unmodifiables
 
 	}

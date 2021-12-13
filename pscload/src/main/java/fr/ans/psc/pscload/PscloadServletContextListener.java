@@ -64,5 +64,6 @@ public class PscloadServletContextListener implements ServletContextListener {
 			}
 		}
 		//TODO republish stage metrics
+		// AND RESUME PROCESS
 	}
 }
