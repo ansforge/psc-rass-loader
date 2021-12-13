@@ -11,6 +11,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class RefStructure extends StructureRef implements Externalizable {
 
+	public RefStructure() {
+		super();
+	}
+
 	public RefStructure(String structureId) {
 		super();
 		setStructureId(structureId);

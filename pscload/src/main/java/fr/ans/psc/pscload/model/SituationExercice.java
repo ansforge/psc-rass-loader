@@ -13,6 +13,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SituationExercice extends WorkSituation implements Externalizable {
 
+	public SituationExercice() {
+		super();
+	}
+
 	public SituationExercice(String[] items) {
 		super();
 		setModeCode(items[20]);
@@ -24,7 +28,12 @@ public class SituationExercice extends WorkSituation implements Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-
+		out.writeObject(getModeCode());
+		out.writeObject(getActivitySectorCode());
+		out.writeObject(getPharmacistTableSectionCode());
+		out.writeObject(getRoleCode());
+		out.writeObject(getStructures());
+		
 
 	}
 

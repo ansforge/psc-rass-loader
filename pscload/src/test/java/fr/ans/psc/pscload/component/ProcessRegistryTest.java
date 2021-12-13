@@ -28,11 +28,14 @@ class ProcessRegistryTest {
 	
 	@Test
 	void serializationTest() throws Exception {
+		File registryFile = new File("registry.ser");
+		if(registryFile.exists()) {
+			registryFile.delete();
+		}
 		String id = Integer.toString(registry.nextId());
-		registry.register(id, new LoadProcess(new Idle(), id));
+		registry.register(id, new LoadProcess(new Idle()));
 		int currentId  = registry.currentId();
 		registry.getCurrentProcess().setDownloadedFilename("test");
-		File registryFile = new File("registry.ser");
 		FileOutputStream fileOutputStream
 	     = new FileOutputStream(registryFile);
 	    ObjectOutputStream oos

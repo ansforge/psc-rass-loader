@@ -19,6 +19,10 @@ public class Professionnel extends Ps implements Externalizable {
 	 */
 	private static final long serialVersionUID = -2859304844064466893L;
 
+	public Professionnel() {
+		super();
+	}
+
 	public Professionnel(String[] items, boolean deep) {
 		super();
 		setIdType(items[0]);

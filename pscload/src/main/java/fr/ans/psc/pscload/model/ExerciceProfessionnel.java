@@ -16,6 +16,11 @@ public class ExerciceProfessionnel extends Profession implements Externalizable 
 
 	private static final long serialVersionUID = 546016744459782913L;
 
+	
+	public ExerciceProfessionnel() {
+		super();
+	}
+
 	public ExerciceProfessionnel(String[] items) {
 		super();
 		setCode(items[13]);

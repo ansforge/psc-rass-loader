@@ -36,26 +36,21 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The type Downloader.
  */
-
+@Slf4j
 @Component
 public class Downloader {
 
 	//TODO manage password with nomad
     private final char[] PSC_LOAD_PASS = "pscloadpass".toCharArray();
   
-    
-    /**
-     * The logger.
-     */
-    private final Logger log = LoggerFactory.getLogger(Downloader.class);
     
     @Value("${files.directory}")
     private String filesDirectory;

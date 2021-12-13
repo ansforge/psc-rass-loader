@@ -10,6 +10,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements Externalizable {
 
+	public Structure() {
+		super();
+	}
+
 	public Structure(String[] items) {
 		super();
 		setSiteSIRET(items[24]);

@@ -13,6 +13,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -59,12 +60,12 @@ public class FileExtracted extends ProcessState {
 		try {
 			loadMapsFromTextFile(fileToLoad);
 			// we serialize new map now in a temp file (maps.{timestamp}.lock
-			File tmpmaps = new File(fileToLoad.getParent() + File.pathSeparator + "maps." + process.getTimestamp() + ".lock");
+			File tmpmaps = new File(fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
 			serialize(tmpmaps.getPath());
 			// deserialize the old file if exists
-			File maps = new File(fileToLoad.getParent() + File.pathSeparator + "maps.ser");
+			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
-				deserialize(fileToLoad.getParent() + File.pathSeparator + "maps.ser");
+				deserialize(fileToLoad.getParent() + File.separator + "maps.ser");
 			}
 			// Launch diff
 			process.setPsMap(diffPsMaps(oldPsMap, newPsMap));
