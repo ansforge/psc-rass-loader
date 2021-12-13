@@ -41,8 +41,13 @@ public class ProcessRegistry implements  Externalizable  {
 		return id;
 	}
 	
-	public void register(String id, LoadProcess process) {
-		registry.put(id, process);
+	public void register(String id, LoadProcess process) throws DuplicateKeyException {
+		if(registry.get(id) != null) {
+			registry.put(id, process);
+			process.setId(id);
+		}else {
+			throw new DuplicateKeyException(String.format("Process: %s is already registered" , id));
+		}
 	}
 	
 	public void unregister(String id) {

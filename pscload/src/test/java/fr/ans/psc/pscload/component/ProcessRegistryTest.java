@@ -28,7 +28,8 @@ class ProcessRegistryTest {
 	
 	@Test
 	void serializationTest() throws Exception {
-		registry.register(Integer.toString(registry.nextId()), new LoadProcess(new Idle()));
+		String id = Integer.toString(registry.nextId());
+		registry.register(id, new LoadProcess(new Idle(), id));
 		int currentId  = registry.currentId();
 		registry.getCurrentProcess().setDownloadedFilename("test");
 		File registryFile = new File("registry.ser");

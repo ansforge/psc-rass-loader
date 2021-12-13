@@ -57,13 +57,14 @@ public class Scheduler {
 
 	/**
 	 * Run the process
+	 * @throws DuplicateKeyException 
 	 */
 	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
-	public void run() throws GeneralSecurityException, IOException {
+	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
-				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile), id);
+				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile));
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download

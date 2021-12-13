@@ -38,11 +38,15 @@ public class LoadProcess implements Externalizable {
 		super();
 	}
 
-	public LoadProcess(ProcessState state, String id) {
+	public LoadProcess(ProcessState state) {
 		super();
 		this.state = state;
 		this.state.setProcess(this);
 		timestamp = Calendar.getInstance().getTimeInMillis();
+	}
+
+	public LoadProcess(ProcessState state, String id) {
+		this(state);
 		this.id = id;
 	}
 
@@ -94,6 +98,14 @@ public class LoadProcess implements Externalizable {
 		return timestamp;
 	}
 
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(id);
@@ -115,10 +127,6 @@ public class LoadProcess implements Externalizable {
 		state = (ProcessState) in.readObject();
 		psMap = (MapDifference<String, Professionnel>) in.readObject();
 		structureMap = (MapDifference<String, Structure>) in.readObject();
-	}
-
-	public String getId() {
-		return id;
 	}
 
 }
