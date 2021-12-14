@@ -81,6 +81,7 @@ public class DiffComputed extends ProcessState {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(excludedProfessions);
 		out.writeObject(apiBaseUrl);
+		out.writeBoolean(running);
 
 	}
 
@@ -88,6 +89,7 @@ public class DiffComputed extends ProcessState {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		excludedProfessions = (String[]) in.readObject();
 		apiBaseUrl = (String) in.readObject();
+		running = in.readBoolean();
 
 	}
 
