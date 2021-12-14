@@ -33,6 +33,8 @@ public class DiffComputed extends ProcessState {
 	private String[] excludedProfessions;
 
 	private String apiBaseUrl;
+	
+	private boolean running;
 
 	public DiffComputed() {
 		super();
@@ -47,7 +49,8 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void runTask() throws LoadProcessException {
-		// TODOc check the case of exception
+		// Set running to resume process if it is not completed before shutdown
+		running = true;
 		uploadPsToCreate(process.getPsToCreate());
 		uploadPsToUpdate(process.getPsToUpdate());
 		uploadPsToDelete(process.getPsToDelete());
@@ -57,7 +60,7 @@ public class DiffComputed extends ProcessState {
 		//TODO log the entries still in the maps and clear the map ?
 		// Send an email to supervisor and ask him to check the platform and invoke the resume controller
 		// TODO delete structures ?
-
+		running = false;
 	}
 
 	@Override
@@ -175,5 +178,9 @@ public class DiffComputed extends ProcessState {
 
 		});
 	}
+
+		public boolean isRunning() {
+			return running;
+		}
 
 }
