@@ -54,8 +54,8 @@ public class DiffComputed extends ProcessState {
 		// Structures
 		uploadStructuresToCreate(process.getStructureToCreate());
 		uploadStructuresToUpdate(process.getStructureToUpdate());
-		//TODO log the entries still in the maps and clear the map.
-		
+		//TODO log the entries still in the maps and clear the map ?
+		// Send an email to supervisor and ask him to check the platform and invoke the resume controller
 		// TODO delete structures ?
 
 	}
@@ -98,14 +98,13 @@ public class DiffComputed extends ProcessState {
 		StructureApi structureapi = new StructureApi(client);
 
 		structuresToUpdate.values().parallelStream().forEach(v -> {
-			// TODO check if it is the good data !
+			// TODO check if it is the relevant map !
 			try {
 				structureapi.updateStructure(v.rightValue());
-				// Remove entry if return code is 200
-				// TODO Map is unmodifiable, check for another solution
+				// Remove entry if return code is 2xx
 				structuresToUpdate.remove(v.rightValue().getStructureTechnicalId());
 			} catch (RestClientException e) {
-				log.error("error when update of structure : {}, return code : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
+				log.error("error when update of structure : {}, return message : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
 			}
 
 		});
@@ -119,11 +118,10 @@ public class DiffComputed extends ProcessState {
 		psToCreate.values().parallelStream().forEach(ps -> {
 		try {
 			psapi.createNewPs(ps);
-			// remove PS from map if status 201
-			// TODO Map is unmodifiable, check for another solution
+			// remove PS from map if status 2xx
 			psToCreate.remove(ps.getNationalId());
 		} catch (RestClientException e) {
-			log.error("error when creation of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
+			log.error("error when creation of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
 		}
 	});
 
@@ -147,11 +145,14 @@ public class DiffComputed extends ProcessState {
 				if (deletable.get()) {
 					try {
 						psapi.deletePsById(ps.getNationalId());
-						// remove PS from map if status 200
+						// remove PS from map if status 2xx
 						psToDelete.remove(ps.getNationalId());
 					} catch (RestClientException e) {
-						log.error("error when deletion of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
+						log.error("error when deletion of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
 					}
+				} else {
+					// remove this PS to empty the list at the end of this stage
+					psToDelete.remove(ps.getNationalId());
 				}
 			});
 	}
@@ -166,11 +167,10 @@ public class DiffComputed extends ProcessState {
 			psToUpdate.values().parallelStream().forEach(v -> {
 			try {
 				psapi.updatePs(v.rightValue());
-				// remove PS from map if status 200
-				// TODO Map is unmodifiable, check for another solution
+				// remove PS from map if status 2xx
 				psToUpdate.remove(v.rightValue().getNationalId());
 			} catch (RestClientException e) {
-				log.error("error when update of ps : {}, return code : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
+				log.error("error when update of ps : {}, return message : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
 			}
 
 		});
