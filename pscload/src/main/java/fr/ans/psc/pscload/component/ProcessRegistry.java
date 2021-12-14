@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.component;
 
 import java.io.Externalizable;
@@ -15,6 +18,9 @@ import org.springframework.stereotype.Component;
 
 import fr.ans.psc.pscload.service.LoadProcess;
 
+/**
+ * The Class ProcessRegistry.
+ */
 @Component
 public class ProcessRegistry implements  Externalizable  {
 	
@@ -26,21 +32,46 @@ public class ProcessRegistry implements  Externalizable  {
 	
 	private int id;
 	
+	/**
+	 * Instantiates a new process registry.
+	 */
 	public ProcessRegistry() {
 	}
 
+	/**
+	 * Instantiates a new process registry.
+	 *
+	 * @param filesDirectory the files directory
+	 */
 	public ProcessRegistry(String filesDirectory) {
 		this.filesDirectory = filesDirectory;
 	}
 
+	/**
+	 * Next id.
+	 *
+	 * @return the int
+	 */
 	public int nextId() {
 		return ++id;
 	}
 	
+	/**
+	 * Current id.
+	 *
+	 * @return the int
+	 */
 	public int currentId() {
 		return id;
 	}
 	
+	/**
+	 * Register.
+	 *
+	 * @param id the id
+	 * @param process the process
+	 * @throws DuplicateKeyException the duplicate key exception
+	 */
 	public void register(String id, LoadProcess process) throws DuplicateKeyException {
 		if(registry.get(id) == null) {
 			registry.put(id, process);
@@ -50,6 +81,11 @@ public class ProcessRegistry implements  Externalizable  {
 		}
 	}
 	
+	/**
+	 * Unregister.
+	 *
+	 * @param id the id
+	 */
 	public void unregister(String id) {
 		registry.remove(id);
 	}
@@ -62,6 +98,9 @@ public class ProcessRegistry implements  Externalizable  {
 			
 	}
 	
+	/**
+	 * Clear.
+	 */
 	public void clear() {
 		registry.clear();
 	}

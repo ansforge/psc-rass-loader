@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -28,12 +31,16 @@ import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class IdleStateRunTaskTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 public class IdleStateRunTaskTest {
 
+	/** The http rass mock server. */
 	@RegisterExtension
 	static WireMockExtension httpRassMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig()
@@ -42,6 +49,11 @@ public class IdleStateRunTaskTest {
 			.configureStaticDsl(true).build();
 
 	
+	/**
+	 * Http download test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Nominal case : http without cert auth")
 	void httpDownloadTest() throws Exception {
