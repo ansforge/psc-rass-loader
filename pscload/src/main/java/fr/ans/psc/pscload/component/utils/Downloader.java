@@ -45,10 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class Downloader {
 
-	@Value("${keystore.passwd}")
+	@Value("${keystore.password:mysecret}")
 	private String kspwd;
-
-    private final char[] PSC_LOAD_PASS = kspwd.toCharArray();
   
     @Value("${files.directory}")
     private String filesDirectory;
@@ -92,7 +90,7 @@ public class Downloader {
         KeyStore keyStore = keyStoreFromPEM(certFile, keyFile);
         KeyManagerFactory keyManagerFactory =
                 KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, PSC_LOAD_PASS);
+        keyManagerFactory.init(keyStore, kspwd.toCharArray());
 
         KeyStore trustStore = trustStoreFromPEM(caCertFile);
         TrustManagerFactory trustManagerFactory =
@@ -229,7 +227,7 @@ public class Downloader {
 	
 	    KeyStore keyStore = KeyStore.getInstance("PKCS12");
 	    keyStore.load(null);
-	    keyStore.setKeyEntry(alias, key, PSC_LOAD_PASS, certs.toArray(new X509Certificate[certs.size()]));
+	    keyStore.setKeyEntry(alias, key, kspwd.toCharArray(), certs.toArray(new X509Certificate[certs.size()]));
 	
 	    return keyStore;
 	}

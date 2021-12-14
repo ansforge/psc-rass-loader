@@ -7,7 +7,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import fr.ans.psc.ApiClient;
@@ -24,10 +23,7 @@ import fr.ans.psc.pscload.model.Structure;
 public class Receiver {
 
 	//Inject by Spring
-    private ApiClient client;
-    
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
+    private final ApiClient client;
 
     private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -39,7 +35,6 @@ public class Receiver {
     public Receiver(ApiClient client) {
 		super();
 		this.client = client;
-		this.client.setBasePath(apiBaseUrl);
 	}
 
 	/**
