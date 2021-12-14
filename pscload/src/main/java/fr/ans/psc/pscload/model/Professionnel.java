@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.model;
 
 import java.io.Externalizable;
@@ -11,6 +14,12 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class Professionnel extends Ps implements Externalizable {
 
@@ -19,10 +28,19 @@ public class Professionnel extends Ps implements Externalizable {
 	 */
 	private static final long serialVersionUID = -2859304844064466893L;
 
+	/**
+	 * Instantiates a new professionnel.
+	 */
 	public Professionnel() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new professionnel.
+	 *
+	 * @param items the items
+	 * @param deep the deep
+	 */
 	public Professionnel(String[] items, boolean deep) {
 		super();
 		setIdType(items[0]);
@@ -43,6 +61,13 @@ public class Professionnel extends Ps implements Externalizable {
 		}
 	}
 
+	/**
+	 * Gets the profession by code and category.
+	 *
+	 * @param code the code
+	 * @param category the category
+	 * @return the profession by code and category
+	 */
 	public Optional<Profession> getProfessionByCodeAndCategory(String code, String category) {
 		return getProfessions().stream()
 				.filter(exo -> exo.getCode().concat(exo.getCategoryCode()).equals(code.concat(category))).findAny();

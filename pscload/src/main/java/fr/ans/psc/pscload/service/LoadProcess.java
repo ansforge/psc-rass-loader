@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.service;
 
 import java.io.Externalizable;
@@ -14,6 +17,9 @@ import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
+/**
+ * The Class LoadProcess.
+ */
 public class LoadProcess implements Externalizable {
 
 	/**
@@ -43,10 +49,18 @@ public class LoadProcess implements Externalizable {
 	
 	private String id;
 
+	/**
+	 * Instantiates a new load process.
+	 */
 	public LoadProcess() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new load process.
+	 *
+	 * @param state the state
+	 */
 	public LoadProcess(ProcessState state) {
 		super();
 		this.state = state;
@@ -54,11 +68,22 @@ public class LoadProcess implements Externalizable {
 		timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 
+	/**
+	 * Instantiates a new load process.
+	 *
+	 * @param state the state
+	 * @param id the id
+	 */
 	public LoadProcess(ProcessState state, String id) {
 		this(state);
 		this.id = id;
 	}
 
+	/**
+	 * Runtask.
+	 *
+	 * @throws LoadProcessException the load process exception
+	 */
 	public void runtask() throws LoadProcessException {
 		state.runTask();
 	}

@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.model;
 
 import java.io.Externalizable;
@@ -11,16 +14,30 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class ExerciceProfessionnel extends Profession implements Externalizable {
 
 	private static final long serialVersionUID = 546016744459782913L;
 
 	
+	/**
+	 * Instantiates a new exercice professionnel.
+	 */
 	public ExerciceProfessionnel() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new exercice professionnel.
+	 *
+	 * @param items the items
+	 */
 	public ExerciceProfessionnel(String[] items) {
 		super();
 		setCode(items[13]);

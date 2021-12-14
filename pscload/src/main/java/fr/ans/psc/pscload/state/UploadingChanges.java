@@ -1,9 +1,15 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+/**
+ * The Class UploadingChanges.
+ */
 public class UploadingChanges extends ProcessState {
 	
 

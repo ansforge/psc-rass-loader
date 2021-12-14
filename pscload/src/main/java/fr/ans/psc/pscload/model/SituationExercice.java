@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.model;
 
 import java.io.Externalizable;
@@ -10,13 +13,27 @@ import fr.ans.psc.model.StructureRef;
 import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class SituationExercice extends WorkSituation implements Externalizable {
 
+	/**
+	 * Instantiates a new situation exercice.
+	 */
 	public SituationExercice() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new situation exercice.
+	 *
+	 * @param items the items
+	 */
 	public SituationExercice(String[] items) {
 		super();
 		setModeCode(items[20]);
