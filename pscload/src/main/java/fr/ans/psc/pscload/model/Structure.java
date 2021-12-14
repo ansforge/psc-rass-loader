@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.model;
 
 import java.io.Externalizable;
@@ -7,13 +10,27 @@ import java.io.ObjectOutput;
 
 import lombok.EqualsAndHashCode;
 
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements Externalizable {
 
+	/**
+	 * Instantiates a new structure.
+	 */
 	public Structure() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new structure.
+	 *
+	 * @param items the items
+	 */
 	public Structure(String[] items) {
 		super();
 		setSiteSIRET(items[24]);

@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload;
 
 import java.io.File;
@@ -24,12 +27,25 @@ import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The listener interface for receiving pscloadServletContext events.
+ * The class that is interested in processing a pscloadServletContext
+ * event implements this interface, and the object created
+ * with that class is registered with a component using the
+ * component's <code>addPscloadServletContextListener<code> method. When
+ * the pscloadServletContext event occurs, that object's appropriate
+ * method is invoked.
+ *
+ * @see PscloadServletContextEvent
+ */
 @Slf4j
 public class PscloadServletContextListener implements ServletContextListener {
 
+	/** The registry. */
 	@Autowired
 	ProcessRegistry registry;
 
+	/** The custom metrics. */
 	@Autowired
 	CustomMetrics customMetrics;
 

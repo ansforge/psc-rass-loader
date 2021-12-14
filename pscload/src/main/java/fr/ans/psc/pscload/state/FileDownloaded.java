@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import java.io.File;
@@ -24,6 +27,9 @@ import fr.ans.psc.pscload.state.exception.ExtractException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class FileDownloaded.
+ */
 @Slf4j
 public class FileDownloaded extends ProcessState {
 

@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -22,12 +25,16 @@ import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class DiffComputedStateTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 public class DiffComputedStateTest {
 
+	/** The http api mock server. */
 	@RegisterExtension
 	static WireMockExtension httpApiMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig()
@@ -36,6 +43,11 @@ public class DiffComputedStateTest {
 			.configureStaticDsl(true).build();
 
 	
+	/**
+	 * Api call test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Structure Api Call")
 	void apiCallTest() throws Exception {
@@ -52,6 +64,11 @@ public class DiffComputedStateTest {
 
 	}
 	
+	/**
+	 * Upload changes delete PS.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Call delete API with return code 200")
 	void uploadChangesDeletePS() throws Exception {
@@ -85,6 +102,11 @@ public class DiffComputedStateTest {
 		assertEquals(0,p2.getPsToUpdate().size());
 	}
 	
+	/**
+	 * Upload changes delete PS 404.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Call delete API with return code 404")
 	void uploadChangesDeletePS404() throws Exception {

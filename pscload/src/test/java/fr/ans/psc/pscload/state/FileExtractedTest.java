@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,8 +12,16 @@ import org.junit.jupiter.api.Test;
 
 import fr.ans.psc.pscload.service.LoadProcess;
 
+/**
+ * The Class FileExtractedTest.
+ */
 class FileExtractedTest {
 
+	/**
+	 * Initial diff task test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Initial diff with no old ser file and 5 ps")
 	void initialDiffTaskTest() throws Exception {
@@ -27,6 +38,11 @@ class FileExtractedTest {
 		assertEquals(0, p.getPsToDelete().size());
 	}
 
+	/**
+	 * Diff task test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName(" diff with 1 supp, 2 modifs and 1 add")
 	void diffTaskTest() throws Exception {

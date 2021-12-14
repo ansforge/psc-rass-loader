@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import java.io.IOException;
@@ -10,6 +13,9 @@ import fr.ans.psc.pscload.state.exception.DownloadException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class Idle.
+ */
 @Slf4j
 public class Idle extends ProcessState {
 
@@ -28,18 +34,34 @@ public class Idle extends ProcessState {
 	
 	private transient Downloader downloader;
 	
+	/**
+	 * Instantiates a new idle.
+	 */
 	public Idle() {
 		super();
 		this.customSSLContext = false;
 		downloader = new Downloader();
 	}
 	
+	/**
+	 * Instantiates a new idle.
+	 *
+	 * @param extractDownloadUrl the extract download url
+	 * @param filesDirectory the files directory
+	 */
 	public Idle(String extractDownloadUrl, String filesDirectory) {
 		super();
 		this.customSSLContext = false;
 		downloader = new Downloader(extractDownloadUrl ,filesDirectory);
 	}
 
+	/**
+	 * Instantiates a new idle.
+	 *
+	 * @param keyfile the keyfile
+	 * @param certfile the certfile
+	 * @param cafile the cafile
+	 */
 	public Idle(String keyfile, String certfile, String cafile ) {
 		super();
 		this.customSSLContext = true;
@@ -50,6 +72,15 @@ public class Idle extends ProcessState {
 	}
 	
 	
+	/**
+	 * Instantiates a new idle.
+	 *
+	 * @param keyfile the keyfile
+	 * @param certfile the certfile
+	 * @param cafile the cafile
+	 * @param filesDirectory the files directory
+	 * @param extractDownloadUrl the extract download url
+	 */
 	public Idle(String keyfile , String certfile, String cafile, String filesDirectory,
 			String extractDownloadUrl) {
 		super();

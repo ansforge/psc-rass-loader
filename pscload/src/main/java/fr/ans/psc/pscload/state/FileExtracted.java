@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import java.io.BufferedReader;
@@ -38,6 +41,9 @@ import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class FileExtracted.
+ */
 @Slf4j
 public class FileExtracted extends ProcessState {
 
@@ -53,6 +59,9 @@ public class FileExtracted extends ProcessState {
 
 	private Map<String, Structure> oldStructureMap = new HashMap<>();
 
+	/**
+	 * Instantiates a new file extracted.
+	 */
 	public FileExtracted() {
 		super();
 	}

@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.controller;
 
 import java.util.concurrent.ForkJoinPool;
@@ -17,6 +20,9 @@ import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class ProcessController.
+ */
 @Slf4j
 @RestController
 public class ProcessController {
@@ -25,12 +31,22 @@ public class ProcessController {
 	private CustomMetrics customMetrics;
 	private final ProcessRegistry registry;
 	
+	/**
+	 * Instantiates a new process controller.
+	 *
+	 * @param registry the registry
+	 */
 	public ProcessController(ProcessRegistry registry) {
 		super();
 		this.registry = registry;
 	}
 
 
+	/**
+	 * Continue process.
+	 *
+	 * @return the deferred result
+	 */
 	@PostMapping(value = "/process/continue")
     public DeferredResult<ResponseEntity<Void>> continueProcess() {
 		LoadProcess process = registry.getCurrentProcess();
@@ -64,6 +80,11 @@ public class ProcessController {
     }
 
 	
+	/**
+	 * Abort process.
+	 *
+	 * @return the response entity
+	 */
 	@PostMapping(value = "/process/abort")
     public ResponseEntity<Void> abortProcess() {
 		// TODO check il clear is a better way to abort ?
@@ -72,6 +93,11 @@ public class ProcessController {
         return null;
     }
 
+	/**
+	 * Resume process.
+	 *
+	 * @return the deferred result
+	 */
 	@PostMapping(value = "/process/resume")
     public DeferredResult<ResponseEntity<Void>> resumeProcess() {
 		// We can call continue process because it contains the updated maps to apply.

@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.metrics;
 
 import java.util.Arrays;
@@ -14,7 +17,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 
 /**
- * The type Pscload metrics.
+ * The Class CustomMetrics.
  */
 @Component
 public class CustomMetrics {
@@ -26,31 +29,69 @@ public class CustomMetrics {
     private static final String OPERATION_TAG = "operation";
     private static final String ENTITY_TAG = "entity";
 
+    /** The Constant SER_FILE_TAG. */
     public static final String SER_FILE_TAG = "ser.file";
+    
+    /** The Constant TIMESTAMP_TAG. */
     public static final String TIMESTAMP_TAG = "timestamp";
 
+    /**
+     * The Enum ID_TYPE.
+     */
     public enum ID_TYPE {
+        
+        /** The adeli. */
         ADELI("0"),
+        
+        /** The finess. */
         FINESS("3"),
+        
+        /** The siret. */
         SIRET("5"),
+        
+        /** The rpps. */
         RPPS("8");
 
+        /** The value. */
         public String value;
 
+        /**
+         * Instantiates a new id type.
+         *
+         * @param value the value
+         */
         ID_TYPE(String value) {
             this.value = value;
         }
     }
 
+    /**
+     * The Enum OPERATION.
+     */
     public enum OPERATION {
+        
+        /** The create. */
         CREATE,
+        
+        /** The update. */
         UPDATE,
+        
+        /** The delete. */
         DELETE,
+        
+        /** The upload. */
         UPLOAD
     }
 
+    /**
+     * The Enum ENTITY_TYPE.
+     */
     public enum ENTITY_TYPE {
+        
+        /** The ps. */
         PS,
+        
+        /** The structure. */
         STRUCTURE
     }
 
@@ -61,61 +102,131 @@ public class CustomMetrics {
 
 
     /**
-     * The enums Custom metric.
+     * The Enum PsCustomMetric.
      */
     public enum PsCustomMetric {
+        
+        /** The ps adeli upload size. */
         PS_ADELI_UPLOAD_SIZE,
+        
+        /** The ps finess upload size. */
         PS_FINESS_UPLOAD_SIZE,
+        
+        /** The ps siret upload size. */
         PS_SIRET_UPLOAD_SIZE,
+        
+        /** The ps rpps upload size. */
         PS_RPPS_UPLOAD_SIZE,
 
+        /** The ps adeli delete size. */
         PS_ADELI_DELETE_SIZE,
+        
+        /** The ps finess delete size. */
         PS_FINESS_DELETE_SIZE,
+        
+        /** The ps siret delete size. */
         PS_SIRET_DELETE_SIZE,
+        
+        /** The ps rpps delete size. */
         PS_RPPS_DELETE_SIZE,
 
+        /** The ps adeli create size. */
         PS_ADELI_CREATE_SIZE,
+        
+        /** The ps finess create size. */
         PS_FINESS_CREATE_SIZE,
+        
+        /** The ps siret create size. */
         PS_SIRET_CREATE_SIZE,
+        
+        /** The ps rpps create size. */
         PS_RPPS_CREATE_SIZE,
 
+        /** The ps adeli update size. */
         PS_ADELI_UPDATE_SIZE,
+        
+        /** The ps finess update size. */
         PS_FINESS_UPDATE_SIZE,
+        
+        /** The ps siret update size. */
         PS_SIRET_UPDATE_SIZE,
+        
+        /** The ps rpps update size. */
         PS_RPPS_UPDATE_SIZE,
 
+        /** The ps adeli reference size. */
         PS_ADELI_REFERENCE_SIZE,
+        
+        /** The ps finess reference size. */
         PS_FINESS_REFERENCE_SIZE,
+        
+        /** The ps siret reference size. */
         PS_SIRET_REFERENCE_SIZE,
+        
+        /** The ps rpps reference size. */
         PS_RPPS_REFERENCE_SIZE,
 
     }
 
+    /**
+     * The Enum StructureCustomMetric.
+     */
     public enum StructureCustomMetric {
+        
+        /** The structure upload size. */
         STRUCTURE_UPLOAD_SIZE,
+        
+        /** The structure delete size. */
         STRUCTURE_DELETE_SIZE,
+        
+        /** The structure create size. */
         STRUCTURE_CREATE_SIZE,
+        
+        /** The structure update size. */
         STRUCTURE_UPDATE_SIZE,
     }
 
+    /**
+     * The Enum ProgressionCustomMetric.
+     */
     public enum ProgressionCustomMetric {
+        
+        /** The ps upload progression. */
         PS_UPLOAD_PROGRESSION,
+        
+        /** The ps delete progression. */
         PS_DELETE_PROGRESSION,
+        
+        /** The ps create progression. */
         PS_CREATE_PROGRESSION,
+        
+        /** The ps update progression. */
         PS_UPDATE_PROGRESSION,
 
+        /** The structure upload progression. */
         STRUCTURE_UPLOAD_PROGRESSION,
+        
+        /** The structure delete progression. */
         STRUCTURE_DELETE_PROGRESSION,
+        
+        /** The structure create progression. */
         STRUCTURE_CREATE_PROGRESSION,
+        
+        /** The structure update progression. */
         STRUCTURE_UPDATE_PROGRESSION,
     }
 
+    /**
+     * The Enum MiscCustomMetric.
+     */
     public enum MiscCustomMetric {
+        
+        /** The stage. */
         STAGE
     }
 
     /**
-     * Instantiates a new Custom metrics.
+     * Instantiates a new custom metrics.
      *
      * @param meterRegistry the meter registry
      */
@@ -184,6 +295,9 @@ public class CustomMetrics {
                 .register(meterRegistry);
     }
 
+    /**
+     * Reset size metrics.
+     */
     public void resetSizeMetrics() {
         // reset all PsSizeMetrics
         Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
@@ -199,6 +313,12 @@ public class CustomMetrics {
         });
     }
 
+    /**
+     * Sets the upload size metrics after deserializing.
+     *
+     * @param psMap the ps map
+     * @param structureMap the structure map
+     */
     public void setUploadSizeMetricsAfterDeserializing(Map<String, Ps> psMap, Map<String, Structure> structureMap) {
         appPsSizeGauges.get(PsCustomMetric.PS_ADELI_UPLOAD_SIZE).set(
                 Math.toIntExact(psMap.values().stream().filter(professionnel ->

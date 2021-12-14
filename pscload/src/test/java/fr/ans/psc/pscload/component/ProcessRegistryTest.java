@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.component;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,14 +21,26 @@ import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.Idle;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class ProcessRegistryTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 class ProcessRegistryTest {
+	
+	/** The rootpath. */
 	String rootpath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+	
+	/** The registry. */
 	ProcessRegistry registry = new ProcessRegistry(rootpath);
 	
+	/**
+	 * Serialization test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	void serializationTest() throws Exception {
 		File registryFile = new File(rootpath + File.separator + "registry.ser");

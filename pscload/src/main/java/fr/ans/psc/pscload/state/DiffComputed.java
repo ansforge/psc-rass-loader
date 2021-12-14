@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import java.io.IOException;
@@ -8,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.tomcat.jni.OS;
 import org.springframework.web.client.RestClientException;
 
 import com.google.common.collect.MapDifference.ValueDifference;
@@ -22,6 +24,9 @@ import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class DiffComputed.
+ */
 @Slf4j
 public class DiffComputed extends ProcessState {
 
@@ -36,11 +41,20 @@ public class DiffComputed extends ProcessState {
 	
 	private boolean running;
 
+	/**
+	 * Instantiates a new diff computed.
+	 */
 	public DiffComputed() {
 		super();
 
 	}
 
+	/**
+	 * Instantiates a new diff computed.
+	 *
+	 * @param excludedProfessions the excluded professions
+	 * @param apiBaseUrl the api base url
+	 */
 	public DiffComputed(String[] excludedProfessions, String apiBaseUrl) {
 		this.excludedProfessions = excludedProfessions;
 		this.apiBaseUrl = apiBaseUrl;
