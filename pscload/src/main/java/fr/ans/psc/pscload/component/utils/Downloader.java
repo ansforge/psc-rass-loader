@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.component.utils;
 
 import java.io.File;
@@ -9,16 +12,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,16 +39,17 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The type Downloader.
+ * The Class Downloader.
  */
 @Slf4j
 @Component
 public class Downloader {
 
-	//TODO manage password with nomad
-    private final char[] PSC_LOAD_PASS = "pscloadpass".toCharArray();
+	@Value("${keystore.passwd}")
+	private String kspwd;
+
+    private final char[] PSC_LOAD_PASS = kspwd.toCharArray();
   
-    
     @Value("${files.directory}")
     private String filesDirectory;
 
@@ -60,10 +58,19 @@ public class Downloader {
 
     
     
+    /**
+     * Instantiates a new downloader.
+     */
     public Downloader() {
 		super();
 	}
 
+    /**
+     * Instantiates a new downloader.
+     *
+     * @param extractDownloadUrl the extract download url
+     * @param filesDirectory the files directory
+     */
     public Downloader(String extractDownloadUrl, String filesDirectory ) {
 		super();
 		this.filesDirectory = filesDirectory;
@@ -72,19 +79,14 @@ public class Downloader {
 
 
 	/**
-     * Init ssl context.
-     *
-     * @param certFile   the cert file
-     * @param keyFile    the key file
-     * @param caCertFile the ca cert file
-     * @throws NoSuchAlgorithmException  the no such algorithm exception
-     * @throws UnrecoverableKeyException the unrecoverable key exception
-     * @throws KeyStoreException         the key store exception
-     * @throws KeyManagementException    the key management exception
-     * @throws IOException               the io exception
-     * @throws InvalidKeySpecException   the invalid key spec exception
-     * @throws CertificateException      the certificate exception
-     */
+	 * Inits the SSL context.
+	 *
+	 * @param certFile the cert file
+	 * @param keyFile the key file
+	 * @param caCertFile the ca cert file
+	 * @throws GeneralSecurityException the general security exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
     public void initSSLContext(String certFile, String keyFile, String caCertFile)
             throws GeneralSecurityException, IOException {
         KeyStore keyStore = keyStoreFromPEM(certFile, keyFile);
@@ -106,13 +108,11 @@ public class Downloader {
 
 
     /**
-	 * Downloads a file from a URL
-	 *
-	 * @param fileURL       HTTP URL of the file to be downloaded
-	 * @param saveDirectory the save directory
-	 * @return the zipFile path, or null if error or already exists
-	 * @throws IOException IO Exception
-	 */
+     * Download file.
+     *
+     * @return the string
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
 	public String downloadFile() throws IOException {
 	    URL url = new URL(extractDownloadUrl);
 	    HttpURLConnection httpConn;
