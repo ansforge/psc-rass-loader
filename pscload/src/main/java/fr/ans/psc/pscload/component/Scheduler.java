@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.component;
 
 import java.io.IOException;
@@ -18,7 +21,7 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The type Scheduler.
+ * The Class Scheduler.
  */
 @Slf4j
 @Component
@@ -52,8 +55,11 @@ public class Scheduler {
     private String[] excludedProfessions;
 
 	/**
-	 * Run the process
-	 * @throws DuplicateKeyException 
+	 * Run.
+	 *
+	 * @throws GeneralSecurityException the general security exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws DuplicateKeyException the duplicate key exception
 	 */
 	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
 	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
@@ -79,11 +85,11 @@ public class Scheduler {
 					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(30);
 					//End of scheduled steps
 				} catch (LoadProcessException e) {
-					// TODO log
+					log.error("Error when loading RASS data", e);
 					processRegistry.unregister(id);
 				}
 			}else {
-				//TODO  ajouter un log et ne rien faire car un process est déjà en cours.
+				log.warn("A process is already running !");
 			}
 		}
 	}
