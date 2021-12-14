@@ -66,7 +66,15 @@ public class ProcessController {
 	
 	@PostMapping(value = "/process/abort")
     public ResponseEntity<Void> abortProcess() {
+		// TODO check il clear is a better way to abort ?
+		registry.unregister(registry.getCurrentProcess().getId());
+		
         return null;
     }
 
+	@PostMapping(value = "/process/resume")
+    public DeferredResult<ResponseEntity<Void>> resumeProcess() {
+		// We can call continue process because it contains the updated maps to apply.
+        return continueProcess();
+    }
 }
