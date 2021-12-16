@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,7 +40,8 @@ class ProcessRegistryTest {
 	String rootpath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
 	
 	/** The registry. */
-	ProcessRegistry registry = new ProcessRegistry(rootpath);
+	@Autowired
+	ProcessRegistry registry;
 	
 	/**
 	 * Serialization test.
