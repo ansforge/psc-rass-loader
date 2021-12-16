@@ -21,9 +21,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
-import org.springframework.context.event.ContextStoppedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
@@ -88,32 +85,34 @@ public class PscloadApplication {
 
 				// RESUME PROCESS
 				LoadProcess process = registry.getCurrentProcess();
-				Class<? extends ProcessState> stateClass = process.getState().getClass();
-				if (stateClass.equals(DiffComputed.class)) {
-					DiffComputed state = (DiffComputed) registry.getCurrentProcess().getState();
-					if (state.isRunning()) {
-						ForkJoinPool.commonPool().submit(() -> {
-							try {
-								// upload changes
-								process.runtask();
-								process.setState(new ChangesApplied());
-								customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
-								// Step 5 : call pscload
-								process.runtask();
-								registry.unregister(process.getId());
-								customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
-							} catch (LoadProcessException e) {
-								log.error("error when uploading changes", e);
-							}
-						});
-					} else {
-						log.info("Upload was not running when shutdown, process is aborted");
-						registry.clear();
-					}
+				if (process != null) {
+					Class<? extends ProcessState> stateClass = process.getState().getClass();
+					if (stateClass.equals(DiffComputed.class)) {
+						DiffComputed state = (DiffComputed) registry.getCurrentProcess().getState();
+						if (state.isRunning()) {
+							ForkJoinPool.commonPool().submit(() -> {
+								try {
+									// upload changes
+									process.runtask();
+									process.setState(new ChangesApplied());
+									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
+									// Step 5 : call pscload
+									process.runtask();
+									registry.unregister(process.getId());
+									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
+								} catch (LoadProcessException e) {
+									log.error("error when uploading changes", e);
+								}
+							});
+						} else {
+							log.info("Upload was not running when shutdown, process is aborted");
+							registry.clear();
+						}
 
-				} else {
-					log.info("Stage is not resumable, process is aborted");
-					registry.clear();
+					} else {
+						log.info("Stage is not resumable, process is aborted");
+						registry.clear();
+					} 
 				}
 			}
 		}

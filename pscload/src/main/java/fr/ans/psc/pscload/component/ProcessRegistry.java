@@ -94,7 +94,11 @@ public class ProcessRegistry implements  Externalizable  {
 	public LoadProcess getCurrentProcess() {
 		List<String> sortedKeys=new ArrayList<>(registry.keySet());
 		Collections.sort(sortedKeys);
+		if (registry.size() > 0) {
 		return registry.get(sortedKeys.get(sortedKeys.size()-1));
+		}else {
+			return null;
+		}
 			
 	}
 	
