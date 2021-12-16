@@ -11,10 +11,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class FileExtractedTest.
  */
+@Slf4j
 class FileExtractedTest {
 
 	/**
@@ -63,4 +66,19 @@ class FileExtractedTest {
 		assertEquals(2, p2.getPsToUpdate().size());
 	}
 
+	@Test
+	@DisplayName("initial diff from large file (100000 lines)")
+	public void diffFromLargeFile() throws Exception {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		String rootpath = cl.getResource(".").getPath();
+		File mapser = new File(rootpath + File.separator + "maps.ser");
+		if (mapser.exists()) {
+			mapser.delete();
+		}
+		LoadProcess p = new LoadProcess(new FileExtracted());
+		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112140852.txt").getPath());
+		p.runtask();
+		assertEquals(p.getPsToCreate().size(), 99171);
+		assertEquals(p.getStructureToCreate().size(), 37534);
+	}
 }
