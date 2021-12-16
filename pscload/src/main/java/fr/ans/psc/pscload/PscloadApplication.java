@@ -3,24 +3,140 @@
  */
 package fr.ans.psc.pscload;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.ContextStoppedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class PscloadApplication.
  */
 @SpringBootApplication
 @EnableScheduling
+@EnableAutoConfiguration
+@Slf4j
 public class PscloadApplication {
 
+	/** The registry. */
+	@Autowired
+	private ProcessRegistry registry;
+
+	/** The custom metrics. */
+	@Autowired
+	private CustomMetrics customMetrics;
+
+	@Value("${files.directory:.}")
+	private String filesDirectory;
 	/**
 	 * The main method.
 	 *
 	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
-		new SpringApplication(PscloadApplication.class).run(args);
+		ConfigurableApplicationContext applicationContext = SpringApplication.run(PscloadApplication.class, args);
+		applicationContext.start();
 	}
 
+	@Component
+	class ContextStartedListener implements ApplicationListener<ContextRefreshedEvent> {
+
+
+		@Override
+		public void onApplicationEvent(ContextRefreshedEvent event) {
+			// Load registry if exists
+			log.info("Search registry to restore");
+			File registryFile = new File(filesDirectory + File.separator + "registry.ser");
+			if (registryFile.exists()) {
+				try {
+					FileInputStream fileInputStream = new FileInputStream(registryFile);
+					ObjectInputStream ois = new ObjectInputStream(fileInputStream);
+					registry.readExternal(ois);
+					registryFile.delete();
+				} catch (IOException e) {
+					log.error("Unable to restore registry I/O error", e);
+				} catch (ClassNotFoundException e) {
+					log.error("Unable to restore registry : file not compatible", e);
+				}
+
+				// RESUME PROCESS
+				LoadProcess process = registry.getCurrentProcess();
+				Class<? extends ProcessState> stateClass = process.getState().getClass();
+				if (stateClass.equals(DiffComputed.class)) {
+					DiffComputed state = (DiffComputed) registry.getCurrentProcess().getState();
+					if (state.isRunning()) {
+						ForkJoinPool.commonPool().submit(() -> {
+							try {
+								// upload changes
+								process.runtask();
+								process.setState(new ChangesApplied());
+								customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
+								// Step 5 : call pscload
+								process.runtask();
+								registry.unregister(process.getId());
+								customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
+							} catch (LoadProcessException e) {
+								log.error("error when uploading changes", e);
+							}
+						});
+					} else {
+						log.info("Upload was not running when shutdown, process is aborted");
+						registry.clear();
+					}
+
+				} else {
+					log.info("Stage is not resumable, process is aborted");
+					registry.clear();
+				}
+			}
+		}
+	}
+	
+	@Component
+	class ContextClosedListener implements ApplicationListener<ContextClosedEvent>{
+
+		@Override
+		public void onApplicationEvent(ContextClosedEvent event) {
+			// Wait for upload finished
+			// TODO configure timeout
+			ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
+			// Save the registry
+			log.info("Try to save registry");
+			try {
+				File registryFile = new File(filesDirectory + File.separator + "registry.ser");
+				FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
+				ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
+				registry.writeExternal(oos);
+			} catch (IOException e) {
+				log.error("Unable to save registry", e);
+			}
+		}
+	}
 }

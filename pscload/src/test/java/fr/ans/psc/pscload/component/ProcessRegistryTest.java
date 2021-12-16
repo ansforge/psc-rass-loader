@@ -12,11 +12,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import fr.ans.psc.pscload.PscloadApplication;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.Idle;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +30,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SpringBootTest
+@TestPropertySource(locations = "/application-test.properties")
 @ActiveProfiles("test")
-@ContextConfiguration(classes = PscloadApplication.class)
+@ContextConfiguration(classes = { PscloadApplication.class }, loader = AnnotationConfigContextLoader.class)
+@DirtiesContext
 class ProcessRegistryTest {
 	
 	/** The rootpath. */
