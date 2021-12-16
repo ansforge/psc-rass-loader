@@ -126,15 +126,17 @@ public class PscloadApplication {
 			// Wait for upload finished
 			// TODO configure timeout
 			ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
-			// Save the registry
-			log.info("Try to save registry");
-			try {
-				File registryFile = new File(filesDirectory + File.separator + "registry.ser");
-				FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
-				ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-				registry.writeExternal(oos);
-			} catch (IOException e) {
-				log.error("Unable to save registry", e);
+			// Save the registry if not empty
+			if (!registry.isEmpty()) {
+				log.info("Try to save registry");
+				try {
+					File registryFile = new File(filesDirectory + File.separator + "registry.ser");
+					FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
+					ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
+					registry.writeExternal(oos);
+				} catch (IOException e) {
+					log.error("Unable to save registry", e);
+				} 
 			}
 		}
 	}
