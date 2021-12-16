@@ -66,6 +66,11 @@ class FileExtractedTest {
 		assertEquals(2, p2.getPsToUpdate().size());
 	}
 
+	/**
+	 * Diff from large file.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("initial diff from large file (100000 lines)")
 	public void diffFromLargeFile() throws Exception {

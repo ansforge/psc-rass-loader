@@ -62,6 +62,17 @@ public class PscloadApplication {
 		applicationContext.start();
 	}
 
+	/**
+	 * The listener interface for receiving contextStarted events.
+	 * The class that is interested in processing a contextStarted
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addContextStartedListener<code> method. When
+	 * the contextStarted event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see ContextStartedEvent
+	 */
 	@Component
 	class ContextStartedListener implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -118,6 +129,17 @@ public class PscloadApplication {
 		}
 	}
 	
+	/**
+	 * The listener interface for receiving contextClosed events.
+	 * The class that is interested in processing a contextClosed
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addContextClosedListener<code> method. When
+	 * the contextClosed event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see ContextClosedEvent
+	 */
 	@Component
 	class ContextClosedListener implements ApplicationListener<ContextClosedEvent>{
 
