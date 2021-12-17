@@ -7,11 +7,11 @@ import java.io.ObjectOutput;
 
 public class UploadMetrics  implements Externalizable {
 
-	private int psAdeliUploadSize;
-	private int psFinessUploadSize;
-	private int psSiretUploadSize;
-	private int psRppsUploadSize;
-	private int structureUploadSize;
+	private int psAdeliUploadSize = 0;
+	private int psFinessUploadSize = 0;
+	private int psSiretUploadSize = 0;
+	private int psRppsUploadSize = 0;
+	private int structureUploadSize = 0;
 
 	public UploadMetrics() {
 
@@ -68,11 +68,11 @@ public class UploadMetrics  implements Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.write(psAdeliUploadSize);
-		out.write(psFinessUploadSize);
-		out.write(psRppsUploadSize);
-		out.write(psSiretUploadSize);
-		out.write(structureUploadSize);
+		out.writeInt(psAdeliUploadSize);
+		out.writeInt(psFinessUploadSize);
+		out.writeInt(psRppsUploadSize);
+		out.writeInt(psSiretUploadSize);
+		out.writeInt(structureUploadSize);
 		
 	}
 

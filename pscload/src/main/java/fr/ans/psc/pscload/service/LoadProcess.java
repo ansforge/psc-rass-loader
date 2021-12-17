@@ -198,6 +198,7 @@ public class LoadProcess implements Externalizable {
 		out.writeObject(structureToUpdate);
 		out.writeObject(structureToDelete);
 		out.writeObject(uploadMetrics);
+
 	}
 
 	@SuppressWarnings("unchecked")
