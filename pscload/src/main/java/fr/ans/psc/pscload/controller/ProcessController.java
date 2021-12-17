@@ -50,6 +50,7 @@ public class ProcessController {
 	@PostMapping(value = "/process/continue")
     public DeferredResult<ResponseEntity<Void>> continueProcess() {
 		LoadProcess process = registry.getCurrentProcess();
+		
 		DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
 		if (process.getState().getClass().equals(DiffComputed.class)) {
 			// launch process in a separate thread
@@ -59,11 +60,13 @@ public class ProcessController {
 				customMetrics.resetSizeMetrics();
 				process.runtask();
 				process.setState(new ChangesApplied());
-				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
+				// Build message with failed requests
+				String message = buildMessageBody(process);	
+				customMetrics.setStageMetric(40, message);
 				// Step 5 : call pscload
 				process.runtask();
 				registry.unregister(process.getId());
-				customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
+				customMetrics.setStageMetric(0);
 			} catch (LoadProcessException e) {				
 				log.error("error when uploading changes", e);		
 			}
@@ -78,6 +81,62 @@ public class ProcessController {
 		response.setResult(result);
 		return response;
     }
+
+
+	private String buildMessageBody(LoadProcess process) {
+		StringBuilder message = new StringBuilder();
+		process.getPsToCreate().values().stream().forEach(ps -> {
+			int status = ps.getReturnStatus();
+			String nationalId = ps.getNationalId();
+			message.append("Créations PS en échec :");
+			message.append(System.lineSeparator());
+			message.append("PS : " + nationalId);
+			message.append("status code :" + status);
+			message.append(System.lineSeparator());
+		});	
+		process.getPsToDelete().values().stream().forEach(ps -> {
+			int status = ps.getReturnStatus();
+			String nationalId = ps.getNationalId();
+			message.append("Suppressions PS en échec :");
+			message.append("PS : " + nationalId);
+			message.append("status code :" + status);
+			message.append(System.lineSeparator());
+		});	
+		process.getPsToUpdate().values().stream().forEach(v -> {
+			int status = v.rightValue().getReturnStatus();
+			String nationalId = v.rightValue().getNationalId();
+			message.append("Modifications PS en échec :");
+			message.append("PS : " + nationalId);
+			message.append("status code :" + status);
+			message.append(System.lineSeparator());
+		});
+		process.getStructureToCreate().values().stream().forEach(structure -> {
+			int status = structure.getReturnStatus();
+			String nationalId = structure.getStructureTechnicalId();
+			message.append("Créations Structure en échec :");
+			message.append(System.lineSeparator());
+			message.append("Structure : " + nationalId);
+			message.append("status code :" + status);
+			message.append(System.lineSeparator());
+		});	
+		process.getStructureToDelete().values().stream().forEach(structure -> {
+			int status = structure.getReturnStatus();
+			String nationalId = structure.getStructureTechnicalId();
+			message.append("Suppressions Structure en échec :");
+			message.append("Structure : " + nationalId);
+			message.append("status code :" + status);
+			message.append(System.lineSeparator());
+		});	
+		process.getStructureToUpdate().values().stream().forEach(v -> {
+			int status = v.rightValue().getReturnStatus();
+			String nationalId = v.rightValue().getStructureTechnicalId();
+			message.append("Modifications Structure en échec :");
+			message.append("Structure : " + nationalId);
+			message.append("status code :" + status);
+			message.append(System.lineSeparator());
+		});
+		return message.toString();
+	}
 
 	
 	/**

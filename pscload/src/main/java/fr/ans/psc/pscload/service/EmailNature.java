@@ -12,7 +12,9 @@ public enum EmailNature {
     PROCESS_FINISHED("Le process pscload s'est terminé, le fichier %s a été généré à partir du fichier %s.", "PSCLOAD - Fin de process"),
     
     /** The process relaunched. */
-    PROCESS_RELAUNCHED("Le fichier %s n'est pas cohérent avec le fichier %s. Reprise du process.", "PSCLOAD - Reprise du process");
+    PROCESS_RELAUNCHED("Le fichier %s n'est pas cohérent avec le fichier %s. Reprise du process.", "PSCLOAD - Reprise du process"),
+	
+	STATE_CHANGED("L'étape a changé","PSCLOAD State change");
 
     /** The message. */
     public String message;

@@ -44,10 +44,27 @@ public class EmailService {
         emailSender.send(message);
     }
 
+    /**
+     * Send mail.
+     *
+     * @param emailNature the email nature
+     * @param latestTxtAndSer the latest txt and ser
+     */
+    public void sendMail(EmailNature emailNature, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(sender);
+        String[] allReceivers = receiver.split(",");
+        message.setTo(allReceivers);
+        message.setSubject(emailNature.subject);
+        message.setText(body);
+        emailSender.send(message);
+    }
+    
     private String getEmailMessage(EmailNature emailNature, Map<String, File> latestTxtAndSer) {
         String latestTxt = latestTxtAndSer.get("txt").getName();
         String latestSer = latestTxtAndSer.get("ser").getName();
 
         return String.format(emailNature.message, latestSer, latestTxt);
     }
+
 }

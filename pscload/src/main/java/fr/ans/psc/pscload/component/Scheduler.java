@@ -72,17 +72,17 @@ public class Scheduler {
 					// Step 1 : Download
 					process.runtask();
 					process.setState(new FileDownloaded());
-					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(10);
+					customMetrics.setStageMetric(10);
 					// Step 2 : Extract
 					process.runtask();
 					process.setState(new FileExtracted());
-					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(20);
+					customMetrics.setStageMetric(20);
 					// Step 3 : Load maps and compute diff
 					process.runtask();
 					publishPsMetrics(process);
 					publishStructureMetrics(process);
 					process.setState(new DiffComputed(excludedProfessions, apiBaseUrl));
-					customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(30);
+					customMetrics.setStageMetric(30);
 					//End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);

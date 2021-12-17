@@ -72,9 +72,6 @@ public class DiffComputed extends ProcessState {
 		// Structures
 		uploadStructuresToCreate(process.getStructureToCreate());
 		uploadStructuresToUpdate(process.getStructureToUpdate());
-		//TODO log the entries still in the maps and clear the map ?
-		// Status code is store in Professionnel object and Strucxture Object
-		// Send an email to supervisor and ask him to check the platform and invoke the resume controller
 		// TODO delete structures ?
 		running = false;
 	}
