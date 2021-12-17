@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.springframework.http.HttpStatus;
-
 import lombok.EqualsAndHashCode;
 
 /**

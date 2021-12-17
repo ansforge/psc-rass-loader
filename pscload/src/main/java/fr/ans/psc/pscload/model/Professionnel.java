@@ -10,8 +10,6 @@ import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
-
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 import lombok.EqualsAndHashCode;
