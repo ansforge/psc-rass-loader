@@ -19,7 +19,7 @@ import fr.ans.psc.api.PsApi;
 import fr.ans.psc.api.StructureApi;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.PscValueDifference;
+import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.UploadException;
@@ -106,7 +106,7 @@ public class UploadingChanges extends ProcessState {
 		
 	}
 	
-	private void uploadStructuresToUpdate(Map<String, PscValueDifference<Structure>> structuresToUpdate) throws LoadProcessException {
+	private void uploadStructuresToUpdate(Map<String, SerializableValueDifference<Structure>> structuresToUpdate) throws LoadProcessException {
 		ApiClient client = new ApiClient();
 		client.setBasePath(apiBaseUrl);
 		StructureApi structureapi = new StructureApi(client);
@@ -184,7 +184,7 @@ public class UploadingChanges extends ProcessState {
 	}
 			
 	
-		private void uploadPsToUpdate(Map<String, PscValueDifference<Professionnel>> psToUpdate) throws LoadProcessException {
+		private void uploadPsToUpdate(Map<String, SerializableValueDifference<Professionnel>> psToUpdate) throws LoadProcessException {
 			ApiClient client = new ApiClient();
 			client.setBasePath(apiBaseUrl);
 			PsApi psapi = new PsApi(client);

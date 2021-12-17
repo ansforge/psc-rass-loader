@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.model;
 
 import java.io.Externalizable;
@@ -11,13 +14,24 @@ import com.google.common.base.Objects;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 
-public class PscValueDifference<V> implements ValueDifference<V>, Externalizable {
+/**
+ * The Class SerializableValueDifference.
+ *
+ * @param <V> the value type
+ */
+public class SerializableValueDifference<V> implements ValueDifference<V>, Externalizable {
 
 	private  @Nullable V left;
 	private  @Nullable V right;
 
 
-	public PscValueDifference(@Nullable V left, @Nullable V right) {
+	/**
+	 * Instantiates a new serializable value difference.
+	 *
+	 * @param left the left
+	 * @param right the right
+	 */
+	public SerializableValueDifference(@Nullable V left, @Nullable V right) {
 		this.left = left;
 		this.right = right;
 	}

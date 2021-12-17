@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.PscValueDifference;
+import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
@@ -35,13 +35,13 @@ public class LoadProcess implements Externalizable {
 	private Map<String, Professionnel> psToCreate;
 	
 	
-	private Map<String, PscValueDifference<Professionnel>> psToUpdate; 
+	private Map<String, SerializableValueDifference<Professionnel>> psToUpdate; 
 	
 	private Map<String, Professionnel> psToDelete;
 
 	private Map<String, Structure> structureToCreate;
 	
-	private Map<String, PscValueDifference<Structure>> structureToUpdate ;
+	private Map<String, SerializableValueDifference<Structure>> structureToUpdate ;
 	
 	private Map<String, Structure> structureToDelete;
 
@@ -70,8 +70,8 @@ public class LoadProcess implements Externalizable {
 		this.state = state;
 		this.state.setProcess(this);
 		timestamp = Calendar.getInstance().getTimeInMillis();
-		psToUpdate = new ConcurrentHashMap<String, PscValueDifference<Professionnel>>();
-		structureToUpdate = new ConcurrentHashMap<String, PscValueDifference<Structure>>();
+		psToUpdate = new ConcurrentHashMap<String, SerializableValueDifference<Professionnel>>();
+		structureToUpdate = new ConcurrentHashMap<String, SerializableValueDifference<Structure>>();
 	}
 
 	/**
@@ -111,11 +111,11 @@ public class LoadProcess implements Externalizable {
 		this.psToCreate = psToCreate;
 	}
 
-	public Map<String, PscValueDifference<Professionnel>> getPsToUpdate() {
+	public Map<String, SerializableValueDifference<Professionnel>> getPsToUpdate() {
 		return psToUpdate;
 	}
 
-	public void setPsToUpdate(Map<String, PscValueDifference<Professionnel>> psToUpdate) {
+	public void setPsToUpdate(Map<String, SerializableValueDifference<Professionnel>> psToUpdate) {
 		this.psToUpdate = psToUpdate;
 	}
 
@@ -135,11 +135,11 @@ public class LoadProcess implements Externalizable {
 		this.structureToCreate = structureToCreate;
 	}
 
-	public Map<String, PscValueDifference<Structure>> getStructureToUpdate() {
+	public Map<String, SerializableValueDifference<Structure>> getStructureToUpdate() {
 		return structureToUpdate;
 	}
 
-	public void setStructureToUpdate(Map<String, PscValueDifference<Structure>> structureToUpdate) {
+	public void setStructureToUpdate(Map<String, SerializableValueDifference<Structure>> structureToUpdate) {
 		this.structureToUpdate = structureToUpdate;
 	}
 
@@ -213,10 +213,10 @@ public class LoadProcess implements Externalizable {
 		extractedFilename = (String) in.readObject();
 		state = (ProcessState) in.readObject();
 		psToCreate = (Map<String, Professionnel>) in.readObject();
-		psToUpdate = (Map<String, PscValueDifference<Professionnel>>) in.readObject();
+		psToUpdate = (Map<String, SerializableValueDifference<Professionnel>>) in.readObject();
 		psToDelete = (Map<String, Professionnel>) in.readObject();
 		structureToCreate = (Map<String, Structure>) in.readObject();
-		structureToUpdate = (Map<String, PscValueDifference<Structure>>) in.readObject();
+		structureToUpdate = (Map<String, SerializableValueDifference<Structure>>) in.readObject();
 		structureToDelete = (Map<String, Structure>) in.readObject();
 		uploadMetrics = (UploadMetrics) in.readObject();
 	}
