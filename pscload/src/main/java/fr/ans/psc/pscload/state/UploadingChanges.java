@@ -26,10 +26,10 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The Class DiffComputed.
+ * The Class UploadingChanges.
  */
 @Slf4j
-public class DiffComputed extends ProcessState {
+public class UploadingChanges extends ProcessState {
 
 	/**
 	 * 
@@ -40,23 +40,21 @@ public class DiffComputed extends ProcessState {
 
 	private String apiBaseUrl;
 	
-	private boolean running;
-
 	/**
-	 * Instantiates a new diff computed.
+	 * Instantiates a new Uploading Changes.
 	 */
-	public DiffComputed() {
+	public UploadingChanges() {
 		super();
 
 	}
 
 	/**
-	 * Instantiates a new diff computed.
+	 * Instantiates a new Uploading Changes.
 	 *
 	 * @param excludedProfessions the excluded professions
 	 * @param apiBaseUrl the api base url
 	 */
-	public DiffComputed(String[] excludedProfessions, String apiBaseUrl) {
+	public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
 		this.excludedProfessions = excludedProfessions;
 		this.apiBaseUrl = apiBaseUrl;
 
@@ -64,8 +62,6 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void runTask() throws LoadProcessException {
-		// Set running to resume process if it is not completed before shutdown
-		running = true;
 		uploadPsToCreate(process.getPsToCreate());
 		uploadPsToUpdate(process.getPsToUpdate());
 		uploadPsToDelete(process.getPsToDelete());
@@ -73,14 +69,12 @@ public class DiffComputed extends ProcessState {
 		uploadStructuresToCreate(process.getStructureToCreate());
 		uploadStructuresToUpdate(process.getStructureToUpdate());
 		// TODO delete structures ?
-		running = false;
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(excludedProfessions);
 		out.writeObject(apiBaseUrl);
-		out.writeBoolean(running);
 
 	}
 
@@ -88,7 +82,6 @@ public class DiffComputed extends ProcessState {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		excludedProfessions = (String[]) in.readObject();
 		apiBaseUrl = (String) in.readObject();
-		running = in.readBoolean();
 
 	}
 
@@ -186,8 +179,7 @@ public class DiffComputed extends ProcessState {
 			});
 	}
 			
-			
-			
+	
 		private void uploadPsToUpdate(Map<String, ValueDifference<Professionnel>> psToUpdate) throws LoadProcessException {
 			ApiClient client = new ApiClient();
 			client.setBasePath(apiBaseUrl);
@@ -208,8 +200,5 @@ public class DiffComputed extends ProcessState {
 		});
 	}
 
-		public boolean isRunning() {
-			return running;
-		}
 
 }

@@ -29,7 +29,7 @@ import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.ChangesApplied;
-import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -99,9 +99,8 @@ public class PscloadApplication {
 				LoadProcess process = registry.getCurrentProcess();
 				if (process != null) {
 					Class<? extends ProcessState> stateClass = process.getState().getClass();
-					if (stateClass.equals(DiffComputed.class)) {
-						DiffComputed state = (DiffComputed) registry.getCurrentProcess().getState();
-						if (state.isRunning()) {
+					if (stateClass.equals(UploadingChanges.class)) {
+						UploadingChanges state = (UploadingChanges) registry.getCurrentProcess().getState();
 							ForkJoinPool.commonPool().submit(() -> {
 								try {
 									// upload changes
@@ -116,11 +115,6 @@ public class PscloadApplication {
 									log.error("error when uploading changes", e);
 								}
 							});
-						} else {
-							log.info("Upload was not running when shutdown, process is aborted");
-							registry.clear();
-						}
-
 					} else {
 						log.info("Stage is not resumable, process is aborted");
 						registry.clear();

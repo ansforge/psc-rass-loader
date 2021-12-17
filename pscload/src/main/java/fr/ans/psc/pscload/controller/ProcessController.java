@@ -6,6 +6,7 @@ package fr.ans.psc.pscload.controller;
 import java.util.concurrent.ForkJoinPool;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +33,13 @@ public class ProcessController {
 	private CustomMetrics customMetrics;
 
 	private final ProcessRegistry registry;
+	
+	
+    @Value("${api.base.url}")
+    private String apiBaseUrl;
+
+    @Value("${deactivation.excluded.profession.codes:}")
+    private String[] excludedProfessions;
 
 	/**
 	 * Instantiates a new process controller.
@@ -57,6 +66,7 @@ public class ProcessController {
 			ForkJoinPool.commonPool().submit(() -> {
 				try {
 					// upload changes
+					process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 					customMetrics.resetSizeMetrics();
 					process.runtask();
 					process.setState(new ChangesApplied());

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.FileDownloaded;
 import fr.ans.psc.pscload.state.FileExtracted;
@@ -47,12 +48,6 @@ public class Scheduler {
 
 	@Value("${ca.path}")
 	private String cafile;
-	
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
-
-    @Value("${deactivation.excluded.profession.codes:}")
-    private String[] excludedProfessions;
 
 	/**
 	 * Run.
@@ -77,12 +72,14 @@ public class Scheduler {
 					process.runtask();
 					process.setState(new FileExtracted());
 					customMetrics.setStageMetric(20);
-					// Step 3 : Load maps and compute diff
+					// Step 4 : Load maps and compute diff
+					process.runtask();
+					process.setState(new DiffComputed(customMetrics));
+					customMetrics.setStageMetric(30);
+					//Step 3 : publish metrics
 					process.runtask();
 					publishPsMetrics(process);
 					publishStructureMetrics(process);
-					process.setState(new DiffComputed(excludedProfessions, apiBaseUrl));
-					customMetrics.setStageMetric(30);
 					//End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);

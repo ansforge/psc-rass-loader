@@ -14,7 +14,7 @@ public enum EmailNature {
     /** The process relaunched. */
     PROCESS_RELAUNCHED("Le fichier %s n'est pas cohérent avec le fichier %s. Reprise du process.", "PSCLOAD - Reprise du process"),
 	
-	STATE_CHANGED("L'étape a changé","PSCLOAD State change");
+	STATE_CHANGED("L'étape a changé : ","PSCLOAD State change");
 
     /** The message. */
     public String message;

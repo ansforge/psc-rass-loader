@@ -98,7 +98,7 @@ public class DiffComputedStateTest {
 		p2.runtask();
 		// Day 2 : upload changes (1 delete)
 		String[] excludedProfessions = {"90"};
-		p2.setState(new DiffComputed(excludedProfessions, httpApiMockServer.baseUrl() ));
+		p2.setState(new UploadingChanges(excludedProfessions, httpApiMockServer.baseUrl() ));
 		p2.runtask();
 		assertEquals(0,p2.getPsToCreate().size());
 		assertEquals(0,p2.getPsToDelete().size());
@@ -136,7 +136,7 @@ public class DiffComputedStateTest {
 		p2.runtask();
 		// Day 2 : upload changes (1 delete)
 		String[] excludedProfessions = {"90"};
-		p2.setState(new DiffComputed(excludedProfessions, httpApiMockServer.baseUrl() ));
+		p2.setState(new UploadingChanges(excludedProfessions, httpApiMockServer.baseUrl() ));
 		p2.runtask();
 		assertEquals(0,p2.getPsToCreate().size());
 		assertEquals(1,p2.getPsToDelete().size());
