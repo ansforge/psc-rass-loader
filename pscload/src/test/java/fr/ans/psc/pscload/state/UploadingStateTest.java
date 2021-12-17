@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
-public class DiffComputedStateTest {
+public class UploadingStateTest {
 
 	/** The http api mock server. */
 	@RegisterExtension

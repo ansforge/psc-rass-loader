@@ -50,7 +50,7 @@ public class LoadProcess implements Externalizable {
 	
 	private String id;
 	
-	private UploadMetrics uploadMetrics;
+	private UploadMetrics uploadMetrics = new UploadMetrics();
 
 	/**
 	 * Instantiates a new load process.
