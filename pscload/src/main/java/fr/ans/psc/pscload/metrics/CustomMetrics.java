@@ -12,9 +12,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
-import fr.ans.psc.model.Ps;
-import fr.ans.psc.model.Structure;
-import fr.ans.psc.pscload.state.ProcessState;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
