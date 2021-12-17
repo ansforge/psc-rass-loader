@@ -29,8 +29,7 @@ public class ProcessController {
 
 	@Autowired
 	private CustomMetrics customMetrics;
-	
-	@Autowired
+
 	private final ProcessRegistry registry;
 
 	/**
