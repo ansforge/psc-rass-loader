@@ -33,6 +33,7 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.model.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.SituationExercice;
@@ -58,6 +59,7 @@ public class FileExtracted extends ProcessState {
 	private Map<String, Professionnel> oldPsMap = new HashMap<>();
 
 	private Map<String, Structure> oldStructureMap = new HashMap<>();
+	
 
 	/**
 	 * Instantiates a new file extracted.
@@ -80,6 +82,7 @@ public class FileExtracted extends ProcessState {
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
 				deserialize(fileToLoad.getParent() + File.separator + "maps.ser");
+				setUploadSizeMetricsAfterDeserializing(oldPsMap, oldStructureMap);
 			}
 			// Launch diff
 			// TODO check to return a modifiable map
@@ -204,4 +207,20 @@ public class FileExtracted extends ProcessState {
 		ois.close();
 	}
 
+	
+	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap, Map<String, Structure> structureMap) {
+		process.getUploadMetrics().setPsAdeliUploadSize(Math.toIntExact(psMap.values().stream()
+				.filter(professionnel -> ID_TYPE.ADELI.value.equals(professionnel.getIdType())).count()));
+
+		process.getUploadMetrics().setPsFinessUploadSize(Math.toIntExact(psMap.values().stream()
+				.filter(professionnel -> ID_TYPE.FINESS.value.equals(professionnel.getIdType())).count()));
+
+		process.getUploadMetrics().setPsSiretUploadSize(Math.toIntExact(psMap.values().stream()
+				.filter(professionnel -> ID_TYPE.SIRET.value.equals(professionnel.getIdType())).count()));
+
+		process.getUploadMetrics().setPsRppsUploadSize(Math.toIntExact(psMap.values().stream()
+				.filter(professionnel -> ID_TYPE.RPPS.value.equals(professionnel.getIdType())).count()));
+
+		process.getUploadMetrics().setStructureUploadSize(structureMap.values().size());
+	}
 }

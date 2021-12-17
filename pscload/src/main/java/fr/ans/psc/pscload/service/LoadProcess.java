@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.google.common.collect.MapDifference.ValueDifference;
 
+import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
@@ -48,6 +49,8 @@ public class LoadProcess implements Externalizable {
 	private ProcessState state;
 	
 	private String id;
+	
+	private UploadMetrics uploadMetrics;
 
 	/**
 	 * Instantiates a new load process.
@@ -173,6 +176,14 @@ public class LoadProcess implements Externalizable {
 		this.id = id;
 	}
 
+	public UploadMetrics getUploadMetrics() {
+		return uploadMetrics;
+	}
+
+	public void setUploadMetrics(UploadMetrics uploadMetrics) {
+		this.uploadMetrics = uploadMetrics;
+	}
+
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(id);
@@ -186,6 +197,7 @@ public class LoadProcess implements Externalizable {
 		out.writeObject(structureToCreate);
 		out.writeObject(structureToUpdate);
 		out.writeObject(structureToDelete);
+		out.writeObject(uploadMetrics);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -202,6 +214,7 @@ public class LoadProcess implements Externalizable {
 		structureToCreate = (Map<String, Structure>) in.readObject();
 		structureToUpdate = (Map<String, ValueDifference<Structure>>) in.readObject();
 		structureToDelete = (Map<String, Structure>) in.readObject();
+		uploadMetrics = (UploadMetrics) in.readObject();
 	}
 
 }

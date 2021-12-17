@@ -272,28 +272,6 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 	}
 
 	/**
-	 * Sets the upload size metrics after deserializing.
-	 *
-	 * @param psMap        the ps map
-	 * @param structureMap the structure map
-	 */
-	public void setUploadSizeMetricsAfterDeserializing(Map<String, Ps> psMap, Map<String, Structure> structureMap) {
-		appPsSizeGauges.get(PsCustomMetric.PS_ADELI_UPLOAD_SIZE).set(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.ADELI.value.equals(professionnel.getIdType())).count()));
-
-		appPsSizeGauges.get(PsCustomMetric.PS_FINESS_UPLOAD_SIZE).set(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.FINESS.value.equals(professionnel.getIdType())).count()));
-
-		appPsSizeGauges.get(PsCustomMetric.PS_SIRET_UPLOAD_SIZE).set(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.SIRET.value.equals(professionnel.getIdType())).count()));
-
-		appPsSizeGauges.get(PsCustomMetric.PS_RPPS_UPLOAD_SIZE).set(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.RPPS.value.equals(professionnel.getIdType())).count()));
-
-		appStructureSizeGauges.get(StructureCustomMetric.STRUCTURE_UPLOAD_SIZE).set(structureMap.values().size());
-	}
-
-	/**
 	 * Gets app gauges.
 	 *
 	 * @return the app gauges
