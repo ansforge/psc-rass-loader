@@ -33,13 +33,12 @@ public class ProcessController {
 	private CustomMetrics customMetrics;
 
 	private final ProcessRegistry registry;
-	
-	
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
 
-    @Value("${deactivation.excluded.profession.codes:}")
-    private String[] excludedProfessions;
+	@Value("${api.base.url}")
+	private String apiBaseUrl;
+
+	@Value("${deactivation.excluded.profession.codes:}")
+	private String[] excludedProfessions;
 
 	/**
 	 * Instantiates a new process controller.
@@ -61,34 +60,38 @@ public class ProcessController {
 		LoadProcess process = registry.getCurrentProcess();
 
 		DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
-		if (process.getState().getClass().equals(DiffComputed.class)) {
-			// launch process in a separate thread
-			ForkJoinPool.commonPool().submit(() -> {
-				try {
-					// upload changes
-					process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-					customMetrics.resetSizeMetrics();
-					process.runtask();
-					process.setState(new ChangesApplied());
-					// Build message with failed requests
-					String message = buildMessageBody(process);
-					customMetrics.setStageMetric(40, message);
-					// Step 5 : call pscload
-					process.runtask();
-					registry.unregister(process.getId());
-					customMetrics.setStageMetric(0);
-				} catch (LoadProcessException e) {
-					log.error("error when uploading changes", e);
-				}
-				ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-				response.setResult(result);
-			});
-			// Response OK
-			return response;
+		if (process != null) {
+			if (process.getState().getClass().equals(DiffComputed.class)) {
+				// launch process in a separate thread
+				ForkJoinPool.commonPool().submit(() -> {
+					try {
+						// upload changes
+						process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
+						customMetrics.resetSizeMetrics();
+						process.runtask();
+						process.setState(new ChangesApplied());
+						// Build message with failed requests
+						String message = buildMessageBody(process);
+						customMetrics.setStageMetric(40, message);
+						// Step 5 : call pscload
+						process.runtask();
+						registry.unregister(process.getId());
+						customMetrics.setStageMetric(0);
+					} catch (LoadProcessException e) {
+						log.error("error when uploading changes", e);
+					}
+					ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+					response.setResult(result);
+				});
+				// Response OK
+				return response;
+			}
+			// Conflict if process is not in the expected state.
+			ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+			response.setResult(result);
+		}else {
+			response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
 		}
-		// Conflict if process is not in the expected state.
-		ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-		response.setResult(result);
 		return response;
 	}
 

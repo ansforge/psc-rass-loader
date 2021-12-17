@@ -9,15 +9,25 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
 import java.io.File;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
@@ -25,6 +35,8 @@ import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.StructureApi;
 import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.PscloadApplication;
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,8 +47,20 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
+@AutoConfigureMockMvc
 public class UploadingStateTest {
 
+	
+	/** The mock mvc. */
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@Autowired
+	private CustomMetrics customMetrics;
+	
+	@Autowired
+	private ProcessRegistry registry;
+	
 	/** The http api mock server. */
 	@RegisterExtension
 	static WireMockExtension httpApiMockServer = WireMockExtension.newInstance()
@@ -45,6 +69,13 @@ public class UploadingStateTest {
 					.usingFilesUnderClasspath("wiremock/api"))
 			.configureStaticDsl(true).build();
 
+	// For use with mockMvc
+	@DynamicPropertySource
+    static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
+		propertiesRegistry.add("api.base.url", 
+          () -> httpApiMockServer.baseUrl());
+		propertiesRegistry.add("deactivation.excluded.profession.codes", () -> "0");
+    }
 	
 	/**
 	 * Api call test.
@@ -94,15 +125,17 @@ public class UploadingStateTest {
 		p.runtask();
 		// Day 2 : Compute diff (1 delete)
 		LoadProcess p2 = new LoadProcess(new FileExtracted());
+		registry.register(Integer.toString(registry.nextId()), p2);
 		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
 		p2.runtask();
 		// Day 2 : upload changes (1 delete)
-		String[] excludedProfessions = {"90"};
-		p2.setState(new UploadingChanges(excludedProfessions, httpApiMockServer.baseUrl() ));
+		String[] exclusions = {"90"};
+		p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
 		p2.runtask();
 		assertEquals(0,p2.getPsToCreate().size());
 		assertEquals(0,p2.getPsToDelete().size());
 		assertEquals(0,p2.getPsToUpdate().size());
+
 	}
 	
 	/**
@@ -132,16 +165,19 @@ public class UploadingStateTest {
 		p.runtask();
 		// Day 2 : Compute diff (1 delete)
 		LoadProcess p2 = new LoadProcess(new FileExtracted());
+		registry.register(Integer.toString(registry.nextId()), p2);
 		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
 		p2.runtask();
+		p2.setState(new DiffComputed(customMetrics));
+		p2.runtask();
 		// Day 2 : upload changes (1 delete)
-		String[] excludedProfessions = {"90"};
-		p2.setState(new UploadingChanges(excludedProfessions, httpApiMockServer.baseUrl() ));
+		String[] exclusions = {"90"};
+		p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
 		p2.runtask();
 		assertEquals(0,p2.getPsToCreate().size());
 		assertEquals(1,p2.getPsToDelete().size());
 		assertEquals(0,p2.getPsToUpdate().size());
-		//TODO add assertions (not possible to check the size of maps because they are unmodifiables
+		assertEquals(HttpStatus.NOT_FOUND.value(),  p2.getPsToDelete().get("810107592544").getReturnStatus());
 
 	}
 }
