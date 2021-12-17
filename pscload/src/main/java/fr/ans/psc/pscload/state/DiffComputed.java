@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestClientException;
 
 import com.google.common.collect.MapDifference.ValueDifference;
@@ -72,6 +73,7 @@ public class DiffComputed extends ProcessState {
 		uploadStructuresToCreate(process.getStructureToCreate());
 		uploadStructuresToUpdate(process.getStructureToUpdate());
 		//TODO log the entries still in the maps and clear the map ?
+		// Status code is store in Professionnel object and Strucxture Object
 		// Send an email to supervisor and ask him to check the platform and invoke the resume controller
 		// TODO delete structures ?
 		running = false;
@@ -101,10 +103,12 @@ public class DiffComputed extends ProcessState {
 			try {
 				structureapi.createNewStructure(structure);
 				// Remove structure from map if return code is 201
-				// TODO Map is unmodifiable, check for another solution
 				structuresToCreate.remove(structure.getStructureTechnicalId());
-			} catch (RestClientException e) {
+			} catch (RestClientResponseException e) {
 				log.error("error when creation of structure : {}, return code : {}", structure.getStructureTechnicalId(), e.getLocalizedMessage());
+					structure.setReturnStatus(e.getRawStatusCode());
+			} catch (RestClientException e) {
+				log.error("error when creation of structure : {}, return message : {}", structure.getStructureTechnicalId(), e.getLocalizedMessage());
 			}
 
 		});
@@ -122,8 +126,11 @@ public class DiffComputed extends ProcessState {
 				structureapi.updateStructure(v.rightValue());
 				// Remove entry if return code is 2xx
 				structuresToUpdate.remove(v.rightValue().getStructureTechnicalId());
-			} catch (RestClientException e) {
+			} catch (RestClientResponseException e) {
 				log.error("error when update of structure : {}, return message : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
+				v.rightValue().setReturnStatus(e.getRawStatusCode());
+			} catch (RestClientException e) {
+				log.error("error when creation of structure : {}, return message : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
 			}
 
 		});
@@ -139,7 +146,10 @@ public class DiffComputed extends ProcessState {
 			psapi.createNewPs(ps);
 			// remove PS from map if status 2xx
 			psToCreate.remove(ps.getNationalId());
-		} catch (RestClientException e) {
+		} catch (RestClientResponseException e) {
+			log.error("error when creation of ps : {}, return code : {}", ps.getNationalId(), e.getLocalizedMessage());
+			ps.setReturnStatus(e.getRawStatusCode());
+		} catch (RestClientException e ) {
 			log.error("error when creation of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
 		}
 	});
@@ -166,6 +176,9 @@ public class DiffComputed extends ProcessState {
 						psapi.deletePsById(ps.getNationalId());
 						// remove PS from map if status 2xx
 						psToDelete.remove(ps.getNationalId());
+					} catch (RestClientResponseException e) {
+						log.error("error when deletion of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
+						ps.setReturnStatus(e.getRawStatusCode());
 					} catch (RestClientException e) {
 						log.error("error when deletion of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
 					}
@@ -188,6 +201,9 @@ public class DiffComputed extends ProcessState {
 				psapi.updatePs(v.rightValue());
 				// remove PS from map if status 2xx
 				psToUpdate.remove(v.rightValue().getNationalId());
+			} catch (RestClientResponseException e) {
+				log.error("error when update of ps : {}, return message : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
+				v.rightValue().setReturnStatus(e.getRawStatusCode());
 			} catch (RestClientException e) {
 				log.error("error when update of ps : {}, return message : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
 			}

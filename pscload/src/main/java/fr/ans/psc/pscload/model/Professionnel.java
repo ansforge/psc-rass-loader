@@ -10,6 +10,8 @@ import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 import lombok.EqualsAndHashCode;
@@ -27,6 +29,11 @@ public class Professionnel extends Ps implements Externalizable {
 	 * 
 	 */
 	private static final long serialVersionUID = -2859304844064466893L;
+	
+	/**
+	 * returnStatus after failure in change request
+	 */
+	private int returnStatus;
 
 	/**
 	 * Instantiates a new professionnel.
@@ -76,6 +83,7 @@ public class Professionnel extends Ps implements Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(returnStatus);
 		out.writeObject(getIdType());
 		out.writeObject(getId());
 		out.writeObject(getNationalId());
@@ -90,6 +98,7 @@ public class Professionnel extends Ps implements Externalizable {
 		out.writeObject(getEmail());
 		out.writeObject(getSalutationCode());
 		out.writeObject(getProfessions());
+
 		
 
 	}
@@ -97,6 +106,7 @@ public class Professionnel extends Ps implements Externalizable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		returnStatus = in.readInt();
 		setIdType((String) in.readObject());
 		setId((String) in.readObject());
 		setNationalId((String) in.readObject());
@@ -111,6 +121,14 @@ public class Professionnel extends Ps implements Externalizable {
 		setEmail((String) in.readObject());
 		setSalutationCode((String) in.readObject());
 		setProfessions((List<Profession>) in.readObject());
+	}
+
+	public int getReturnStatus() {
+		return returnStatus;
+	}
+
+	public void setReturnStatus(int returnStatus) {
+		this.returnStatus = returnStatus;
 	}
 
 }

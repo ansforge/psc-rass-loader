@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.EqualsAndHashCode;
 
 /**
@@ -19,6 +21,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements Externalizable {
 
+	
+	/**
+	 * returnStatus after failure in change request
+	 */
+	private int returnStatus;
+
+	
 	/**
 	 * Instantiates a new structure.
 	 */
@@ -62,6 +71,7 @@ public class Structure extends fr.ans.psc.model.Structure implements Externaliza
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(returnStatus);
 		out.writeObject(getSiteSIRET());
 		out.writeObject(getSiteSIREN());
 		out.writeObject(getSiteFINESS());
@@ -92,6 +102,7 @@ public class Structure extends fr.ans.psc.model.Structure implements Externaliza
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		returnStatus = in.readInt();
 		setSiteSIRET((String) in.readObject());
 		setSiteFINESS((String) in.readObject());
 		setLegalEstablishmentFINESS((String) in.readObject());
@@ -116,6 +127,14 @@ public class Structure extends fr.ans.psc.model.Structure implements Externaliza
 		setDepartmentCode((String) in.readObject());
 		setOldStructureId((String) in.readObject());
 		setRegistrationAuthority((String) in.readObject());
+	}
+
+	public int getReturnStatus() {
+		return returnStatus;
+	}
+
+	public void setReturnStatus(int returnStatus) {
+		this.returnStatus = returnStatus;
 	}
 
 }
