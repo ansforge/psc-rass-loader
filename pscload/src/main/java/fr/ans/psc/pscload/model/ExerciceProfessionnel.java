@@ -40,11 +40,11 @@ public class ExerciceProfessionnel extends Profession implements Externalizable 
 	 */
 	public ExerciceProfessionnel(String[] items) {
 		super();
-		setCode(items[13]);
-		setCategoryCode(items[14]);
-		setSalutationCode(items[15]);
-		setLastName(items[16]);
-		setFirstName(items[17]);
+		setCode(items[RassItems.EX_PRO_CODE.column]);
+		setCategoryCode(items[RassItems.CATEGORY_CODE.column]);
+		setSalutationCode(items[RassItems.EX_PRO_SALUTATION_CODE.column]);
+		setLastName(items[RassItems.EX_PRO_LAST_NAME.column]);
+		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
 		addExpertisesItem(new SavoirFaire(items));
 		addWorkSituationsItem(new SituationExercice(items));
 	}

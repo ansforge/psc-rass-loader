@@ -39,8 +39,8 @@ public class SavoirFaire extends Expertise implements Externalizable{
 	 */
 	public SavoirFaire(String[] items){
 		   super();
-	        setTypeCode(items[18]);
-	        setCode(items[19]);
+	        setTypeCode(items[RassItems.EXPERTISE_TYPE_CODE.column]);
+	        setCode(items[RassItems.EXPERTISE_CODE.column]);
 	    }
 
 	@Override
