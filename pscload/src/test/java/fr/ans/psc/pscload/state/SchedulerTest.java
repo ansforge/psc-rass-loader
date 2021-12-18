@@ -75,7 +75,7 @@ public class SchedulerTest {
 
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
-		propertiesRegistry.add("extract.download.url", () -> httpRassMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect2");
+		propertiesRegistry.add("extract.download.url", () -> httpRassMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect");
 		propertiesRegistry.add("files.directory",
 				() -> Thread.currentThread().getContextClassLoader().getResource(".").getPath());
 		propertiesRegistry.add("api.base.url", () -> httpApiMockServer.baseUrl());
@@ -89,7 +89,7 @@ public class SchedulerTest {
 		httpApiMockServer.stubFor(delete("/ps/810107592544").willReturn(aResponse().withStatus(200)));
 		httpApiMockServer.stubFor(put("/structure").willReturn(aResponse().withStatus(200)));
 		// Configure the mock service to serve zipfile
-		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
+		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect2";
 		String filename = "Extraction_ProSanteConnect_Personne_activite_202112090858.txt";
 		zipFile("wiremock/" + filename);
 		String path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + filename + ".zip")
