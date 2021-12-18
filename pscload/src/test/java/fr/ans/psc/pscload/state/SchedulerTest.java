@@ -4,16 +4,14 @@
 package fr.ans.psc.pscload.state;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -111,6 +109,7 @@ public class SchedulerTest {
 		httpMockServer.stubFor(any(urlMatching("/structure")).willReturn(aResponse().withStatus(200)));
 		scheduler.run();
 		log.info("Step 4 finished");
+		assertFalse(registry.isEmpty());
 		//TODO fix problem with async request of controller(wiremock is stopped before end of test
 		mockmvc.perform(post("/process/sync-continue").accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is2xxSuccessful()).andDo(print());

@@ -58,9 +58,6 @@ public class SchedulerTestFailToDownloadRassFile {
 
 	@Autowired
 	private Scheduler scheduler;
-	
-	@Autowired
-	private MockMvc mockmvc;
 
 	/** The http  mock server. */
 	@RegisterExtension
