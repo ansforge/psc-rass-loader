@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
@@ -48,7 +50,12 @@ public class IdleStateRunTaskTest {
 					.usingFilesUnderClasspath("wiremock"))
 			.configureStaticDsl(true).build();
 
-	
+	@DynamicPropertySource
+    static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
+		propertiesRegistry.add("api.base.url", 
+          () -> httpRassMockServer.baseUrl());
+		propertiesRegistry.add("files.directory", () -> Thread.currentThread().getContextClassLoader().getResource(".").getPath());
+    }	
 	/**
 	 * Http download test.
 	 *

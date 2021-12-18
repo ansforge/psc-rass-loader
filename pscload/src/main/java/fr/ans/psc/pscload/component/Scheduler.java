@@ -48,19 +48,26 @@ public class Scheduler {
 	@Value("${ca.path}")
 	private String cafile;
 
+	@Value("${keystore.password:mysecret}")
+	private String kspwd;
+
+	@Value("${files.directory}")
+	private String filesDirectory;
+
 	/**
 	 * Run.
 	 *
 	 * @throws GeneralSecurityException the general security exception
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws DuplicateKeyException the duplicate key exception
+	 * @throws IOException              Signals that an I/O exception has occurred.
+	 * @throws DuplicateKeyException    the duplicate key exception
 	 */
 	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
 	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
-				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile));
+				LoadProcess process = new LoadProcess(
+						new Idle(keyfile, certfile, cafile, kspwd, filesDirectory, extractDownloadUrl));
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download
@@ -75,17 +82,17 @@ public class Scheduler {
 					process.runtask();
 					process.setState(new DiffComputed(customMetrics));
 					customMetrics.setStageMetric(30);
-					//Step 3 : publish metrics
+					// Step 3 : publish metrics
 					process.runtask();
-					//End of scheduled steps
+					// End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);
 					processRegistry.unregister(id);
 				}
-			}else {
+			} else {
 				log.warn("A process is already running !");
 			}
 		}
 	}
-	
+
 }
