@@ -78,7 +78,7 @@ public class SchedulerTestFailToDownloadRassFile {
 				() -> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
 		propertiesRegistry.add("api.base.url", () -> httpMockServer.baseUrl());
 		propertiesRegistry.add("use.x509.auth", () -> "false");
-		propertiesRegistry.add("enable.scheduler", () -> "true");
+		propertiesRegistry.add("enable.scheduler", () -> "false");
 	}
 
 	@BeforeEach
