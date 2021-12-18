@@ -62,28 +62,21 @@ public class SchedulerTest {
 	@Autowired
 	private MockMvc mockmvc;
 
-	/** The http rass mock server. */
+	/** The http  mock server. */
 	@RegisterExtension
-	static WireMockExtension httpRassMockServer = WireMockExtension.newInstance()
-			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).configureStaticDsl(true)
-			.build();
-
-	/** The http api mock server. */
-	@RegisterExtension
-	static WireMockExtension httpApiMockServer = WireMockExtension.newInstance()
+	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig()
 					.dynamicPort()
-					.usingFilesUnderClasspath("wiremock/api"))
-			.configureStaticDsl(true)
+					.usingFilesUnderClasspath("wiremock"))
 			.build();
 
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url",
-				() -> httpRassMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect");
+				() -> httpMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect");
 		propertiesRegistry.add("files.directory",
 				() -> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
-		propertiesRegistry.add("api.base.url", () -> httpApiMockServer.baseUrl());
+		propertiesRegistry.add("api.base.url", () -> httpMockServer.baseUrl());
 		propertiesRegistry.add("use.x509.auth", () -> "false");
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 	}
@@ -102,18 +95,6 @@ public class SchedulerTest {
 	}
 
 	@Test
-	@DisplayName("Scheduler Error Download test (bad url)")
-	void schedulerTest() throws Exception {
-		httpApiMockServer.stubFor(delete("/ps/810107592544").willReturn(aResponse().withStatus(200)));
-		httpApiMockServer.stubFor(put("/structure").willReturn(aResponse().withStatus(200)));
-		// Configure the mock service to serve zipfile
-		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
-		httpRassMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(404)));
-		scheduler.run();
-		assertTrue(registry.isEmpty());
-	}
-
-	@Test
 	@DisplayName("Scheduler end to end test")
 	void schedulerNominalProccessTest() throws Exception {
 		// Configure the mock service to serve zipfile
@@ -123,10 +104,11 @@ public class SchedulerTest {
 		String path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + filename + ".zip")
 				.getPath();
 		byte[] content = readFileToBytes(path);
-		httpApiMockServer.stubFor(any(urlMatching("/.*")).willReturn(aResponse().withStatus(200)));
-		httpRassMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(200)
+		httpMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(200)
 				.withHeader("Content-Type", "application/zip")
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
+		httpMockServer.stubFor(any(urlMatching("/ps")).willReturn(aResponse().withStatus(200)));
+		httpMockServer.stubFor(any(urlMatching("/structure")).willReturn(aResponse().withStatus(200)));
 		scheduler.run();
 		//TODO fix problem with async request of controller(wiremock is stopped before end of test
 		mockmvc.perform(post("/process/sync-continue").accept(MediaType.APPLICATION_JSON))

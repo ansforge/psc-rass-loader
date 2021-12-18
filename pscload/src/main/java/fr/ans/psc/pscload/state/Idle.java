@@ -166,6 +166,7 @@ public class Idle extends ProcessState {
 	 */
 	public String downloadFile() throws IOException {
 		URL url = new URL(extractDownloadUrl);
+		log.info("try to download file from " + extractDownloadUrl);
 		HttpURLConnection httpConn;
 		// Check if connection is https
 		if ("https".equals(url.getProtocol())) {
