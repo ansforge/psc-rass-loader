@@ -79,7 +79,7 @@ public class SchedulerTest {
 		propertiesRegistry.add("files.directory",
 				() -> Thread.currentThread().getContextClassLoader().getResource(".").getPath());
 		propertiesRegistry.add("api.base.url", () -> httpApiMockServer.baseUrl());
-		propertiesRegistry.add("use.ssl", () -> "false");
+		propertiesRegistry.add("use.x509.auth", () -> "false");
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 	}
 
@@ -89,17 +89,27 @@ public class SchedulerTest {
 		httpApiMockServer.stubFor(delete("/ps/810107592544").willReturn(aResponse().withStatus(200)));
 		httpApiMockServer.stubFor(put("/structure").willReturn(aResponse().withStatus(200)));
 		// Configure the mock service to serve zipfile
-		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect2";
-		String filename = "Extraction_ProSanteConnect_Personne_activite_202112090858.txt";
-		zipFile("wiremock/" + filename);
-		String path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + filename + ".zip")
-				.getPath();
-		byte[] content = readFileToBytes(path);
-		httpRassMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(200)
-				.withHeader("Content-Type", "application/zip")
-				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
+		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
+		httpRassMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(404)));
 			scheduler.run();
 			assertTrue(registry.isEmpty());
+	}
+
+	private static void zipFile(String filename) throws Exception {
+	
+		String filePath = Thread.currentThread().getContextClassLoader().getResource(filename).getPath();
+		File file = new File(filePath);
+		String zipFileName = file.getPath().concat(".zip");
+	
+		FileOutputStream fos = new FileOutputStream(zipFileName);
+		ZipOutputStream zos = new ZipOutputStream(fos);
+	
+		zos.putNextEntry(new ZipEntry(file.getName()));
+	
+		byte[] bytes = readFileToBytes(filePath);
+		zos.write(bytes, 0, bytes.length);
+		zos.closeEntry();
+		zos.close();
 	}
 
 	private static byte[] readFileToBytes(String filePath) throws IOException {
@@ -112,23 +122,6 @@ public class SchedulerTest {
 			fis.read(bytes);
 		}
 		return bytes;
-	}
-
-	private static void zipFile(String filename) throws Exception {
-
-		String filePath = Thread.currentThread().getContextClassLoader().getResource(filename).getPath();
-		File file = new File(filePath);
-		String zipFileName = file.getPath().concat(".zip");
-
-		FileOutputStream fos = new FileOutputStream(zipFileName);
-		ZipOutputStream zos = new ZipOutputStream(fos);
-
-		zos.putNextEntry(new ZipEntry(file.getName()));
-
-		byte[] bytes = readFileToBytes(filePath);
-		zos.write(bytes, 0, bytes.length);
-		zos.closeEntry();
-		zos.close();
 	}
 
 }

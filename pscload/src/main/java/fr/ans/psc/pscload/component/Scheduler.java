@@ -55,8 +55,8 @@ public class Scheduler {
 	@Value("${files.directory}")
 	private String filesDirectory;
 
-	@Value("${use.ssl:true}")
-	private boolean useSsl;
+	@Value("${use.x509.auth:true}")
+	private boolean useX509Auth;
 
 	/**
 	 * Run.
@@ -71,7 +71,7 @@ public class Scheduler {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
 				ProcessState idle;
-				if (useSsl) {
+				if (useX509Auth) {
 					idle = new Idle(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
 				} else {
 					idle = new Idle(extractDownloadUrl, filesDirectory);
