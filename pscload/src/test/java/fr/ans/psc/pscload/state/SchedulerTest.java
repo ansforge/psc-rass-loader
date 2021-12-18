@@ -75,7 +75,7 @@ public class SchedulerTest {
 
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
-		propertiesRegistry.add("extract.download.url", () -> httpRassMockServer.baseUrl());
+		propertiesRegistry.add("extract.download.url", () -> httpRassMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect2");
 		propertiesRegistry.add("files.directory",
 				() -> Thread.currentThread().getContextClassLoader().getResource(".").getPath());
 		propertiesRegistry.add("api.base.url", () -> httpApiMockServer.baseUrl());
@@ -84,7 +84,7 @@ public class SchedulerTest {
 	}
 
 	@Test
-	@DisplayName("Scheduler Error Download test")
+	@DisplayName("Scheduler Error Download test (bad url)")
 	void schedulerTest() throws Exception {
 		httpApiMockServer.stubFor(delete("/ps/810107592544").willReturn(aResponse().withStatus(200)));
 		httpApiMockServer.stubFor(put("/structure").willReturn(aResponse().withStatus(200)));
