@@ -58,9 +58,6 @@ public class SchedulerTestFailToDownloadRassFile {
 
 	@Autowired
 	private Scheduler scheduler;
-	
-	@Autowired
-	private MockMvc mockmvc;
 
 	/** The http  mock server. */
 	@RegisterExtension
@@ -78,7 +75,8 @@ public class SchedulerTestFailToDownloadRassFile {
 				() -> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
 		propertiesRegistry.add("api.base.url", () -> httpMockServer.baseUrl());
 		propertiesRegistry.add("use.x509.auth", () -> "false");
-		propertiesRegistry.add("enable.scheduler", () -> "false");
+		propertiesRegistry.add("enable.scheduler", () -> "true");
+		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
 	}
 
 	@BeforeEach

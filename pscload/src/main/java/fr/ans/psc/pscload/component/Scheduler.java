@@ -65,7 +65,7 @@ public class Scheduler {
 	 * @throws IOException              Signals that an I/O exception has occurred.
 	 * @throws DuplicateKeyException    the duplicate key exception
 	 */
-	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
+	@Scheduled(cron  = "${scheduler.cron}")
 	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
