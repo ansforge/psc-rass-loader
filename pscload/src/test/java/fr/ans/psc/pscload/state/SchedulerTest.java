@@ -110,6 +110,7 @@ public class SchedulerTest {
 		httpMockServer.stubFor(any(urlMatching("/ps")).willReturn(aResponse().withStatus(200)));
 		httpMockServer.stubFor(any(urlMatching("/structure")).willReturn(aResponse().withStatus(200)));
 		scheduler.run();
+		log.info("Step 4 finished");
 		//TODO fix problem with async request of controller(wiremock is stopped before end of test
 		mockmvc.perform(post("/process/sync-continue").accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is2xxSuccessful()).andDo(print());
