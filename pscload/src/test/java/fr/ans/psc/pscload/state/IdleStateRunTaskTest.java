@@ -52,7 +52,7 @@ public class IdleStateRunTaskTest {
 
 	@DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
-		propertiesRegistry.add("api.base.url", 
+		propertiesRegistry.add("extract.download.url", 
           () -> httpRassMockServer.baseUrl());
 		propertiesRegistry.add("files.directory", () -> Thread.currentThread().getContextClassLoader().getResource(".").getPath());
     }	

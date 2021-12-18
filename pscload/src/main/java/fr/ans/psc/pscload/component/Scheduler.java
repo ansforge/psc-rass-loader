@@ -17,6 +17,7 @@ import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.FileDownloaded;
 import fr.ans.psc.pscload.state.FileExtracted;
 import fr.ans.psc.pscload.state.Idle;
+import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,6 +55,9 @@ public class Scheduler {
 	@Value("${files.directory}")
 	private String filesDirectory;
 
+	@Value("${use.ssl:true}")
+	private boolean useSsl;
+
 	/**
 	 * Run.
 	 *
@@ -66,8 +70,13 @@ public class Scheduler {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
-				LoadProcess process = new LoadProcess(
-						new Idle(keyfile, certfile, cafile, kspwd, filesDirectory, extractDownloadUrl));
+				ProcessState idle;
+				if (useSsl) {
+					idle = new Idle(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
+				} else {
+					idle = new Idle(extractDownloadUrl, filesDirectory);
+				}
+				LoadProcess process = new LoadProcess(idle);
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download
