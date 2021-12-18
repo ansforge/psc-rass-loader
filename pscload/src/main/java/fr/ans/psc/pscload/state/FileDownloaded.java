@@ -74,7 +74,7 @@ public class FileDownloaded extends ProcessState {
 		ZipFile zf = new ZipFile(zip);
 		File destDir = zip.getParentFile();
 		File[] existingFiles = zipsTextsNSers(destDir.listFiles()).get("txts").toArray(new File[0]);
-
+		File newFile = null;
 		byte[] buffer = new byte[1024];
 
 		try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath))) {
@@ -82,7 +82,7 @@ public class FileDownloaded extends ProcessState {
 				ZipEntry zipEntry = zis.getNextEntry();
 				String filename = zipEntry.getName();
 				while (zipEntry != null) {
-					File newFile = newFile(destDir, zipEntry);
+					newFile = newFile(destDir, zipEntry);
 					// check only entries that are files
 					if (!zipEntry.isDirectory()) {
 						// check if newer than what exists, otherwise go to next entry
@@ -115,7 +115,7 @@ public class FileDownloaded extends ProcessState {
 					zip.delete();
 				}
 				zf.close();
-				return destDir.getParent() + filename;
+				return newFile.getAbsolutePath();
 			} else {
 				zf.close();
 				throw new ExtractException("Zip contains multiples files");
