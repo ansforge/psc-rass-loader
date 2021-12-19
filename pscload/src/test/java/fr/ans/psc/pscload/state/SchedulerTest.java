@@ -20,14 +20,18 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -39,6 +43,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.component.Scheduler;
+import fr.ans.psc.pscload.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,17 +61,20 @@ public class SchedulerTest {
 
 	@Autowired
 	private Scheduler scheduler;
-	
+
 	@Autowired
 	private MockMvc mockmvc;
 
-	/** The http  mock server. */
+	@Autowired
+	private EmailService emailService;
+
+	@Mock
+	private JavaMailSender javaMailSender;
+
+	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
-			.options(wireMockConfig()
-					.dynamicPort()
-					.usingFilesUnderClasspath("wiremock"))
-			.build();
+			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
 
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
@@ -81,7 +89,9 @@ public class SchedulerTest {
 	}
 
 	@BeforeEach
-	void setup() {
+	void setup() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
+		emailService.setEmailSender(javaMailSender);
 		registry.clear();
 		// clear work directory
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -111,9 +121,10 @@ public class SchedulerTest {
 		scheduler.run();
 		log.info("Step 4 finished");
 		assertFalse(registry.isEmpty());
-		//TODO fix problem with async request of controller(wiremock is stopped before end of test
+		// TODO fix problem with async request of controller(wiremock is stopped before
+		// end of test
 		mockmvc.perform(post("/process/sync-continue").accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().is2xxSuccessful()).andDo(print());
+				.andExpect(status().is2xxSuccessful()).andDo(print());
 	}
 
 	private static void zipFile(String filename) throws Exception {

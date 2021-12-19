@@ -23,6 +23,6 @@ public class StateNotifierService implements ApplicationListener<StateChangeEven
 	@Override
 	public void onApplicationEvent(StateChangeEvent event) {
 		log.info(event.getMessage());
-		//emailService.sendMail(EmailNature.STATE_CHANGED, event.getMessage());	
+		emailService.sendMail(EmailNature.STATE_CHANGED, event.getMessage());	
 	}
 }

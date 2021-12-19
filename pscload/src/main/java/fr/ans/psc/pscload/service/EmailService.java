@@ -21,12 +21,16 @@ public class EmailService {
     @Autowired
     private JavaMailSender emailSender;
 
-    @Value("${spring.mail.username}")
+	@Value("${spring.mail.username}")
     private String sender;
 
     @Value("${pscload.mail.receiver}")
     private String receiver;
 
+    
+    public void setEmailSender(JavaMailSender emailSender) {
+		this.emailSender = emailSender;
+	}
     /**
      * Send mail.
      *

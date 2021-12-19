@@ -31,7 +31,7 @@ public class ProcessController {
 
 	@Autowired
 	private CustomMetrics customMetrics;
-
+	
 	private final ProcessRegistry registry;
 
 	@Value("${api.base.url}")
