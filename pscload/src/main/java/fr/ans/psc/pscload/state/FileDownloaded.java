@@ -33,178 +33,178 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileDownloaded extends ProcessState {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1938173997893575974L;
-	
-	@Override
-	public void runTask() throws LoadProcessException {
-		try {
-			process.setExtractedFilename(unzip(process.getDownloadedFilename()));
-		} catch (IOException e) {
-			// TODO log
-			throw new ExtractException(e);
-		}
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1938173997893575974L;
 
-	}
+    @Override
+    public void runTask() throws LoadProcessException {
+        try {
+            process.setExtractedFilename(unzip(process.getDownloadedFilename()));
+        } catch (IOException e) {
+            // TODO log
+            throw new ExtractException(e);
+        }
 
-	/**
-	 * Unzip.
-	 *
-	 * @param zipFilePath the zip file path
-	 * @return true if a new file is found and unzipped successfully
-	 * @throws IOException io exception
-	 * @throws ExtractException 
-	 */
-	private String unzip(String zipFilePath) throws IOException, ExtractException {
-		return unzip(zipFilePath, false);
-	}
+    }
 
-	/**
-	 * Unzip.
-	 *
-	 * @param zipFilePath the zip file path
-	 * @param clean       set to true to delete the zip file after unzipping
-	 * @return true if a new file is found and unzipped successfully
-	 * @throws IOException io exception
-	 */
-	private String unzip(String zipFilePath, boolean clean) throws IOException, ExtractException {
-		File zip = new File(zipFilePath);
-		ZipFile zf = new ZipFile(zip);
-		File destDir = zip.getParentFile();
-		File[] existingFiles = zipsTextsNSers(destDir.listFiles()).get("txts").toArray(new File[0]);
-		File newFile = null;
-		byte[] buffer = new byte[1024];
+    /**
+     * Unzip.
+     *
+     * @param zipFilePath the zip file path
+     * @return true if a new file is found and unzipped successfully
+     * @throws IOException      io exception
+     * @throws ExtractException
+     */
+    private String unzip(String zipFilePath) throws IOException, ExtractException {
+        return unzip(zipFilePath, false);
+    }
 
-		try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath))) {
-			if (zf.size() == 1) {
-				ZipEntry zipEntry = zis.getNextEntry();
-				String filename = zipEntry.getName();
-				while (zipEntry != null) {
-					newFile = newFile(destDir, zipEntry);
-					// check only entries that are files
-					if (!zipEntry.isDirectory()) {
-						// check if newer than what exists, otherwise go to next entry
-						if (isNew(newFile, existingFiles)) {
-						} else {
-							log.info("{} is not new, will not be extracted", newFile.getName());
-							zipEntry = zis.getNextEntry();
-							continue;
-						}
-						// fix for Windows-created archives
-						File parent = newFile.getParentFile();
-						if (!parent.isDirectory() && !parent.mkdirs()) {
-							throw new IOException("Failed to create directory " + parent);
-						}
-						// write file content
-						log.info("unzipping into {}", newFile.getName());
-						FileOutputStream fos = new FileOutputStream(newFile);
-						int len;
-						while ((len = zis.read(buffer)) > 0) {
-							fos.write(buffer, 0, len);
-						}
-						fos.close();
-						log.info("unzip complete!");
-					}
-					zipEntry = zis.getNextEntry();
-				}
-				zis.closeEntry();
-				if (clean) {
-					log.info("clean set to true, deleting {}", zip.getName());
-					zip.delete();
-				}
-				zf.close();
-				return newFile.getAbsolutePath();
-			} else {
-				zf.close();
-				throw new ExtractException("Zip contains multiples files");
-			}
-		}
+    /**
+     * Unzip.
+     *
+     * @param zipFilePath the zip file path
+     * @param clean       set to true to delete the zip file after unzipping
+     * @return true if a new file is found and unzipped successfully
+     * @throws IOException io exception
+     */
+    private String unzip(String zipFilePath, boolean clean) throws IOException, ExtractException {
+        File zip = new File(zipFilePath);
+        ZipFile zf = new ZipFile(zip);
+        File destDir = zip.getParentFile();
+        File[] existingFiles = zipsTextsNSers(destDir.listFiles()).get("txts").toArray(new File[0]);
+        File newFile = null;
+        byte[] buffer = new byte[1024];
 
-	}
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath))) {
+            if (zf.size() == 1) {
+                ZipEntry zipEntry = zis.getNextEntry();
+                String filename = zipEntry.getName();
+                while (zipEntry != null) {
+                    newFile = newFile(destDir, zipEntry);
+                    // check only entries that are files
+                    if (!zipEntry.isDirectory()) {
+                        // check if newer than what exists, otherwise go to next entry
+                        if (isNew(newFile, existingFiles)) {
+                        } else {
+                            log.info("{} is not new, will not be extracted", newFile.getName());
+                            zipEntry = zis.getNextEntry();
+                            continue;
+                        }
+                        // fix for Windows-created archives
+                        File parent = newFile.getParentFile();
+                        if (!parent.isDirectory() && !parent.mkdirs()) {
+                            throw new IOException("Failed to create directory " + parent);
+                        }
+                        // write file content
+                        log.info("unzipping into {}", newFile.getName());
+                        FileOutputStream fos = new FileOutputStream(newFile);
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                        fos.close();
+                        log.info("unzip complete!");
+                    }
+                    zipEntry = zis.getNextEntry();
+                }
+                zis.closeEntry();
+                if (clean) {
+                    log.info("clean set to true, deleting {}", zip.getName());
+                    zip.delete();
+                }
+                zf.close();
+                return newFile.getAbsolutePath();
+            } else {
+                zf.close();
+                throw new ExtractException("Zip contains multiples files");
+            }
+        }
 
-	private File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
-		File destFile = new File(destinationDir, zipEntry.getName());
+    }
 
-		String destDirPath = destinationDir.getCanonicalPath();
-		String destFilePath = destFile.getCanonicalPath();
+    private File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+        File destFile = new File(destinationDir, zipEntry.getName());
 
-		if (!destFilePath.startsWith(destDirPath + File.separator)) {
-			throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
-		}
+        String destDirPath = destinationDir.getCanonicalPath();
+        String destFilePath = destFile.getCanonicalPath();
 
-		return destFile;
-	}
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+        }
 
-	/**
-	 * Zips and texts map.
-	 *
-	 * @param listOfFiles the list of files
-	 * @return the map
-	 * @throws IOException io exception
-	 */
-	private Map<String, List<File>> zipsTextsNSers(File[] listOfFiles) throws IOException {
-		Map<String, List<File>> filesMap = new HashMap<>();
-		filesMap.put("zips", new ArrayList<>());
-		filesMap.put("txts", new ArrayList<>());
-		filesMap.put("sers", new ArrayList<>());
+        return destFile;
+    }
 
-		for (File file : listOfFiles != null ? listOfFiles : new File[0]) {
-			String type = Files.probeContentType(file.toPath());
-			if (file.getName().endsWith(".ser")) {
-				filesMap.get("sers").add(file);
-			} else if (type != null && type.contains("zip")) {
-				filesMap.get("zips").add(file);
-			} else if (type != null && type.contains("text")) {
-				filesMap.get("txts").add(file);
-			}
-		}
-		return filesMap;
-	}
+    /**
+     * Zips and texts map.
+     *
+     * @param listOfFiles the list of files
+     * @return the map
+     * @throws IOException io exception
+     */
+    private Map<String, List<File>> zipsTextsNSers(File[] listOfFiles) throws IOException {
+        Map<String, List<File>> filesMap = new HashMap<>();
+        filesMap.put("zips", new ArrayList<>());
+        filesMap.put("txts", new ArrayList<>());
+        filesMap.put("sers", new ArrayList<>());
 
-	private int compare(File f1, File f2) {
-		try {
-			return getDateFromFileName(f1).compareTo(getDateFromFileName(f2));
-		} catch (ParseException e) {
-			log.error("Error when date compare", e);
-			;
-		}
-		return 0;
-	}
+        for (File file : listOfFiles != null ? listOfFiles : new File[0]) {
+            String type = Files.probeContentType(file.toPath());
+            if (file.getName().endsWith(".ser")) {
+                filesMap.get("sers").add(file);
+            } else if (type != null && type.contains("zip")) {
+                filesMap.get("zips").add(file);
+            } else if (type != null && type.contains("text")) {
+                filesMap.get("txts").add(file);
+            }
+        }
+        return filesMap;
+    }
 
-	private boolean isNew(File f1, File[] listF2) {
-		if (listF2.length == 0) {
-			return true;
-		}
-		for (File f2 : listF2) {
-			if (compare(f1, f2) > 0) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private int compare(File f1, File f2) {
+        try {
+            return getDateFromFileName(f1).compareTo(getDateFromFileName(f2));
+        } catch (ParseException e) {
+            log.error("Error when date compare", e);
+            ;
+        }
+        return 0;
+    }
 
-	private Date getDateFromFileName(File file) throws ParseException {
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMddhhmm");
+    private boolean isNew(File f1, File[] listF2) {
+        if (listF2.length == 0) {
+            return true;
+        }
+        for (File f2 : listF2) {
+            if (compare(f1, f2) > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-		String regex = ".*(\\d{12}).*";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher m = pattern.matcher(file.getName());
-		if (m.find()) {
-			return dateFormatter.parse(m.group(1));
-		}
-		return new Date(0);
-	}
+    private Date getDateFromFileName(File file) throws ParseException {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMddhhmm");
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
+        String regex = ".*(\\d{12}).*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher m = pattern.matcher(file.getName());
+        if (m.find()) {
+            return dateFormatter.parse(m.group(1));
+        }
+        return new Date(0);
+    }
 
-	}
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    }
 
-	}
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+
+    }
 
 }

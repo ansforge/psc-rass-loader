@@ -75,14 +75,12 @@ public class UploadingChanges extends ProcessState {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(excludedProfessions);
 		out.writeObject(apiBaseUrl);
-
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		excludedProfessions = (String[]) in.readObject();
 		apiBaseUrl = (String) in.readObject();
-
 	}
 
 	private void uploadStructuresToCreate(Map<String, Structure> structuresToCreate) throws LoadProcessException {

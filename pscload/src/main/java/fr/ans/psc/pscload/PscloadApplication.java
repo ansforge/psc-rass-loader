@@ -39,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SpringBootApplication
 @EnableScheduling
-@EnableAutoConfiguration
 @Slf4j
 public class PscloadApplication {
 

@@ -106,7 +106,7 @@ public class ProcessController {
 	 */
 	@PostMapping(value = "/process/abort")
 	public ResponseEntity<Void> abortProcess() {
-		// TODO check il clear is a better way to abort ?
+		// TODO check if clear is a better way to abort ?
 		registry.unregister(registry.getCurrentProcess().getId());
 	
 		return null;
@@ -156,8 +156,8 @@ public class ProcessController {
 				infos.setPsToUpdate(process.getPsToUpdate().size());
 				infos.setPsToDelete(process.getPsToDelete().size());
 				infos.setStructureToCreate(process.getStructureToCreate().size());
-				infos.setStructureToCreate(process.getStructureToCreate().size());
-				infos.setStructureToCreate(process.getStructureToCreate().size());
+				infos.setStructureToUpdate(process.getStructureToUpdate().size());
+				infos.setStructureToDelete(process.getStructureToDelete().size());
 			}
 			processesInfos.add(infos);
 		}

@@ -58,16 +58,16 @@ class ProcessRegistryTest {
 		registry.register(id, new LoadProcess(new Idle()));
 		int currentId  = registry.currentId();
 		registry.getCurrentProcess().setDownloadedFilename("test");
-		FileOutputStream fileOutputStream
-	     = new FileOutputStream(registryFile);
-	    ObjectOutputStream oos
-	     = new ObjectOutputStream(fileOutputStream);
+
+		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
+	    ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
 	    registry.writeExternal(oos);
-	    FileInputStream fileInputStream
-	     = new FileInputStream(registryFile);
-	    ObjectInputStream ois
-	     = new ObjectInputStream(fileInputStream);
+
+	    FileInputStream fileInputStream = new FileInputStream(registryFile);
+	    ObjectInputStream ois = new ObjectInputStream(fileInputStream);
+
 	    registry.getCurrentProcess().setDownloadedFilename("test2");
+
 		registry.readExternal(ois);
 		assertEquals(currentId, registry.currentId());
 		assertEquals("test", registry.getCurrentProcess().getDownloadedFilename());

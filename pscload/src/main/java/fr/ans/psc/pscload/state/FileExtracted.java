@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import fr.ans.psc.pscload.model.*;
 import org.apache.any23.encoding.TikaEncodingDetector;
 
 import com.google.common.collect.MapDifference;
@@ -34,11 +35,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
-import fr.ans.psc.pscload.model.ExerciceProfessionnel;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.SerializableValueDifference;
-import fr.ans.psc.pscload.model.SituationExercice;
-import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -157,14 +153,15 @@ public class FileExtracted extends ProcessState {
 				}
 				String[] items = Arrays.asList(objects).toArray(new String[ROW_LENGTH]);
 				// test if exists by nationalId (item 2)
-				Professionnel psMapped = newPsMap.get(items[2]);
+				Professionnel psMapped = newPsMap.get(items[RassItems.NATIONAL_ID.column]);
 				if (psMapped == null) {
 					// create PS and add to map
 					Professionnel psRow = new Professionnel(items, true);
 					newPsMap.put(psRow.getNationalId(), psRow);
 				} else {
 					// if ps exists then add expro and situ exe.
-					Optional<Profession> p = psMapped.getProfessionByCodeAndCategory(items[13], items[14]);
+					Optional<Profession> p = psMapped.getProfessionByCodeAndCategory(
+							items[RassItems.EX_PRO_CODE.column], items[RassItems.CATEGORY_CODE.column]);
 					if (p.isPresent()) {
 						// add worksituation : it can't exists, otherwise it is a duplicate entry.
 						SituationExercice situ = new SituationExercice(items);
@@ -177,7 +174,7 @@ public class FileExtracted extends ProcessState {
 					}
 				}
 				// get structure in map by its reference from row
-				if (newStructureMap.get(items[28]) == null) {
+				if (newStructureMap.get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
 					Structure newStructure = new Structure(items);
 					newStructureMap.put(newStructure.getStructureTechnicalId(), newStructure);
 				}

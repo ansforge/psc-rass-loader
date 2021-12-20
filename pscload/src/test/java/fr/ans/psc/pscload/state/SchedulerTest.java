@@ -105,7 +105,7 @@ public class SchedulerTest {
 
 	@Test
 	@DisplayName("Scheduler end to end test")
-	void schedulerNominalProccessTest() throws Exception {
+	void schedulerNominalProcessTest() throws Exception {
 		// Configure the mock service to serve zipfile
 		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
 		String filename = "Extraction_ProSanteConnect_Personne_activite_202112090858.txt";
