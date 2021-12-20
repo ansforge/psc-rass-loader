@@ -6,7 +6,7 @@ package fr.ans.psc.pscload.state.exception;
 /**
  * The Class LoadProcessException.
  */
-public class LoadProcessException extends Exception {
+public class LoadProcessException extends RuntimeException {
 
 
 

@@ -31,15 +31,14 @@ public class ProcessController {
 
 	@Autowired
 	private CustomMetrics customMetrics;
-
+	
 	private final ProcessRegistry registry;
-	
-	
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
 
-    @Value("${deactivation.excluded.profession.codes:}")
-    private String[] excludedProfessions;
+	@Value("${api.base.url}")
+	private String apiBaseUrl;
+
+	@Value("${deactivation.excluded.profession.codes:}")
+	private String[] excludedProfessions;
 
 	/**
 	 * Instantiates a new process controller.
@@ -61,37 +60,94 @@ public class ProcessController {
 		LoadProcess process = registry.getCurrentProcess();
 
 		DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
-		if (process.getState().getClass().equals(DiffComputed.class)) {
-			// launch process in a separate thread
-			ForkJoinPool.commonPool().submit(() -> {
-				try {
-					// upload changes
-					process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-					customMetrics.resetSizeMetrics();
-					process.runtask();
-					process.setState(new ChangesApplied());
-					// Build message with failed requests
-					String message = buildMessageBody(process);
-					customMetrics.setStageMetric(40, message);
-					// Step 5 : call pscload
-					process.runtask();
-					registry.unregister(process.getId());
-					customMetrics.setStageMetric(0);
-				} catch (LoadProcessException e) {
-					log.error("error when uploading changes", e);
-				}
-				ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-				response.setResult(result);
-			});
-			// Response OK
-			return response;
+		if (process != null) {
+			if (process.getState().getClass().equals(DiffComputed.class)) {
+				// launch process in a separate thread
+				ForkJoinPool.commonPool().submit(() -> {
+					runTask(process);
+					ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+					response.setResult(result);
+				});
+				// Response OK
+				response.onCompletion(() -> log.info("Processing complete"));
+				return response;
+			}
+			// Conflict if process is not in the expected state.
+			ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+			response.setResult(result);
+		}else {
+			response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
 		}
-		// Conflict if process is not in the expected state.
-		ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-		response.setResult(result);
 		return response;
 	}
 
+	/**
+	 * Resume process.
+	 *
+	 * @return the deferred result
+	 */
+	@PostMapping(value = "/process/resume")
+	public DeferredResult<ResponseEntity<Void>> resumeProcess() {
+		// We can call continue process because it contains the updated maps to apply.
+		return continueProcess();
+	}
+
+	/**
+	 * Abort process.
+	 *
+	 * @return the response entity
+	 */
+	@PostMapping(value = "/process/abort")
+	public ResponseEntity<Void> abortProcess() {
+		// TODO check il clear is a better way to abort ?
+		registry.unregister(registry.getCurrentProcess().getId());
+	
+		return null;
+	}
+
+	/**
+	 * Synchronous Continue process for testing purpose.
+	 *
+	 * @return the deferred result
+	 */
+	@PostMapping(value = "/process/sync-continue")
+	public ResponseEntity<Void> syncContinueProcess() {
+		LoadProcess process = registry.getCurrentProcess();
+		ResponseEntity<Void> result;
+		if (process != null) {
+			if (process.getState().getClass().equals(DiffComputed.class)) {
+					runTask(process);
+					result = new ResponseEntity<Void>(HttpStatus.OK);
+				// Response OKlog.info("Processing complete"));
+				return result;
+			}
+			// Conflict if process is not in the expected state.
+			result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+		}else {
+			result = new ResponseEntity<Void>(HttpStatus.TOO_EARLY);
+		}
+		return result;
+	}
+
+	private void runTask(LoadProcess process) {
+		try {
+			// upload changes
+			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
+			customMetrics.resetSizeMetrics();
+			process.runtask();
+			process.setState(new ChangesApplied());
+			// Build message with failed requests
+			String message = buildMessageBody(process);
+			customMetrics.setStageMetric(40, message);
+			// Step 5 : call pscload
+			process.runtask();
+			registry.unregister(process.getId());
+			customMetrics.setStageMetric(0);
+		} catch (LoadProcessException e) {
+			log.error("error when uploading changes", e);
+		}
+	}
+	
 	private String buildMessageBody(LoadProcess process) {
 		StringBuilder message = new StringBuilder();
 		message.append("Créations PS en échec :");
@@ -153,29 +209,5 @@ public class ProcessController {
 		message.append("Si certaines modifications n'ont pas été appliquées, ");
 		message.append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint \"resume\"");
 		return message.toString();
-	}
-
-	/**
-	 * Abort process.
-	 *
-	 * @return the response entity
-	 */
-	@PostMapping(value = "/process/abort")
-	public ResponseEntity<Void> abortProcess() {
-		// TODO check il clear is a better way to abort ?
-		registry.unregister(registry.getCurrentProcess().getId());
-
-		return null;
-	}
-
-	/**
-	 * Resume process.
-	 *
-	 * @return the deferred result
-	 */
-	@PostMapping(value = "/process/resume")
-	public DeferredResult<ResponseEntity<Void>> resumeProcess() {
-		// We can call continue process because it contains the updated maps to apply.
-		return continueProcess();
 	}
 }

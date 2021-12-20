@@ -17,6 +17,7 @@ import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.FileDownloaded;
 import fr.ans.psc.pscload.state.FileExtracted;
 import fr.ans.psc.pscload.state.Idle;
+import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,19 +49,34 @@ public class Scheduler {
 	@Value("${ca.path}")
 	private String cafile;
 
+	@Value("${keystore.password:mysecret}")
+	private String kspwd;
+
+	@Value("${files.directory}")
+	private String filesDirectory;
+
+	@Value("${use.x509.auth:true}")
+	private boolean useX509Auth;
+
 	/**
 	 * Run.
 	 *
 	 * @throws GeneralSecurityException the general security exception
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws DuplicateKeyException the duplicate key exception
+	 * @throws IOException              Signals that an I/O exception has occurred.
+	 * @throws DuplicateKeyException    the duplicate key exception
 	 */
-	@Scheduled(fixedDelayString = "${schedule.rate.ms}")
+	@Scheduled(cron  = "${scheduler.cron}")
 	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
-				LoadProcess process = new LoadProcess(new Idle(keyfile, certfile, cafile));
+				ProcessState idle;
+				if (useX509Auth) {
+					idle = new Idle(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
+				} else {
+					idle = new Idle(extractDownloadUrl, filesDirectory);
+				}
+				LoadProcess process = new LoadProcess(idle);
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download
@@ -75,17 +91,17 @@ public class Scheduler {
 					process.runtask();
 					process.setState(new DiffComputed(customMetrics));
 					customMetrics.setStageMetric(30);
-					//Step 3 : publish metrics
+					// Step 3 : publish metrics
 					process.runtask();
-					//End of scheduled steps
+					// End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);
 					processRegistry.unregister(id);
 				}
-			}else {
+			} else {
 				log.warn("A process is already running !");
 			}
 		}
 	}
-	
+
 }

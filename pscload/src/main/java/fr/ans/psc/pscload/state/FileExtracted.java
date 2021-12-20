@@ -36,6 +36,7 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.model.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.Professionnel;
+import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.SituationExercice;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
@@ -89,16 +90,27 @@ public class FileExtracted extends ProcessState {
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
 			process.setPsToCreate((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnRight().entrySet().stream()
 					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-			process.setPsToUpdate((ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			//Updates
+			Map<String, ValueDifference<Professionnel>> pstmpmap;
+			pstmpmap = (ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+			//Convert ValueDifference to PscValueDifference for serialization
+			Map<String, SerializableValueDifference<Professionnel>> pstu = process.getPsToUpdate();
+			pstmpmap.forEach((k, v) -> pstu.put(k,new SerializableValueDifference<Professionnel>(v.leftValue(), v.rightValue())));
+			
 			process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
 					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 			//Structures
 			MapDifference<String, Structure> diffStructures = Maps.difference(oldStructureMap, newStructureMap);
 			process.setStructureToCreate((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnRight().entrySet().stream()
 					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-			process.setStructureToUpdate((ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+			// updates
+			Map<String, ValueDifference<Structure>> structtmpmap;
+			structtmpmap = (ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
+					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+			Map<String, SerializableValueDifference<Structure>> structtu = process.getStructureToUpdate();
+			structtmpmap.forEach((k, v) -> structtu.put(k,new SerializableValueDifference<Structure>(v.leftValue(), v.rightValue())));
+			
 			process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
 					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 			
