@@ -17,10 +17,13 @@ import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The Class LoadProcess.
  */
+@Getter @Setter
 public class LoadProcess implements Externalizable {
 
 	/**
@@ -94,97 +97,9 @@ public class LoadProcess implements Externalizable {
 		state.runTask();
 	}
 
-	public ProcessState getState() {
-		return state;
-	}
-
 	public void setState(ProcessState state) {
 		this.state = state;
 		state.setProcess(this);
-	}
-	
-	public Map<String, Professionnel> getPsToCreate() {
-		return psToCreate;
-	}
-
-	public void setPsToCreate(Map<String, Professionnel> psToCreate) {
-		this.psToCreate = psToCreate;
-	}
-
-	public Map<String, SerializableValueDifference<Professionnel>> getPsToUpdate() {
-		return psToUpdate;
-	}
-
-	public void setPsToUpdate(Map<String, SerializableValueDifference<Professionnel>> psToUpdate) {
-		this.psToUpdate = psToUpdate;
-	}
-
-	public Map<String, Professionnel> getPsToDelete() {
-		return psToDelete;
-	}
-
-	public void setPsToDelete(Map<String, Professionnel> psToDelete) {
-		this.psToDelete = psToDelete;
-	}
-
-	public Map<String, Structure> getStructureToCreate() {
-		return structureToCreate;
-	}
-
-	public void setStructureToCreate(Map<String, Structure> structureToCreate) {
-		this.structureToCreate = structureToCreate;
-	}
-
-	public Map<String, SerializableValueDifference<Structure>> getStructureToUpdate() {
-		return structureToUpdate;
-	}
-
-	public void setStructureToUpdate(Map<String, SerializableValueDifference<Structure>> structureToUpdate) {
-		this.structureToUpdate = structureToUpdate;
-	}
-
-	public Map<String, Structure> getStructureToDelete() {
-		return structureToDelete;
-	}
-
-	public void setStructureToDelete(Map<String, Structure> structureToDelete) {
-		this.structureToDelete = structureToDelete;
-	}
-
-	public String getDownloadedFilename() {
-		return downloadedFilename;
-	}
-
-	public void setDownloadedFilename(String downloadedFilename) {
-		this.downloadedFilename = downloadedFilename;
-	}
-
-	public String getExtractedFilename() {
-		return extractedFilename;
-	}
-
-	public void setExtractedFilename(String extractedFilename) {
-		this.extractedFilename = extractedFilename;
-	}
-
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public UploadMetrics getUploadMetrics() {
-		return uploadMetrics;
-	}
-
-	public void setUploadMetrics(UploadMetrics uploadMetrics) {
-		this.uploadMetrics = uploadMetrics;
 	}
 
 	@Override
