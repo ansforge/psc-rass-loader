@@ -53,23 +53,11 @@ public class FileDownloaded extends ProcessState {
      * Unzip.
      *
      * @param zipFilePath the zip file path
-     * @return true if a new file is found and unzipped successfully
-     * @throws IOException      io exception
-     * @throws ExtractException
+     * @return the absolute path of the new extract file
+     * @throws IOException io exception
+     * @throws ExtractException if
      */
     private String unzip(String zipFilePath) throws IOException, ExtractException {
-        return unzip(zipFilePath, false);
-    }
-
-    /**
-     * Unzip.
-     *
-     * @param zipFilePath the zip file path
-     * @param clean       set to true to delete the zip file after unzipping
-     * @return true if a new file is found and unzipped successfully
-     * @throws IOException io exception
-     */
-    private String unzip(String zipFilePath, boolean clean) throws IOException, ExtractException {
         File zip = new File(zipFilePath);
         ZipFile zf = new ZipFile(zip);
         File destDir = zip.getParentFile();
@@ -86,11 +74,9 @@ public class FileDownloaded extends ProcessState {
                     // check only entries that are files
                     if (!zipEntry.isDirectory()) {
                         // check if newer than what exists, otherwise go to next entry
-                        if (isNew(newFile, existingFiles)) {
-                        } else {
+                        if (!isNew(newFile, existingFiles)) {
                             log.info("{} is not new, will not be extracted", newFile.getName());
-                            zipEntry = zis.getNextEntry();
-                            continue;
+                            throw new ExtractException("downloaded file is not new");
                         }
                         // fix for Windows-created archives
                         File parent = newFile.getParentFile();
@@ -110,10 +96,10 @@ public class FileDownloaded extends ProcessState {
                     zipEntry = zis.getNextEntry();
                 }
                 zis.closeEntry();
-                if (clean) {
-                    log.info("clean set to true, deleting {}", zip.getName());
-                    zip.delete();
-                }
+
+                log.info("clean set to true, deleting {}", zip.getName());
+                zip.delete();
+
                 zf.close();
                 return newFile.getAbsolutePath();
             } else {
