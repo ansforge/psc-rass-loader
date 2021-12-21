@@ -61,12 +61,10 @@ public class Scheduler {
 	/**
 	 * Run.
 	 *
-	 * @throws GeneralSecurityException the general security exception
-	 * @throws IOException              Signals that an I/O exception has occurred.
 	 * @throws DuplicateKeyException    the duplicate key exception
 	 */
 	@Scheduled(cron  = "${scheduler.cron}")
-	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
+	public void run() throws DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
