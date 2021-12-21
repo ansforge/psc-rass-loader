@@ -10,12 +10,6 @@ import java.io.ObjectOutput;
 
 import lombok.EqualsAndHashCode;
 
-/**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
- */
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements Externalizable {
 
@@ -102,6 +96,7 @@ public class Structure extends fr.ans.psc.model.Structure implements Externaliza
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		returnStatus = in.readInt();
 		setSiteSIRET((String) in.readObject());
+		setSiteSIREN((String) in.readObject());
 		setSiteFINESS((String) in.readObject());
 		setLegalEstablishmentFINESS((String) in.readObject());
 		setStructureTechnicalId((String) in.readObject());
