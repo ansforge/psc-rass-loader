@@ -29,7 +29,7 @@ public abstract class ProcessState implements Externalizable {
 	 *
 	 * @throws LoadProcessException the load process exception
 	 */
-	abstract public void runTask() throws LoadProcessException;
+	abstract public void nextStep() throws LoadProcessException;
 	
 	public LoadProcess getProcess() {
 		return process;

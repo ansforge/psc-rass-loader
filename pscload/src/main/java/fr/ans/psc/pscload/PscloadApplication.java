@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -103,11 +102,11 @@ public class PscloadApplication {
 							ForkJoinPool.commonPool().submit(() -> {
 								try {
 									// upload changes
-									process.runtask();
+									process.nextStep();
 									process.setState(new ChangesApplied());
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
 									// Step 5 : call pscload
-									process.runtask();
+									process.nextStep();
 									registry.unregister(process.getId());
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
 								} catch (LoadProcessException e) {

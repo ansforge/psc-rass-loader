@@ -109,7 +109,7 @@ public class Idle extends ProcessState {
 	}
 
 	@Override
-	public void runTask() throws LoadProcessException {
+	public void nextStep() throws LoadProcessException {
 
 		// downloads only if zip doesn't exist in our files directory
 		String zipFile;

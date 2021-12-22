@@ -16,7 +16,6 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +60,7 @@ public class FileExtracted extends ProcessState {
 	}
 
 	@Override
-	public void runTask() throws LoadProcessException {
+	public void nextStep() throws LoadProcessException {
 		// TODO load maps
 		File fileToLoad = new File(process.getExtractedFilename());
 		try {
@@ -75,18 +74,13 @@ public class FileExtracted extends ProcessState {
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
 				deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
-				setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 			}
 			// Launch diff
 			// TODO check to return a modifiable map
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
 			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(), newMaps.getStructureMap());
 
-			fillOperationMaps(diffPs, diffStructures);
-			
-			// Rename serialized file
-//			maps.delete();
-//			tmpmaps.renameTo(maps);
+			fillChangesMaps(diffPs, diffStructures);
 
 		} catch (IOException e) {
 			throw new DiffException("I/O Error when deserializing file", e);
@@ -110,7 +104,7 @@ public class FileExtracted extends ProcessState {
 
 	}
 
-	private void fillOperationMaps(MapDifference<String, Professionnel> diffPs, MapDifference<String, Structure> diffStructures) {
+	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs, MapDifference<String, Structure> diffStructures) {
 		process.setPsToCreate((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnRight().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 		//Updates
@@ -213,6 +207,7 @@ public class FileExtracted extends ProcessState {
 		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
 		mapsHandler.readExternal(ois);
 		ois.close();
+		setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 	}
 
 	

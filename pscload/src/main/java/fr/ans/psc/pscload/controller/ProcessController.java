@@ -169,10 +169,10 @@ public class ProcessController {
 			// upload changes
 			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 			customMetrics.resetSizeMetrics();
-			process.runtask();
+			process.nextStep();
 			process.setState(new ChangesApplied());
 			// Step 5 : call pscload
-			process.runtask();
+			process.nextStep();
 			registry.unregister(process.getId());
 			customMetrics.setStageMetric(0);
 		} catch (LoadProcessException e) {

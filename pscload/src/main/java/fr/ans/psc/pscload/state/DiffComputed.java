@@ -33,7 +33,7 @@ public class DiffComputed extends ProcessState {
 	}
 
 	@Override
-	public void runTask() {
+	public void nextStep() {
 
 		publishUploadMetrics();
 		publishPsMetrics();

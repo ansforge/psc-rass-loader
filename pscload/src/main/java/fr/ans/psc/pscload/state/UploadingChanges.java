@@ -61,7 +61,7 @@ public class UploadingChanges extends ProcessState {
     }
 
     @Override
-    public void runTask() throws LoadProcessException {
+    public void nextStep() throws LoadProcessException {
         uploadPsToCreate(process.getPsToCreate());
         uploadPsToUpdate(process.getPsToUpdate());
         uploadPsToDelete(process.getPsToDelete());

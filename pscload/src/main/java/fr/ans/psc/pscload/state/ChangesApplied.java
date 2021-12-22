@@ -42,7 +42,7 @@ public class ChangesApplied extends ProcessState {
     private MapsHandler oldMaps = new MapsHandler();
 
     @Override
-    public void runTask() {
+    public void nextStep() {
 
         deserializeMaps(newMaps, process.getTmpMapsPath());
         File tmpSerFile = new File(process.getTmpMapsPath());

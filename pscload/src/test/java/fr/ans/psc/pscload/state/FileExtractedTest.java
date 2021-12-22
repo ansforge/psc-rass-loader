@@ -7,18 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 
 /**
  * The Class FileExtractedTest.
@@ -57,7 +54,7 @@ class FileExtractedTest {
 		LoadProcess p = new LoadProcess(new FileExtracted());
 		p.setExtractedFilename(Thread.currentThread().getContextClassLoader()
 				.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
-		p.runtask();
+		p.nextStep();
 		assertEquals(5, p.getPsToCreate().size());
 		assertEquals(0, p.getPsToDelete().size());
 	}
@@ -78,15 +75,15 @@ class FileExtractedTest {
 		}
 		LoadProcess p = new LoadProcess(new FileExtracted());
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
-		p.runtask();
+		p.nextStep();
 		p.setState(new ChangesApplied(customMetrics));
 		p.getState().setProcess(p);
-		p.runtask();
+		p.nextStep();
 
 		LoadProcess p2 = new LoadProcess(new FileExtracted());
 		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
 		p2.getState().setProcess(p2);
-		p2.runtask();
+		p2.nextStep();
 		assertEquals(1,p2.getPsToDelete().size());
 		assertEquals(1,p2.getPsToCreate().size());
 		assertEquals(2, p2.getPsToUpdate().size());
@@ -108,7 +105,7 @@ class FileExtractedTest {
 		}
 		LoadProcess p = new LoadProcess(new FileExtracted());
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112140852.txt").getPath());
-		p.runtask();
+		p.nextStep();
 		assertEquals(p.getPsToCreate().size(), 99171);
 		assertEquals(p.getStructureToCreate().size(), 37534);
 	}

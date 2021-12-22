@@ -95,8 +95,8 @@ public class LoadProcess implements Externalizable {
      *
      * @throws LoadProcessException the load process exception
      */
-    public void runtask() throws LoadProcessException {
-        state.runTask();
+    public void nextStep() throws LoadProcessException {
+        state.nextStep();
     }
 
     public void setState(ProcessState state) {

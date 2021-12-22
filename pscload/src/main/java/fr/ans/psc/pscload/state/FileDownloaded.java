@@ -39,7 +39,7 @@ public class FileDownloaded extends ProcessState {
     private static final long serialVersionUID = -1938173997893575974L;
 
     @Override
-    public void runTask() throws LoadProcessException {
+    public void nextStep() throws LoadProcessException {
         try {
             process.setExtractedFilename(unzip(process.getDownloadedFilename()));
         } catch (IOException e) {
