@@ -104,22 +104,22 @@ public class UploadingChanges extends ProcessState {
 
     }
 
-    private void uploadStructuresToUpdate(Map<String, SerializableValueDifference<Structure>> structuresToUpdate) throws LoadProcessException {
+    private void uploadStructuresToUpdate(Map<String, Structure> structuresToUpdate) throws LoadProcessException {
         ApiClient client = new ApiClient();
         client.setBasePath(apiBaseUrl);
         StructureApi structureapi = new StructureApi(client);
 
-        structuresToUpdate.values().parallelStream().forEach(v -> {
+        structuresToUpdate.values().parallelStream().forEach(structure -> {
             // TODO check if it is the relevant map !
             try {
-                structureapi.updateStructure(v.rightValue());
+                structureapi.updateStructure(structure);
                 // Remove entry if return code is 2xx
-                structuresToUpdate.remove(v.rightValue().getStructureTechnicalId());
+                structuresToUpdate.remove(structure.getStructureTechnicalId());
             } catch (RestClientResponseException e) {
-                log.error("error when update of structure : {}, return message : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
-                v.rightValue().setReturnStatus(e.getRawStatusCode());
+                log.error("error when update of structure : {}, return message : {}", structure.getStructureTechnicalId(), e.getLocalizedMessage());
+                structure.setReturnStatus(e.getRawStatusCode());
             } catch (RestClientException e) {
-                log.error("error when creation of structure : {}, return message : {}", v.rightValue().getStructureTechnicalId(), e.getLocalizedMessage());
+                log.error("error when creation of structure : {}, return message : {}", structure.getStructureTechnicalId(), e.getLocalizedMessage());
                 throw new UploadException(e);
             }
 
@@ -181,21 +181,21 @@ public class UploadingChanges extends ProcessState {
         });
     }
 
-    private void uploadPsToUpdate(Map<String, SerializableValueDifference<Professionnel>> psToUpdate) throws LoadProcessException {
+    private void uploadPsToUpdate(Map<String, Professionnel> psToUpdate) throws LoadProcessException {
         ApiClient client = new ApiClient();
         client.setBasePath(apiBaseUrl);
         PsApi psapi = new PsApi(client);
 
-        psToUpdate.values().parallelStream().forEach(v -> {
+        psToUpdate.values().parallelStream().forEach(ps -> {
             try {
-                psapi.updatePs(v.rightValue());
+                psapi.updatePs(ps);
                 // remove PS from map if status 2xx
-                psToUpdate.remove(v.rightValue().getNationalId());
+                psToUpdate.remove(ps.getNationalId());
             } catch (RestClientResponseException e) {
-                log.error("error when update of ps : {}, return message : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
-                v.rightValue().setReturnStatus(e.getRawStatusCode());
+                log.error("error when update of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
+                ps.setReturnStatus(e.getRawStatusCode());
             } catch (RestClientException e) {
-                log.error("error when update of ps : {}, return message : {}", v.rightValue().getNationalId(), e.getLocalizedMessage());
+                log.error("error when update of ps : {}, return message : {}", ps.getNationalId(), e.getLocalizedMessage());
                 throw new UploadException(e);
             }
 

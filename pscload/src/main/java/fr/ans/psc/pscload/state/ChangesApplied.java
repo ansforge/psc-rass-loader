@@ -71,11 +71,9 @@ public class ChangesApplied extends ProcessState {
 
         message.append("Modifications PS en échec :");
         message.append(System.lineSeparator());
-        process.getPsToUpdate().values().stream().forEach(psDiff -> {
-            appendOperationFailureInfos(message, "PS", psDiff.rightValue().getNationalId(), psDiff.rightValue().getReturnStatus());
-            if (HttpStatus.valueOf(psDiff.rightValue().getReturnStatus()).is4xxClientError()) {
-                process.getPsToUpdate().remove(psDiff.rightValue().getNationalId());
-            }
+        process.getPsToUpdate().values().stream().forEach(ps -> {
+            appendOperationFailureInfos(message, "PS", ps.getNationalId(), ps.getReturnStatus());
+            removePsIfClientError(process.getPsToUpdate(), ps);
         });
 
         message.append("Créations Structure en échec :");
@@ -94,12 +92,10 @@ public class ChangesApplied extends ProcessState {
 
         message.append("Modifications Structure en échec :");
         message.append(System.lineSeparator());
-        process.getStructureToUpdate().values().stream().forEach(structureDiff -> {
-            appendOperationFailureInfos(message, "Structure", structureDiff.rightValue().getStructureTechnicalId(),
-                    structureDiff.rightValue().getReturnStatus());
-            if (HttpStatus.valueOf(structureDiff.rightValue().getReturnStatus()).is4xxClientError()) {
-                process.getStructureToUpdate().remove(structureDiff.rightValue().getStructureTechnicalId());
-            }
+        process.getStructureToUpdate().values().stream().forEach(structure -> {
+            appendOperationFailureInfos(message, "Structure", structure.getStructureTechnicalId(),
+                    structure.getReturnStatus());
+            removeStructureIfClientError(process.getStructureToUpdate(), structure);
         });
 
         message.append("Si certaines modifications n'ont pas été appliquées, ");
@@ -108,7 +104,7 @@ public class ChangesApplied extends ProcessState {
 
         // TODO remove failures from newMaps
 
-        // TODO serialize newMaps
+        // TODO serialize newMaps : edit replace 500s entities in newMaps before serializing it
         serFile.delete();
         tmpSerFile.renameTo(serFile);
 
@@ -168,5 +164,9 @@ public class ChangesApplied extends ProcessState {
         if (HttpStatus.valueOf(structure.getReturnStatus()).is4xxClientError()) {
             structureMap.remove(structure.getStructureTechnicalId());
         }
+    }
+
+    private boolean is5xxError(int rawReturnStatus) {
+        return HttpStatus.valueOf(rawReturnStatus).is5xxServerError();
     }
 }

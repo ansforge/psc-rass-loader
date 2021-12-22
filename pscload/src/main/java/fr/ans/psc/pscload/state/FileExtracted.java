@@ -111,8 +111,8 @@ public class FileExtracted extends ProcessState {
 		pstmpmap = (ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
 		//Convert ValueDifference to PscValueDifference for serialization
-		Map<String, SerializableValueDifference<Professionnel>> pstu = process.getPsToUpdate();
-		pstmpmap.forEach((k, v) -> pstu.put(k,new SerializableValueDifference<Professionnel>(v.leftValue(), v.rightValue())));
+		Map<String, Professionnel> pstu = process.getPsToUpdate();
+		pstmpmap.forEach((k, v) -> pstu.put(k,v.rightValue()));
 
 		process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
@@ -124,8 +124,8 @@ public class FileExtracted extends ProcessState {
 		Map<String, ValueDifference<Structure>> structtmpmap;
 		structtmpmap = (ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
-		Map<String, SerializableValueDifference<Structure>> structtu = process.getStructureToUpdate();
-		structtmpmap.forEach((k, v) -> structtu.put(k,new SerializableValueDifference<Structure>(v.leftValue(), v.rightValue())));
+		Map<String, Structure> structtu = process.getStructureToUpdate();
+		structtmpmap.forEach((k, v) -> structtu.put(k, v.rightValue()));
 
 		process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));

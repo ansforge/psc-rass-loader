@@ -40,13 +40,13 @@ public class LoadProcess implements Externalizable {
 
     private String tmpMapsPath;
 
-    private Map<String, SerializableValueDifference<Professionnel>> psToUpdate;
+    private Map<String, Professionnel> psToUpdate;
 
     private Map<String, Professionnel> psToDelete;
 
     private Map<String, Structure> structureToCreate;
 
-    private Map<String, SerializableValueDifference<Structure>> structureToUpdate;
+    private Map<String, Structure> structureToUpdate;
 
     private Map<String, Structure> structureToDelete;
 
@@ -75,8 +75,8 @@ public class LoadProcess implements Externalizable {
         this.state = state;
         this.state.setProcess(this);
         timestamp = Calendar.getInstance().getTimeInMillis();
-        psToUpdate = new ConcurrentHashMap<String, SerializableValueDifference<Professionnel>>();
-        structureToUpdate = new ConcurrentHashMap<String, SerializableValueDifference<Structure>>();
+        psToUpdate = new ConcurrentHashMap<String, Professionnel>();
+        structureToUpdate = new ConcurrentHashMap<String, Structure>();
     }
 
     /**
@@ -130,10 +130,10 @@ public class LoadProcess implements Externalizable {
         extractedFilename = (String) in.readObject();
         state = (ProcessState) in.readObject();
         psToCreate = (Map<String, Professionnel>) in.readObject();
-        psToUpdate = (Map<String, SerializableValueDifference<Professionnel>>) in.readObject();
+        psToUpdate = (Map<String, Professionnel>) in.readObject();
         psToDelete = (Map<String, Professionnel>) in.readObject();
         structureToCreate = (Map<String, Structure>) in.readObject();
-        structureToUpdate = (Map<String, SerializableValueDifference<Structure>>) in.readObject();
+        structureToUpdate = (Map<String, Structure>) in.readObject();
         structureToDelete = (Map<String, Structure>) in.readObject();
         uploadMetrics = (UploadMetrics) in.readObject();
     }
