@@ -157,7 +157,6 @@ public class ProcessController {
 				infos.setPsToDelete(process.getPsToDelete().size());
 				infos.setStructureToCreate(process.getStructureToCreate().size());
 				infos.setStructureToUpdate(process.getStructureToUpdate().size());
-				infos.setStructureToDelete(process.getStructureToDelete().size());
 			}
 			processesInfos.add(infos);
 		}

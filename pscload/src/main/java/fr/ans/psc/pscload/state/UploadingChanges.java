@@ -68,7 +68,6 @@ public class UploadingChanges extends ProcessState {
         // Structures
         uploadStructuresToCreate(process.getStructureToCreate());
         uploadStructuresToUpdate(process.getStructureToUpdate());
-        // TODO delete structures ?
     }
 
     @Override

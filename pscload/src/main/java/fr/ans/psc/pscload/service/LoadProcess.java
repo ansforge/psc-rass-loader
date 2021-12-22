@@ -48,8 +48,6 @@ public class LoadProcess implements Externalizable {
 
     private Map<String, Structure> structureToUpdate;
 
-    private Map<String, Structure> structureToDelete;
-
     private long timestamp;
 
     private ProcessState state;
@@ -116,7 +114,6 @@ public class LoadProcess implements Externalizable {
         out.writeObject(psToDelete);
         out.writeObject(structureToCreate);
         out.writeObject(structureToUpdate);
-        out.writeObject(structureToDelete);
         out.writeObject(uploadMetrics);
 
     }
@@ -134,13 +131,12 @@ public class LoadProcess implements Externalizable {
         psToDelete = (Map<String, Professionnel>) in.readObject();
         structureToCreate = (Map<String, Structure>) in.readObject();
         structureToUpdate = (Map<String, Structure>) in.readObject();
-        structureToDelete = (Map<String, Structure>) in.readObject();
         uploadMetrics = (UploadMetrics) in.readObject();
     }
 
     public boolean isRemainingPsOrStructuresInMaps() {
         return psToCreate.size() + psToDelete.size() + psToUpdate.size()
-                + structureToCreate.size() + structureToDelete.size() + structureToUpdate.size() > 0;
+                + structureToCreate.size() + structureToUpdate.size() > 0;
     }
 
 }

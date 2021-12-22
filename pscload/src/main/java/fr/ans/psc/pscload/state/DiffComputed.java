@@ -96,8 +96,6 @@ public class DiffComputed extends ProcessState {
 	}
 
 	private void publishStructureMetrics() {
-		customMetrics.getAppStructureSizeGauges().get(StructureCustomMetric.STRUCTURE_DELETE_SIZE)
-				.set(process.getStructureToDelete().size());
 		customMetrics.getAppStructureSizeGauges().get(StructureCustomMetric.STRUCTURE_CREATE_SIZE)
 				.set(process.getStructureToCreate().size());
 		customMetrics.getAppStructureSizeGauges().get(StructureCustomMetric.STRUCTURE_UPDATE_SIZE)

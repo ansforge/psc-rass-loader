@@ -83,13 +83,6 @@ public class ChangesApplied extends ProcessState {
             removeStructureIfClientError(process.getStructureToCreate(), structure);
         });
 
-        message.append("Suppressions Structure en échec :");
-        message.append(System.lineSeparator());
-        process.getStructureToDelete().values().stream().forEach(structure -> {
-            appendOperationFailureInfos(message, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
-            removeStructureIfClientError(process.getStructureToDelete(), structure);
-        });
-
         message.append("Modifications Structure en échec :");
         message.append(System.lineSeparator());
         process.getStructureToUpdate().values().stream().forEach(structure -> {

@@ -127,8 +127,6 @@ public class FileExtracted extends ProcessState {
 		Map<String, Structure> structtu = process.getStructureToUpdate();
 		structtmpmap.forEach((k, v) -> structtu.put(k, v.rightValue()));
 
-		process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	private void loadMapsFromTextFile(File file) throws IOException {
