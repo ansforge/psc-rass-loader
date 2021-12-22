@@ -49,13 +49,8 @@ public class FileExtracted extends ProcessState {
 
 	private static final long serialVersionUID = 1208602116799660764L;
 
-	private final Map<String, Professionnel> newPsMap = new HashMap<>();
-
-	private final Map<String, Structure> newStructureMap = new HashMap<>();
-
-	private Map<String, Professionnel> oldPsMap = new HashMap<>();
-
-	private Map<String, Structure> oldStructureMap = new HashMap<>();
+	private MapsHandler newMaps = new MapsHandler();
+	private MapsHandler oldMaps = new MapsHandler();
 	
 
 	/**
@@ -74,46 +69,24 @@ public class FileExtracted extends ProcessState {
 			// we serialize new map now in a temp file (maps.{timestamp}.lock
 			File tmpmaps = new File(
 					fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
-			serialize(tmpmaps.getPath());
+			process.setTmpMapsPath(tmpmaps.getAbsolutePath());
+			serializeMaps(tmpmaps.getPath(), newMaps);
 			// deserialize the old file if exists
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
-				deserialize(fileToLoad.getParent() + File.separator + "maps.ser");
-				setUploadSizeMetricsAfterDeserializing(oldPsMap, oldStructureMap);
+				deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
+				setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 			}
 			// Launch diff
 			// TODO check to return a modifiable map
-			MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
-			process.setPsToCreate((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnRight().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-			//Updates
-			Map<String, ValueDifference<Professionnel>> pstmpmap;
-			pstmpmap = (ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
-			//Convert ValueDifference to PscValueDifference for serialization
-			Map<String, SerializableValueDifference<Professionnel>> pstu = process.getPsToUpdate();
-			pstmpmap.forEach((k, v) -> pstu.put(k,new SerializableValueDifference<Professionnel>(v.leftValue(), v.rightValue())));
-			
-			process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-			//Structures
-			MapDifference<String, Structure> diffStructures = Maps.difference(oldStructureMap, newStructureMap);
-			process.setStructureToCreate((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnRight().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-			// updates
-			Map<String, ValueDifference<Structure>> structtmpmap;
-			structtmpmap = (ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
-			Map<String, SerializableValueDifference<Structure>> structtu = process.getStructureToUpdate();
-			structtmpmap.forEach((k, v) -> structtu.put(k,new SerializableValueDifference<Structure>(v.leftValue(), v.rightValue())));
-			
-			process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
-					  .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-			
+			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
+			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(), newMaps.getStructureMap());
+
+			fillOperationMaps(diffPs, diffStructures);
 			
 			// Rename serialized file
-			maps.delete();
-			tmpmaps.renameTo(maps);
+//			maps.delete();
+//			tmpmaps.renameTo(maps);
 
 		} catch (IOException e) {
 			throw new DiffException("I/O Error when deserializing file", e);
@@ -126,23 +99,49 @@ public class FileExtracted extends ProcessState {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		// TODO save metrics
-		out.writeObject(newPsMap);
-		out.writeObject(newStructureMap);
+		out.writeObject(newMaps);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		// TODO restore metrics
-		oldPsMap = (Map<String, Professionnel>) in.readObject();
-		oldStructureMap = (Map<String, Structure>) in.readObject();
+		oldMaps = (MapsHandler) in.readObject();
 
+	}
+
+	private void fillOperationMaps(MapDifference<String, Professionnel> diffPs, MapDifference<String, Structure> diffStructures) {
+		process.setPsToCreate((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnRight().entrySet().stream()
+				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+		//Updates
+		Map<String, ValueDifference<Professionnel>> pstmpmap;
+		pstmpmap = (ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
+				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+		//Convert ValueDifference to PscValueDifference for serialization
+		Map<String, SerializableValueDifference<Professionnel>> pstu = process.getPsToUpdate();
+		pstmpmap.forEach((k, v) -> pstu.put(k,new SerializableValueDifference<Professionnel>(v.leftValue(), v.rightValue())));
+
+		process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
+				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+		//Structures
+
+		process.setStructureToCreate((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnRight().entrySet().stream()
+				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+		// updates
+		Map<String, ValueDifference<Structure>> structtmpmap;
+		structtmpmap = (ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
+				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+		Map<String, SerializableValueDifference<Structure>> structtu = process.getStructureToUpdate();
+		structtmpmap.forEach((k, v) -> structtu.put(k,new SerializableValueDifference<Structure>(v.leftValue(), v.rightValue())));
+
+		process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
+				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	private void loadMapsFromTextFile(File file) throws IOException {
 		log.info("loading {} into list of Ps", file.getName());
-		newPsMap.clear();
-		newStructureMap.clear();
+		newMaps.getPsMap().clear();
+		newMaps.getStructureMap().clear();
 		// ObjectRowProcessor converts the parsed values and gives you the resulting
 		// row.
 		ObjectRowProcessor rowProcessor = new ObjectRowProcessor() {
@@ -153,11 +152,11 @@ public class FileExtracted extends ProcessState {
 				}
 				String[] items = Arrays.asList(objects).toArray(new String[ROW_LENGTH]);
 				// test if exists by nationalId (item 2)
-				Professionnel psMapped = newPsMap.get(items[RassItems.NATIONAL_ID.column]);
+				Professionnel psMapped = newMaps.getPsMap().get(items[RassItems.NATIONAL_ID.column]);
 				if (psMapped == null) {
 					// create PS and add to map
 					Professionnel psRow = new Professionnel(items, true);
-					newPsMap.put(psRow.getNationalId(), psRow);
+					newMaps.getPsMap().put(psRow.getNationalId(), psRow);
 				} else {
 					// if ps exists then add expro and situ exe.
 					Optional<Profession> p = psMapped.getProfessionByCodeAndCategory(
@@ -174,9 +173,9 @@ public class FileExtracted extends ProcessState {
 					}
 				}
 				// get structure in map by its reference from row
-				if (newStructureMap.get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
+				if (newMaps.getStructureMap().get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
 					Structure newStructure = new Structure(items);
-					newStructureMap.put(newStructure.getStructureTechnicalId(), newStructure);
+					newMaps.getStructureMap().put(newStructure.getStructureTechnicalId(), newStructure);
 				}
 			}
 		};
@@ -201,18 +200,18 @@ public class FileExtracted extends ProcessState {
 		log.info("loading complete!");
 	}
 
-	private void serialize(String filename) throws IOException {
+	private void serializeMaps(String filename, MapsHandler mapsHandler) throws IOException {
 		File mapsFile = new File(filename);
 		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
 		ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-		writeExternal(oos);
+		mapsHandler.writeExternal(oos);
 		oos.close();
 	}
 
-	private void deserialize(String filename) throws IOException, ClassNotFoundException {
+	private void deserializeMaps(String filename, MapsHandler mapsHandler) throws IOException, ClassNotFoundException {
 		FileInputStream fileInputStream = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-		readExternal(ois);
+		mapsHandler.readExternal(ois);
 		ois.close();
 	}
 

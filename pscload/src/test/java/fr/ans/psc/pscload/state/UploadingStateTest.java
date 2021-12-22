@@ -120,6 +120,9 @@ public class UploadingStateTest {
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
 		p.getState().setProcess(p);
 		p.runtask();
+		p.setState(new ChangesApplied(customMetrics));
+		p.getState().setProcess(p);
+		p.runtask();
 		// Day 2 : Compute diff (1 delete)
 		LoadProcess p2 = new LoadProcess(new FileExtracted());
 		registry.register(Integer.toString(registry.nextId()), p2);
@@ -161,6 +164,9 @@ public class UploadingStateTest {
 		//Day 1 : Generate old ser file
 		LoadProcess p = new LoadProcess(new FileExtracted());
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
+		p.runtask();
+		p.setState(new ChangesApplied(customMetrics));
+		p.getState().setProcess(p);
 		p.runtask();
 		// Day 2 : Compute diff (1 delete)
 		LoadProcess p2 = new LoadProcess(new FileExtracted());
