@@ -31,7 +31,7 @@ public class Professionnel extends Ps implements Externalizable {
 	/**
 	 * returnStatus after failure in change request
 	 */
-	private int returnStatus;
+	private int returnStatus = 100;
 
 	/**
 	 * Instantiates a new professionnel.

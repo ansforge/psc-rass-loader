@@ -17,7 +17,7 @@ public class Structure extends fr.ans.psc.model.Structure implements Externaliza
 	/**
 	 * returnStatus after failure in change request
 	 */
-	private int returnStatus;
+	private int returnStatus = 100;
 
 	
 	/**
