@@ -61,7 +61,7 @@ public class FileExtracted extends ProcessState {
 
 	@Override
 	public void nextStep() throws LoadProcessException {
-		// TODO load maps
+
 		File fileToLoad = new File(process.getExtractedFilename());
 		try {
 			loadMapsFromTextFile(fileToLoad);
@@ -76,7 +76,6 @@ public class FileExtracted extends ProcessState {
 				deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
 			}
 			// Launch diff
-			// TODO check to return a modifiable map
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
 			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(), newMaps.getStructureMap());
 

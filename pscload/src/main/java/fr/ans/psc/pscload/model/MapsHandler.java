@@ -27,4 +27,9 @@ public class MapsHandler implements Externalizable {
         psMap = (Map<String, Professionnel>) in.readObject();
         structureMap = (Map<String, Structure>) in.readObject();
     }
+
+    public void clearMaps() {
+        psMap.clear();
+        structureMap.clear();
+    }
 }
