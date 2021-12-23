@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import fr.ans.psc.pscload.model.*;
+import fr.ans.psc.pscload.service.MapsManager;
 import org.apache.any23.encoding.TikaEncodingDetector;
 
 import com.google.common.collect.MapDifference;
@@ -37,6 +38,7 @@ import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The Class FileExtracted.
@@ -50,13 +52,19 @@ public class FileExtracted extends ProcessState {
 
 	private MapsHandler newMaps = new MapsHandler();
 	private MapsHandler oldMaps = new MapsHandler();
+	private MapsManager mapsManager;
 	
 
 	/**
 	 * Instantiates a new file extracted.
 	 */
-	public FileExtracted() {
+//	public FileExtracted() {
+//		super();
+//	}
+
+	public FileExtracted(MapsManager mapsManager) {
 		super();
+		this.mapsManager = mapsManager;
 	}
 
 	@Override
@@ -69,11 +77,12 @@ public class FileExtracted extends ProcessState {
 			File tmpmaps = new File(
 					fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
 			process.setTmpMapsPath(tmpmaps.getAbsolutePath());
-			serializeMaps(tmpmaps.getPath(), newMaps);
+			mapsManager.serializeMaps(tmpmaps.getPath(), newMaps);
 			// deserialize the old file if exists
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
-				deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
+				mapsManager.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
+				setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 			}
 			// Launch diff
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
@@ -160,7 +169,7 @@ public class FileExtracted extends ProcessState {
 						// Add profession and worksituation
 						ExerciceProfessionnel exepro = new ExerciceProfessionnel(items);
 						psMapped.addProfessionsItem(exepro);
-						;
+
 					}
 				}
 				// get structure in map by its reference from row
@@ -190,23 +199,6 @@ public class FileExtracted extends ProcessState {
 		}
 		log.info("loading complete!");
 	}
-
-	private void serializeMaps(String filename, MapsHandler mapsHandler) throws IOException {
-		File mapsFile = new File(filename);
-		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
-		ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-		mapsHandler.writeExternal(oos);
-		oos.close();
-	}
-
-	private void deserializeMaps(String filename, MapsHandler mapsHandler) throws IOException, ClassNotFoundException {
-		FileInputStream fileInputStream = new FileInputStream(filename);
-		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-		mapsHandler.readExternal(ois);
-		ois.close();
-		setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
-	}
-
 	
 	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap, Map<String, Structure> structureMap) {
 		process.getUploadMetrics().setPsAdeliUploadSize(Math.toIntExact(psMap.values().stream()

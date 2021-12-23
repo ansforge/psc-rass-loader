@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
+import fr.ans.psc.pscload.service.MapsManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -56,6 +57,9 @@ public class UploadingStateTest {
 
     @Autowired
     private ProcessRegistry registry;
+
+    @Autowired
+    private MapsManager mapsManager;
 
     /**
      * The http api mock server.
@@ -117,15 +121,15 @@ public class UploadingStateTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new FileExtracted());
+        LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
         p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
         p.getState().setProcess(p);
         p.nextStep();
-        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl()));
+        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), mapsManager));
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff (1 delete)
-        LoadProcess p2 = new LoadProcess(new FileExtracted());
+        LoadProcess p2 = new LoadProcess(new FileExtracted(mapsManager));
         registry.register(Integer.toString(registry.nextId()), p2);
         p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
         p2.getState().setProcess(p2);
@@ -162,14 +166,14 @@ public class UploadingStateTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new FileExtracted());
+        LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
         p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
         p.nextStep();
-        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl()));
+        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), mapsManager));
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff (1 delete)
-        LoadProcess p2 = new LoadProcess(new FileExtracted());
+        LoadProcess p2 = new LoadProcess(new FileExtracted(mapsManager));
         registry.register(Integer.toString(registry.nextId()), p2);
         p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
         p2.nextStep();

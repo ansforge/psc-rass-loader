@@ -3,6 +3,7 @@
  */
 package fr.ans.psc.pscload.controller;
 
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
+import fr.ans.psc.pscload.service.MapsManager;
 import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -29,6 +32,7 @@ import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * The Class ProcessController.
@@ -39,6 +43,9 @@ public class ProcessController {
 
 	@Autowired
 	private CustomMetrics customMetrics;
+
+	@Autowired
+	private MapsManager mapsManager;
 	
 	private final ProcessRegistry registry;
 
@@ -166,6 +173,20 @@ public class ProcessController {
 		}
 		return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
 	}
+
+	@PostMapping(value = "/maintenance/regen-ser-file")
+	public ResponseEntity<Void> generateSerFile(@RequestParam MultipartFile restoreFile) throws IOException {
+		InputStream initialStream = restoreFile.getInputStream();
+		byte[] buffer = new byte[initialStream.available()];
+		initialStream.read(buffer);
+
+		File origin = File.createTempFile("restore_extract_RASS", "tmp");
+		try (OutputStream out = new FileOutputStream(origin)) {
+			out.write(buffer);
+		}
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
 	private void runTask(LoadProcess process) {
 		try {
@@ -173,7 +194,7 @@ public class ProcessController {
 			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 			customMetrics.resetSizeMetrics();
 			process.nextStep();
-			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
+			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, mapsManager));
 			// Step 5 : call pscload
 			process.nextStep();
 			registry.unregister(process.getId());

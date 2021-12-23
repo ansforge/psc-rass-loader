@@ -3,6 +3,7 @@
  */
 package fr.ans.psc.pscload.component;
 
+import fr.ans.psc.pscload.service.MapsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +31,9 @@ public class Scheduler {
 
 	@Autowired
 	private CustomMetrics customMetrics;
+
+	@Autowired
+	private MapsManager mapsManager;
 
 	@Value("${enable.scheduler:true}")
 	private boolean enabled;
@@ -80,7 +84,7 @@ public class Scheduler {
 					customMetrics.setStageMetric(10);
 					// Step 2 : Extract
 					process.nextStep();
-					process.setState(new FileExtracted());
+					process.setState(new FileExtracted(mapsManager));
 					customMetrics.setStageMetric(20);
 					// Step 4 : Load maps and compute diff
 					process.nextStep();

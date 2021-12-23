@@ -7,8 +7,10 @@ import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
+import fr.ans.psc.pscload.service.MapsManager;
 import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
@@ -30,10 +32,13 @@ public class ChangesApplied extends ProcessState {
 
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
+    private MapsManager mapsManager;
 
-    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl) {
+    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl, MapsManager mapsManager) {
+        super();
         this.customMetrics = customMetrics;
         this.extractBaseUrl = extractBaseUrl;
+        this.mapsManager = mapsManager;
     }
 
     public ChangesApplied() {
@@ -45,13 +50,20 @@ public class ChangesApplied extends ProcessState {
     @Override
     public void nextStep() {
         String lockedFilePath = process.getTmpMapsPath();
-        deserializeMaps(newMaps, lockedFilePath);
-
         String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
         File serFile = new File(serFileName);
-        if (serFile.exists()) {
-            deserializeMaps(oldMaps, serFileName);
+
+        try {
+            mapsManager.deserializeMaps(lockedFilePath, newMaps);
+            if (serFile.exists()) {
+                mapsManager.deserializeMaps(serFileName, oldMaps);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
+            log.error(msgLogged, e.getLocalizedMessage());
+            throw new ChangesApplicationException(e);
         }
+
 
         if (process.isRemainingPsOrStructuresInMaps()) {
             StringBuilder message = new StringBuilder();
@@ -69,12 +81,12 @@ public class ChangesApplied extends ProcessState {
             // TODO handle mail sending in tests
 //            String message = buildMessageBody(process);
 //            customMetrics.setStageMetric(40, message.toString());
-        } else {
-            customMetrics.setStageMetric(40);
-        }
+        } else { customMetrics.setStageMetric(40); }
 
-        serFile.delete();
-        serializeMaps(newMaps, serFileName);
+        try {
+            serFile.delete();
+            mapsManager.serializeMaps(serFileName, newMaps);
+        } catch (IOException e) { log.error("Error during serialization"); }
 
         RestTemplate restTemplate = new RestTemplate();
         try {
@@ -97,31 +109,6 @@ public class ChangesApplied extends ProcessState {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         // TODO restore metrics
 
-    }
-
-    private void deserializeMaps(MapsHandler mapsToDeserializeHandler, String serializedFileName) throws ChangesApplicationException {
-        try {
-            FileInputStream fileInputStream = new FileInputStream(serializedFileName);
-            ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-            mapsToDeserializeHandler.readExternal(ois);
-            ois.close();
-        } catch (IOException ioe) {
-            throw new ChangesApplicationException("Error during I/O", ioe);
-        } catch (ClassNotFoundException cnfe) {
-            throw new ChangesApplicationException("File " + serializedFileName + " has not been found", cnfe);
-        }
-
-    }
-
-    private void serializeMaps(MapsHandler mapsToSerializeHandler, String serializedFileName) {
-        try {
-            FileOutputStream fos = new FileOutputStream(serializedFileName);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            mapsToSerializeHandler.writeExternal(oos);
-            oos.close();
-        } catch (IOException ioe) {
-            throw new ChangesApplicationException("I/O error during serialization", ioe);
-        }
     }
 
     private void handlePsCreateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
