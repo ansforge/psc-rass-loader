@@ -69,7 +69,7 @@ public class UploadingStateTest {
             .options(wireMockConfig()
                     .dynamicPort()
                     .usingFilesUnderClasspath("wiremock/api"))
-            .configureStaticDsl(true).build();
+            .build();
 
     // For use with mockMvc
     @DynamicPropertySource

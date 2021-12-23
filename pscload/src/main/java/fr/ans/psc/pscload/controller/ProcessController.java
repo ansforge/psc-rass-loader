@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
+import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.service.MapsManager;
 import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,174 +42,186 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class ProcessController {
 
-	@Autowired
-	private CustomMetrics customMetrics;
+    @Value("${files.directory}")
+    private String filesDirectory;
 
-	@Autowired
-	private MapsManager mapsManager;
-	
-	private final ProcessRegistry registry;
+    @Autowired
+    private CustomMetrics customMetrics;
 
-	@Value("${api.base.url}")
-	private String apiBaseUrl;
+    @Autowired
+    private MapsManager mapsManager;
 
-	@Value("${deactivation.excluded.profession.codes:}")
-	private String[] excludedProfessions;
+    private final ProcessRegistry registry;
 
-	@Value("${pscextract.base.url}")
-	private String pscextractBaseUrl;
+    @Value("${api.base.url}")
+    private String apiBaseUrl;
 
-	/**
-	 * Instantiates a new process controller.
-	 *
-	 * @param registry the registry
-	 */
-	public ProcessController(ProcessRegistry registry) {
-		super();
-		this.registry = registry;
-	}
+    @Value("${deactivation.excluded.profession.codes:}")
+    private String[] excludedProfessions;
 
-	/**
-	 * Continue process.
-	 *
-	 * @return the deferred result
-	 */
-	@PostMapping(value = "/process/continue")
-	public DeferredResult<ResponseEntity<Void>> continueProcess() {
-		LoadProcess process = registry.getCurrentProcess();
+    @Value("${pscextract.base.url}")
+    private String pscextractBaseUrl;
 
-		DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
-		if (process != null) {
-			if (process.getState().getClass().equals(DiffComputed.class)) {
-				// launch process in a separate thread
-				ForkJoinPool.commonPool().submit(() -> {
-					runTask(process);
-					ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-					response.setResult(result);
-				});
-				// Response OK
-				response.onCompletion(() -> log.info("Processing complete"));
-				return response;
-			}
-			// Conflict if process is not in the expected state.
-			ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-			response.setResult(result);
-		}else {
-			response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
-		}
-		return response;
-	}
+    /**
+     * Instantiates a new process controller.
+     *
+     * @param registry the registry
+     */
+    public ProcessController(ProcessRegistry registry) {
+        super();
+        this.registry = registry;
+    }
 
-	/**
-	 * Resume process.
-	 *
-	 * @return the deferred result
-	 */
-	@PostMapping(value = "/process/resume")
-	public DeferredResult<ResponseEntity<Void>> resumeProcess() {
-		// We can call continue process because it contains the updated maps to apply.
-		return continueProcess();
-	}
+    /**
+     * Continue process.
+     *
+     * @return the deferred result
+     */
+    @PostMapping(value = "/process/continue")
+    public DeferredResult<ResponseEntity<Void>> continueProcess() {
+        LoadProcess process = registry.getCurrentProcess();
 
-	/**
-	 * Abort process.
-	 *
-	 * @return the response entity
-	 */
-	@PostMapping(value = "/process/abort")
-	public ResponseEntity<Void> abortProcess() {
-		// TODO check if clear is a better way to abort ?
-		registry.unregister(registry.getCurrentProcess().getId());
-	
-		return null;
-	}
+        DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
+        if (process != null) {
+            if (process.getState().getClass().equals(DiffComputed.class)) {
+                // launch process in a separate thread
+                ForkJoinPool.commonPool().submit(() -> {
+                    runTask(process);
+                    ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+                    response.setResult(result);
+                });
+                // Response OK
+                response.onCompletion(() -> log.info("Processing complete"));
+                return response;
+            }
+            // Conflict if process is not in the expected state.
+            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+            response.setResult(result);
+        } else {
+            response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
+        }
+        return response;
+    }
 
-	/**
-	 * Synchronous Continue process for testing purpose.
-	 *
-	 * @return the deferred result
-	 */
-	@PostMapping(value = "/process/sync-continue")
-	public ResponseEntity<Void> syncContinueProcess() {
-		LoadProcess process = registry.getCurrentProcess();
-		ResponseEntity<Void> result;
-		if (process != null) {
-			if (process.getState().getClass().equals(DiffComputed.class)) {
-					runTask(process);
-					result = new ResponseEntity<Void>(HttpStatus.OK);
-				// Response OKlog.info("Processing complete"));
-				return result;
-			}
-			// Conflict if process is not in the expected state.
-			result = new ResponseEntity<>(HttpStatus.CONFLICT);
-		}else {
-			result = new ResponseEntity<>(HttpStatus.TOO_EARLY);
-		}
-		return result;
-	}
+    /**
+     * Resume process.
+     *
+     * @return the deferred result
+     */
+    @PostMapping(value = "/process/resume")
+    public DeferredResult<ResponseEntity<Void>> resumeProcess() {
+        // We can call continue process because it contains the updated maps to apply.
+        return continueProcess();
+    }
 
-	/**
-	 * info on  process.
-	 *
-	 * @return the result
-	 */
-	@GetMapping(value = "/process/info")
-	public ResponseEntity<List<ProcessInfo>> processInfo() {
-		ProcessInfo infos = new ProcessInfo();
-		List<LoadProcess> processes = registry.list();
-		List<ProcessInfo> processesInfos = new ArrayList<>();
-		for (LoadProcess process : processes) {
-			infos.setProcessId(process.getId());
-			DateFormat df = new SimpleDateFormat();
-			infos.setCreatedOn(df.format(new Date(process.getTimestamp())));
-			infos.setState(process.getState().getClass().getSimpleName());
-			if(process.getState().getClass().equals(DiffComputed.class)) {
-				infos.setPsToCreate(process.getPsToCreate().size());
-				infos.setPsToUpdate(process.getPsToUpdate().size());
-				infos.setPsToDelete(process.getPsToDelete().size());
-				infos.setStructureToCreate(process.getStructureToCreate().size());
-				infos.setStructureToUpdate(process.getStructureToUpdate().size());
-			}
-			processesInfos.add(infos);
-		}
-		return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
-	}
+    /**
+     * Abort process.
+     *
+     * @return the response entity
+     */
+    @PostMapping(value = "/process/abort")
+    public ResponseEntity<Void> abortProcess() {
+        // TODO check if clear is a better way to abort ?
+        registry.unregister(registry.getCurrentProcess().getId());
 
-	@PostMapping(value = "/maintenance/regen-ser-file")
-	public ResponseEntity<Void> generateSerFile(@RequestParam MultipartFile restoreFile) throws IOException {
-		InputStream initialStream = restoreFile.getInputStream();
-		byte[] buffer = new byte[initialStream.available()];
-		initialStream.read(buffer);
+        return null;
+    }
 
-		File origin = File.createTempFile("restore_extract_RASS", "tmp");
-		try (OutputStream out = new FileOutputStream(origin)) {
-			out.write(buffer);
-		}
+    /**
+     * Synchronous Continue process for testing purpose.
+     *
+     * @return the deferred result
+     */
+    @PostMapping(value = "/process/sync-continue")
+    public ResponseEntity<Void> syncContinueProcess() {
+        LoadProcess process = registry.getCurrentProcess();
+        ResponseEntity<Void> result;
+        if (process != null) {
+            if (process.getState().getClass().equals(DiffComputed.class)) {
+                runTask(process);
+                result = new ResponseEntity<Void>(HttpStatus.OK);
+                // Response OKlog.info("Processing complete"));
+                return result;
+            }
+            // Conflict if process is not in the expected state.
+            result = new ResponseEntity<>(HttpStatus.CONFLICT);
+        } else {
+            result = new ResponseEntity<>(HttpStatus.TOO_EARLY);
+        }
+        return result;
+    }
 
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-	
-	private void runTask(LoadProcess process) {
-		try {
-			// upload changes
-			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-			customMetrics.resetSizeMetrics();
-			process.nextStep();
-			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, mapsManager));
-			// Step 5 : call pscload
-			process.nextStep();
-			registry.unregister(process.getId());
-			customMetrics.setStageMetric(0);
-		} catch (LoadProcessException e) {
-			if (e.getClass().equals(ChangesApplicationException.class)) {
-				// TODO think about publish metrics
-				customMetrics.setStageMetric(50, "warning" + e.getMessage());
-				registry.unregister(process.getId());
-			}
+    /**
+     * info on  process.
+     *
+     * @return the result
+     */
+    @GetMapping(value = "/process/info")
+    public ResponseEntity<List<ProcessInfo>> processInfo() {
+        ProcessInfo infos = new ProcessInfo();
+        List<LoadProcess> processes = registry.list();
+        List<ProcessInfo> processesInfos = new ArrayList<>();
+        for (LoadProcess process : processes) {
+            infos.setProcessId(process.getId());
+            DateFormat df = new SimpleDateFormat();
+            infos.setCreatedOn(df.format(new Date(process.getTimestamp())));
+            infos.setState(process.getState().getClass().getSimpleName());
+            if (process.getState().getClass().equals(DiffComputed.class)) {
+                infos.setPsToCreate(process.getPsToCreate().size());
+                infos.setPsToUpdate(process.getPsToUpdate().size());
+                infos.setPsToDelete(process.getPsToDelete().size());
+                infos.setStructureToCreate(process.getStructureToCreate().size());
+                infos.setStructureToUpdate(process.getStructureToUpdate().size());
+            }
+            processesInfos.add(infos);
+        }
+        return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
+    }
 
-			// TODO
-			// se mettre dans un état pending, en attente d'un resume ?
-			log.error("error when uploading changes", e);
-		}
-	}
+    @PostMapping(value = "/maintenance/regen-ser-file")
+    public ResponseEntity<Void> generateSerFile(@RequestParam MultipartFile restoreFile) {
+
+        try {
+            InputStream initialStream = restoreFile.getInputStream();
+            byte[] buffer = new byte[initialStream.available()];
+            initialStream.read(buffer);
+
+            File origin = File.createTempFile(filesDirectory + File.separator + "restore_extract_RASS", "tmp");
+            try (OutputStream out = new FileOutputStream(origin)) {
+                out.write(buffer);
+            }
+
+            MapsHandler mapsToSerialize = mapsManager.loadMapsFromFile(origin);
+            mapsManager.serializeMaps(filesDirectory + File.separator + "maps.ser", mapsToSerialize);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IOException e) {
+            log.error("Error while generating serialized file");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void runTask(LoadProcess process) {
+        try {
+            // upload changes
+            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
+            customMetrics.resetSizeMetrics();
+            process.nextStep();
+            process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, mapsManager));
+            // Step 5 : call pscload
+            process.nextStep();
+            registry.unregister(process.getId());
+            customMetrics.setStageMetric(0);
+        } catch (LoadProcessException e) {
+            if (e.getClass().equals(ChangesApplicationException.class)) {
+                // TODO think about publish metrics
+                customMetrics.setStageMetric(50, "warning" + e.getMessage());
+                registry.unregister(process.getId());
+            }
+
+            // TODO
+            // se mettre dans un état pending, en attente d'un resume ?
+            log.error("error when uploading changes", e);
+        }
+    }
 }

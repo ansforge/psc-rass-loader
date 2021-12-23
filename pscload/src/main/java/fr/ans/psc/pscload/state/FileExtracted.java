@@ -6,14 +6,11 @@ package fr.ans.psc.pscload.state;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -38,7 +35,6 @@ import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The Class FileExtracted.
@@ -50,7 +46,7 @@ public class FileExtracted extends ProcessState {
 
 	private static final long serialVersionUID = 1208602116799660764L;
 
-	private MapsHandler newMaps = new MapsHandler();
+	private MapsHandler newMaps;
 	private MapsHandler oldMaps = new MapsHandler();
 	private MapsManager mapsManager;
 	
@@ -58,9 +54,9 @@ public class FileExtracted extends ProcessState {
 	/**
 	 * Instantiates a new file extracted.
 	 */
-//	public FileExtracted() {
-//		super();
-//	}
+	public FileExtracted() {
+		super();
+	}
 
 	public FileExtracted(MapsManager mapsManager) {
 		super();
@@ -72,7 +68,7 @@ public class FileExtracted extends ProcessState {
 
 		File fileToLoad = new File(process.getExtractedFilename());
 		try {
-			loadMapsFromTextFile(fileToLoad);
+			newMaps = mapsManager.loadMapsFromFile(fileToLoad);
 			// we serialize new map now in a temp file (maps.{timestamp}.lock
 			File tmpmaps = new File(
 					fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
