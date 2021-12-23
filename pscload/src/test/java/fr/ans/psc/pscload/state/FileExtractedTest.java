@@ -3,10 +3,13 @@
  */
 package fr.ans.psc.pscload.state;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,8 +17,11 @@ import org.junit.jupiter.api.Test;
 
 import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * The Class FileExtractedTest.
@@ -27,6 +33,23 @@ class FileExtractedTest {
 	@Autowired
 	CustomMetrics customMetrics;
 
+	@RegisterExtension
+	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
+			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
+
+	@DynamicPropertySource
+	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
+		propertiesRegistry.add("extract.download.url",
+				() -> httpMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect");
+		propertiesRegistry.add("files.directory",
+				() -> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
+		propertiesRegistry.add("api.base.url", () -> httpMockServer.baseUrl());
+		propertiesRegistry.add("use.x509.auth", () -> "false");
+		propertiesRegistry.add("enable.scheduler", () -> "true");
+		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
+		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
+	}
+
 	@BeforeEach
 	void setUp() {
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -36,6 +59,9 @@ class FileExtractedTest {
 				f.delete();
 			}
 		}
+
+		httpMockServer.stubFor(any(urlMatching("/generate-extract"))
+				.willReturn(aResponse().withStatus(200)));
 	}
 
 	/**
@@ -76,7 +102,7 @@ class FileExtractedTest {
 		LoadProcess p = new LoadProcess(new FileExtracted());
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 		p.nextStep();
-		p.setState(new ChangesApplied(customMetrics));
+		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
 		p.getState().setProcess(p);
 		p.nextStep();
 

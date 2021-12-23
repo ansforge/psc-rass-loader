@@ -88,6 +88,7 @@ public class SchedulerTest {
 		propertiesRegistry.add("use.x509.auth", () -> "false");
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
+		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
 	@BeforeEach
@@ -128,6 +129,7 @@ public class SchedulerTest {
 				.is2xxSuccessful())
 		.andDo(print());
 		// TODO fix problem with async request of controller(wiremock is stopped before
+		httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
 		mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is2xxSuccessful()).andDo(print());
 		ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);

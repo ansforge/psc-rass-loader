@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
+import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,9 @@ public class ProcessController {
 
 	@Value("${deactivation.excluded.profession.codes:}")
 	private String[] excludedProfessions;
+
+	@Value("${pscextract.base.url}")
+	private String pscextractBaseUrl;
 
 	/**
 	 * Instantiates a new process controller.
@@ -129,9 +133,9 @@ public class ProcessController {
 				return result;
 			}
 			// Conflict if process is not in the expected state.
-			result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+			result = new ResponseEntity<>(HttpStatus.CONFLICT);
 		}else {
-			result = new ResponseEntity<Void>(HttpStatus.TOO_EARLY);
+			result = new ResponseEntity<>(HttpStatus.TOO_EARLY);
 		}
 		return result;
 	}
@@ -169,12 +173,20 @@ public class ProcessController {
 			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 			customMetrics.resetSizeMetrics();
 			process.nextStep();
-			process.setState(new ChangesApplied());
+			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
 			// Step 5 : call pscload
 			process.nextStep();
 			registry.unregister(process.getId());
 			customMetrics.setStageMetric(0);
 		} catch (LoadProcessException e) {
+			if (e.getClass().equals(ChangesApplicationException.class)) {
+				// TODO think about publish metrics
+				customMetrics.setStageMetric(50, "warning" + e.getMessage());
+				registry.unregister(process.getId());
+			}
+
+			// TODO
+			// se mettre dans un état pending, en attente d'un resume ?
 			log.error("error when uploading changes", e);
 		}
 	}
