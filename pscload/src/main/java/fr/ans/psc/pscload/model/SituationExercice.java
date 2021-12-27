@@ -36,10 +36,10 @@ public class SituationExercice extends WorkSituation implements Externalizable {
 	 */
 	public SituationExercice(String[] items) {
 		super();
-		setModeCode(items[20]);
-		setActivitySectorCode(items[21]);
-		setPharmacistTableSectionCode(items[22]);
-		setRoleCode(items[23]);
+		setModeCode(items[RassItems.SITUATION_MODE_CODE.column]);
+		setActivitySectorCode(items[RassItems.ACTIVITY_SECTOR_CODE.column]);
+		setPharmacistTableSectionCode(items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column]);
+		setRoleCode(items[RassItems.SITUATION_ROLE_CODE.column]);
 		addStructuresItem(new RefStructure(items[28])); // structureTechnicalId
 	}
 

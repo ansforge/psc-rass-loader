@@ -3,9 +3,6 @@
  */
 package fr.ans.psc.pscload.component;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -61,12 +58,10 @@ public class Scheduler {
 	/**
 	 * Run.
 	 *
-	 * @throws GeneralSecurityException the general security exception
-	 * @throws IOException              Signals that an I/O exception has occurred.
 	 * @throws DuplicateKeyException    the duplicate key exception
 	 */
 	@Scheduled(cron  = "${scheduler.cron}")
-	public void run() throws GeneralSecurityException, IOException, DuplicateKeyException {
+	public void run() throws DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty()) {
 				String id = Integer.toString(processRegistry.nextId());
@@ -80,19 +75,19 @@ public class Scheduler {
 				processRegistry.register(id, process);
 				try {
 					// Step 1 : Download
-					process.runtask();
+					process.nextStep();
 					process.setState(new FileDownloaded());
 					customMetrics.setStageMetric(10);
 					// Step 2 : Extract
-					process.runtask();
+					process.nextStep();
 					process.setState(new FileExtracted());
 					customMetrics.setStageMetric(20);
 					// Step 4 : Load maps and compute diff
-					process.runtask();
+					process.nextStep();
 					process.setState(new DiffComputed(customMetrics));
 					customMetrics.setStageMetric(30);
 					// Step 3 : publish metrics
-					process.runtask();
+					process.nextStep();
 					// End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);

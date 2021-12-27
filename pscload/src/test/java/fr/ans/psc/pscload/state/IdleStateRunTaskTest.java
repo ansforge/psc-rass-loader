@@ -81,7 +81,7 @@ public class IdleStateRunTaskTest {
 				.getResource(".").getPath();
 		String extracturl = httpRassMockServer.baseUrl() + contextPath;
 		LoadProcess p = new LoadProcess(new Idle(extracturl, filesDirectory),"1");
-		p.runtask();
+		p.nextStep();
 		String zipFilePath = p.getDownloadedFilename();
 		File downloadedFile = new File(zipFilePath);
 		assertTrue(isValid(downloadedFile));

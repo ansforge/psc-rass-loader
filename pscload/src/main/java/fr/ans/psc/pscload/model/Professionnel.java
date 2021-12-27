@@ -31,7 +31,7 @@ public class Professionnel extends Ps implements Externalizable {
 	/**
 	 * returnStatus after failure in change request
 	 */
-	private int returnStatus;
+	private int returnStatus = 100;
 
 	/**
 	 * Instantiates a new professionnel.
@@ -48,19 +48,19 @@ public class Professionnel extends Ps implements Externalizable {
 	 */
 	public Professionnel(String[] items, boolean deep) {
 		super();
-		setIdType(items[0]);
-		setId(items[1]);
-		setNationalId(items[2]);
-		setLastName(items[3]);
-		setFirstName(items[4]);
-		setDateOfBirth(items[5]);
-		setBirthAddressCode(items[6]);
-		setBirthCountryCode(items[7]);
-		setBirthAddress(items[8]);
-		setGenderCode(items[9]);
-		setPhone(items[10]);
-		setEmail(items[11]);
-		setSalutationCode(items[12]);
+		setIdType(items[RassItems.ID_TYPE.column]);
+		setId(items[RassItems.ID.column]);
+		setNationalId(items[RassItems.NATIONAL_ID.column]);
+		setLastName(items[RassItems.LAST_NAME.column]);
+		setFirstName(items[RassItems.FIRST_NAME.column]);
+		setDateOfBirth(items[RassItems.DOB.column]);
+		setBirthAddressCode(items[RassItems.BIRTH_ADDRESS_CODE.column]);
+		setBirthCountryCode(items[RassItems.BIRTH_COUNTRY_CODE.column]);
+		setBirthAddress(items[RassItems.BIRTH_ADDRESS.column]);
+		setGenderCode(items[RassItems.GENDER_CODE.column]);
+		setPhone(items[RassItems.PHONE.column]);
+		setEmail(items[RassItems.EMAIL.column]);
+		setSalutationCode(items[RassItems.SALUTATION_CODE.column]);
 		if (deep) {
 			addProfessionsItem(new ExerciceProfessionnel(items));
 		}

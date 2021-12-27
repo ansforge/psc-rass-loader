@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -105,7 +107,7 @@ public class SchedulerTest {
 
 	@Test
 	@DisplayName("Scheduler end to end test")
-	void schedulerNominalProccessTest() throws Exception {
+	void schedulerNominalProcessTest() throws Exception {
 		// Configure the mock service to serve zipfile
 		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
 		String filename = "Extraction_ProSanteConnect_Personne_activite_202112090858.txt";
@@ -126,8 +128,9 @@ public class SchedulerTest {
 				.is2xxSuccessful())
 		.andDo(print());
 		// TODO fix problem with async request of controller(wiremock is stopped before
-		mockmvc.perform(post("/process/sync-continue").accept(MediaType.APPLICATION_JSON))
+		mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is2xxSuccessful()).andDo(print());
+		ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
 	}
 
 	private static void zipFile(String filename) throws Exception {
