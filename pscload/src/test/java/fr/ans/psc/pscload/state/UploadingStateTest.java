@@ -78,6 +78,8 @@ public class UploadingStateTest {
                 () -> httpApiMockServer.baseUrl());
         propertiesRegistry.add("deactivation.excluded.profession.codes", () -> "0");
         propertiesRegistry.add("pscextract.base.url", () -> httpApiMockServer.baseUrl());
+        propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
+        propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
     }
 
     /**
@@ -121,7 +123,7 @@ public class UploadingStateTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
         p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
         p.getState().setProcess(p);
         p.nextStep();
@@ -129,7 +131,7 @@ public class UploadingStateTest {
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff (1 delete)
-        LoadProcess p2 = new LoadProcess(new FileExtracted(mapsManager));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(mapsManager));
         registry.register(Integer.toString(registry.nextId()), p2);
         p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
         p2.getState().setProcess(p2);
@@ -166,14 +168,14 @@ public class UploadingStateTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
         p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), mapsManager));
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff (1 delete)
-        LoadProcess p2 = new LoadProcess(new FileExtracted(mapsManager));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(mapsManager));
         registry.register(Integer.toString(registry.nextId()), p2);
         p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
         p2.nextStep();

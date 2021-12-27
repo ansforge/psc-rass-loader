@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.FileDownloaded;
-import fr.ans.psc.pscload.state.FileExtracted;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.Idle;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
@@ -80,11 +80,11 @@ public class Scheduler {
 				try {
 					// Step 1 : Download
 					process.nextStep();
-					process.setState(new FileDownloaded());
+					process.setState(new ReadyToExtract());
 					customMetrics.setStageMetric(10);
 					// Step 2 : Extract
 					process.nextStep();
-					process.setState(new FileExtracted(mapsManager));
+					process.setState(new ReadyToComputeDiff(mapsManager));
 					customMetrics.setStageMetric(20);
 					// Step 4 : Load maps and compute diff
 					process.nextStep();

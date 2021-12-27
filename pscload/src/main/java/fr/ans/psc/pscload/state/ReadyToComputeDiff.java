@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  * The Class FileExtracted.
  */
 @Slf4j
-public class FileExtracted extends ProcessState {
+public class ReadyToComputeDiff extends ProcessState {
 
 	private static final int ROW_LENGTH = 50;
 
@@ -54,11 +54,11 @@ public class FileExtracted extends ProcessState {
 	/**
 	 * Instantiates a new file extracted.
 	 */
-	public FileExtracted() {
+	public ReadyToComputeDiff() {
 		super();
 	}
 
-	public FileExtracted(MapsManager mapsManager) {
+	public ReadyToComputeDiff(MapsManager mapsManager) {
 		super();
 		this.mapsManager = mapsManager;
 	}

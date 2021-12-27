@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * The Class FileDownloaded.
  */
 @Slf4j
-public class FileDownloaded extends ProcessState {
+public class ReadyToExtract extends ProcessState {
 
     /**
      *

@@ -11,6 +11,7 @@ import java.io.File;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.MapsManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -29,7 +31,7 @@ import org.springframework.test.context.DynamicPropertySource;
  */
 @Slf4j
 @SpringBootTest
-class FileExtractedTest {
+class ReadyToComputeDiffTest {
 
 	@Autowired
 	CustomMetrics customMetrics;
@@ -51,6 +53,8 @@ class FileExtractedTest {
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
+		propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
+		propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
 	}
 
 	@BeforeEach
@@ -80,7 +84,7 @@ class FileExtractedTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
 		p.setExtractedFilename(Thread.currentThread().getContextClassLoader()
 				.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 		p.nextStep();
@@ -102,14 +106,14 @@ class FileExtractedTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 		p.nextStep();
 		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), mapsManager));
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new FileExtracted(mapsManager));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(mapsManager));
 		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
 		p2.getState().setProcess(p2);
 		p2.nextStep();
@@ -132,7 +136,7 @@ class FileExtractedTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new FileExtracted(mapsManager));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112140852.txt").getPath());
 		p.nextStep();
 		assertEquals(p.getPsToCreate().size(), 99171);

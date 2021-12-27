@@ -10,7 +10,6 @@ import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.service.MapsManager;
 import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
@@ -79,8 +78,7 @@ public class ChangesApplied extends ProcessState {
                             " \"resume\"");
 
             // TODO handle mail sending in tests
-//            String message = buildMessageBody(process);
-//            customMetrics.setStageMetric(40, message.toString());
+            customMetrics.setStageMetric(40, message.toString());
         } else { customMetrics.setStageMetric(40); }
 
         try {
