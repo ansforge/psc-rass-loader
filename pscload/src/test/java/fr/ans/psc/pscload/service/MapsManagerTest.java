@@ -39,17 +39,15 @@ public class MapsManagerTest {
         File initialFile = new File(Thread.currentThread().getContextClassLoader()
                 .getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 
-        MapsHandler initialMaps = new MapsHandler();
-        initialMaps = mapsManager.loadMapsFromFile(initialFile);
+        MapsHandler initialMaps = mapsManager.loadMapsFromFile(initialFile);
+        assertEquals(5, initialMaps.getPsMap().size());
 
         File serializedFile = new File(Thread.currentThread().getContextClassLoader()
-                .getResource(".").getPath() + File.separator + "maps.ser");
-
-        mapsManager.serializeMaps(serializedFile.getName(), initialMaps);
+                .getResource("work").getPath() + File.separator + "maps.ser");
+        mapsManager.serializeMaps(serializedFile.getAbsolutePath(), initialMaps);
 
         MapsHandler deserializedMaps = new MapsHandler();
-        mapsManager.deserializeMaps(serializedFile.getName(), deserializedMaps);
-
+        mapsManager.deserializeMaps(serializedFile.getAbsolutePath(), deserializedMaps);
         assertEquals(initialMaps, deserializedMaps);
     }
 }
