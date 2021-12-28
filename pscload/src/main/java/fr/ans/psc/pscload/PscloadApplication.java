@@ -102,6 +102,7 @@ public class PscloadApplication {
 							ForkJoinPool.commonPool().submit(() -> {
 								try {
 									// upload changes
+									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(60);
 									process.nextStep();
 									process.setState(new ChangesApplied());
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(70);
