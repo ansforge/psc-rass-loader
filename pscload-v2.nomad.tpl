@@ -85,6 +85,7 @@ keystore.password={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.keystor
 enable.scheduler={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.enable_scheduler }}{{ end }}
 schedule.cron.expression = 0 0 12,15,18,21 * * ?
 schedule.cron.timeZone = Europe/Paris
+process.expiration.delay=12
 management.endpoints.web.exposure.include=health,info,prometheus,metric
 spring.servlet.multipart.max-file-size=20MB
 spring.servlet.multipart.max-request-size=20MB

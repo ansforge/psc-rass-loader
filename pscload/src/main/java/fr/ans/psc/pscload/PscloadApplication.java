@@ -52,8 +52,8 @@ public class PscloadApplication {
 	@Value("${files.directory:.}")
 	private String filesDirectory;
 
-	@Value("${extract.base.url}")
-	private String extractBaseUrl;
+	@Value("${pscextract.base.url}")
+	private String pscextractBaseUrl;
 
 	/**
 	 * The main method.
@@ -109,7 +109,7 @@ public class PscloadApplication {
 										// upload changes
 										customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(60);
 										process.nextStep();
-										process.setState(new ChangesApplied(customMetrics, extractBaseUrl));
+										process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
 										process.getState().setProcess(process);
 									}
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(70);

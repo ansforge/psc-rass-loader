@@ -3,6 +3,9 @@
  */
 package fr.ans.psc.pscload.component;
 
+import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
+import fr.ans.psc.pscload.state.exception.UploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,9 +20,12 @@ import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
 import fr.ans.psc.pscload.state.UploadingChanges;
-import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
+import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.Duration;
+import java.util.Date;
 
 /**
  * The Class Scheduler.
@@ -67,6 +73,9 @@ public class Runner {
 	@Value("${pscextract.base.url}")
 	private String pscextractBaseUrl;
 
+	@Value("${process.expiration.delay}")
+	private Long expirationDelay;
+
 
 	/**
 	 * Run.
@@ -76,7 +85,11 @@ public class Runner {
 	@Scheduled(cron  = "${scheduler.cron}")
 	public void runScheduler() throws DuplicateKeyException {
 		if (enabled) {
-			if (processRegistry.isEmpty()) {
+			if (processRegistry.isEmpty() || isProcessExpired()) {
+				// clear registry if latest is expired
+				processRegistry.clear();
+
+				// register new process with Idle state
 				String id = Integer.toString(processRegistry.nextId());
 				ProcessState idle;
 				if (useX509Auth) {
@@ -104,12 +117,23 @@ public class Runner {
 					// End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);
+					customMetrics.setStageMetric(
+							customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).get(),
+							EmailNature.INTERRUPTED_PROCESS);
 					processRegistry.unregister(id);
 				}
 			} else {
 				log.warn("A process is already running !");
 			}
 		}
+	}
+
+	private boolean isProcessExpired() {
+		if (processRegistry.isEmpty()) { return true; }
+		Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
+		Date now = new Date();
+		return now.after(
+				Date.from(lastProcessDate.toInstant().plus(Duration.ofHours(expirationDelay))));
 	}
 
 	public void runContinue(LoadProcess process) {
@@ -125,14 +149,20 @@ public class Runner {
 			processRegistry.unregister(process.getId());
 			customMetrics.setStageMetric(0);
 		} catch (LoadProcessException e) {
-			if (e.getClass().equals(ChangesApplicationException.class)) {
-				customMetrics.setStageMetric(60, "warning" + e.getMessage());
+			// error during uploading
+			if (e.getClass().equals(UploadException.class)) {
+				log.error("error when uploading changes", e);
+				customMetrics.setStageMetric(60, EmailNature.UPLOAD_REST_INTERRUPTION);
+				// error during serialization/deserialization
+			} else if (e.getClass().equals(SerFileGenerationException.class)) {
+				customMetrics.setStageMetric(60, EmailNature.SERIALIZATION_FAILURE);
+//				processRegistry.unregister(process.getId());
+				// error when triggering extract
+			} else if (e.getClass().equals(ExtractTriggeringException.class)) {
+				log.warn("Error when triggering pscextract", e);
+				customMetrics.setStageMetric(70, EmailNature.TRIGGER_EXTRACT_FAILED);
 				processRegistry.unregister(process.getId());
 			}
-
-			// TODO
-			// se mettre dans un état pending, en attente d'un resume ?
-			log.error("error when uploading changes", e);
 		}
 	}
 }
