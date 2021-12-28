@@ -291,6 +291,10 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		return appMiscGauges;
 	}
 
+	public int getStageMetricValue() {
+		return appMiscGauges.get(MiscCustomMetric.STAGE).get();
+	}
+
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
 		this.publisher = publisher;

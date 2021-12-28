@@ -15,6 +15,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.UploadingChanges;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -47,6 +50,9 @@ public class ProcessController {
     @Autowired
     private Runner runner;
 
+    @Autowired
+    private CustomMetrics customMetrics;
+
     private final ProcessRegistry registry;
 
     /**
@@ -71,15 +77,7 @@ public class ProcessController {
         DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
         if (process != null) {
             if (process.getState().getClass().equals(DiffComputed.class)) {
-                // launch process in a separate thread
-                ForkJoinPool.commonPool().submit(() -> {
-                    runner.runContinue(process);
-                    ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-                    response.setResult(result);
-                });
-                // Response OK
-                response.onCompletion(() -> log.info("Processing complete"));
-                return response;
+                callRunnerContinueAndSetResponse(process, response);
             }
             // Conflict if process is not in the expected state.
             ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
@@ -98,7 +96,20 @@ public class ProcessController {
     @PostMapping(value = "/process/resume")
     public DeferredResult<ResponseEntity<Void>> resumeProcess() {
         // We can call continue process because it contains the updated maps to apply.
-        return continueProcess();
+        LoadProcess process = registry.getCurrentProcess();
+        DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
+
+        if (process != null) {
+            if (process.getState().getClass().equals(UploadingChanges.class) && customMetrics.getStageMetricValue() == 70) {
+                callRunnerContinueAndSetResponse(process, response);
+            }
+            // Conflict if process is not in the expected state.
+            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+            response.setResult(result);
+        }else {
+            response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
+        }
+        return response;
     }
 
     /**
@@ -108,9 +119,7 @@ public class ProcessController {
      */
     @PostMapping(value = "/process/abort")
     public ResponseEntity<Void> abortProcess() {
-        // TODO check if clear is a better way to abort ?
-        registry.unregister(registry.getCurrentProcess().getId());
-
+        registry.clear();
         return null;
     }
 
@@ -139,6 +148,48 @@ public class ProcessController {
             processesInfos.add(infos);
         }
         return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
+    }
+
+    /**
+     * Resume ending operations (ser generation, etc)
+     * @return the response entity
+     */
+    @PostMapping(value = "/process/resume/ending-operations")
+    public DeferredResult<ResponseEntity<Void>> resumeEndingOperations() {
+        LoadProcess process = registry.getCurrentProcess();
+        DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
+
+        if (process != null) {
+            if (process.getState().getClass().equals(ChangesApplied.class)) {
+                // launch process in a separate thread
+                ForkJoinPool.commonPool().submit(() -> {
+                    runner.runEnding(process);
+                    ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+                    response.setResult(result);
+                });
+                // Response OK
+                response.onCompletion(() -> log.info("Processing complete"));
+                return response;
+            }
+            // Conflict if process is not in the expected state.
+            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+            response.setResult(result);
+        } else {
+            response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
+        }
+        return response;
+    }
+
+    private DeferredResult<ResponseEntity<Void>> callRunnerContinueAndSetResponse(LoadProcess process, DeferredResult<ResponseEntity<Void>> response) {
+        // launch process in a separate thread
+        ForkJoinPool.commonPool().submit(() -> {
+            runner.runContinue(process);
+            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+            response.setResult(result);
+        });
+        // Response OK
+        response.onCompletion(() -> log.info("Processing complete"));
+        return response;
     }
 
     @PostMapping(value = "/maintenance/regen-ser-file")

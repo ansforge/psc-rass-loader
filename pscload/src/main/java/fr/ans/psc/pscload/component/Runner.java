@@ -118,7 +118,7 @@ public class Runner {
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);
 					customMetrics.setStageMetric(
-							customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).get(),
+							customMetrics.getStageMetricValue(),
 							EmailNature.INTERRUPTED_PROCESS);
 					processRegistry.unregister(id);
 				}
@@ -126,14 +126,6 @@ public class Runner {
 				log.warn("A process is already running !");
 			}
 		}
-	}
-
-	private boolean isProcessExpired() {
-		if (processRegistry.isEmpty()) { return true; }
-		Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
-		Date now = new Date();
-		return now.after(
-				Date.from(lastProcessDate.toInstant().plus(Duration.ofHours(expirationDelay))));
 	}
 
 	public void runContinue(LoadProcess process) {
@@ -152,17 +144,42 @@ public class Runner {
 			// error during uploading
 			if (e.getClass().equals(UploadException.class)) {
 				log.error("error when uploading changes", e);
-				customMetrics.setStageMetric(60, EmailNature.UPLOAD_REST_INTERRUPTION);
-				// error during serialization/deserialization
-			} else if (e.getClass().equals(SerFileGenerationException.class)) {
-				customMetrics.setStageMetric(60, EmailNature.SERIALIZATION_FAILURE);
-//				processRegistry.unregister(process.getId());
-				// error when triggering extract
-			} else if (e.getClass().equals(ExtractTriggeringException.class)) {
-				log.warn("Error when triggering pscextract", e);
-				customMetrics.setStageMetric(70, EmailNature.TRIGGER_EXTRACT_FAILED);
-				processRegistry.unregister(process.getId());
+				customMetrics.setStageMetric(70, EmailNature.UPLOAD_REST_INTERRUPTION);
+			} else {
+				// error during ChangesAppliedState
+				handleChangesAppliedStateExceptions(process, e);
 			}
 		}
+	}
+
+	public void runEnding(LoadProcess process) {
+		try {
+			process.nextStep();
+			processRegistry.unregister(process.getId());
+			customMetrics.setStageMetric(0);
+		} catch (LoadProcessException e) {
+				// error during serialization/deserialization
+			handleChangesAppliedStateExceptions(process, e);
+		}
+	}
+
+	private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) {
+		// error during serialization/deserialization
+		if (e.getClass().equals(SerFileGenerationException.class)) {
+			customMetrics.setStageMetric(60, EmailNature.SERIALIZATION_FAILURE);
+			// error when triggering extract
+		} else if (e.getClass().equals(ExtractTriggeringException.class)) {
+			log.warn("Error when triggering pscextract", e);
+			customMetrics.setStageMetric(70, EmailNature.TRIGGER_EXTRACT_FAILED);
+			processRegistry.unregister(process.getId());
+		}
+	}
+
+	private boolean isProcessExpired() {
+		if (processRegistry.isEmpty()) { return true; }
+		Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
+		Date now = new Date();
+		return now.after(
+				Date.from(lastProcessDate.toInstant().plus(Duration.ofHours(expirationDelay))));
 	}
 }
