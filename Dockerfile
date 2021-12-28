@@ -1,6 +1,6 @@
 FROM maven:3-jdk-11 AS build
 COPY settings-docker.xml /usr/share/maven/ref/
-COPY pom.xml /usr/src/app
+COPY pom.xml /usr/src/app/pom.xml
 COPY psc-api /usr/src/app/
 COPY pscload /usr/src/app/
 RUN mvn -f /usr/src/app/pom.xml -gs /usr/share/maven/ref/settings-docker.xml clean package
