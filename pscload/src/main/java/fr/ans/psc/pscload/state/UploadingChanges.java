@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -19,7 +21,6 @@ import fr.ans.psc.api.PsApi;
 import fr.ans.psc.api.StructureApi;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.UploadException;
@@ -109,7 +110,6 @@ public class UploadingChanges extends ProcessState {
         StructureApi structureapi = new StructureApi(client);
 
         structuresToUpdate.values().parallelStream().forEach(structure -> {
-            // TODO check if it is the relevant map !
             try {
                 structureapi.updateStructure(structure);
                 // Remove entry if return code is 2xx

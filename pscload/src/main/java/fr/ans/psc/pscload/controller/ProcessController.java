@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
+import fr.ans.psc.pscload.component.Runner;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.service.MapsManager;
 import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
@@ -46,21 +47,12 @@ public class ProcessController {
     private String filesDirectory;
 
     @Autowired
-    private CustomMetrics customMetrics;
-
-    @Autowired
     private MapsManager mapsManager;
 
+    @Autowired
+    private Runner runner;
+
     private final ProcessRegistry registry;
-
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
-
-    @Value("${deactivation.excluded.profession.codes:}")
-    private String[] excludedProfessions;
-
-    @Value("${pscextract.base.url}")
-    private String pscextractBaseUrl;
 
     /**
      * Instantiates a new process controller.
@@ -86,7 +78,7 @@ public class ProcessController {
             if (process.getState().getClass().equals(DiffComputed.class)) {
                 // launch process in a separate thread
                 ForkJoinPool.commonPool().submit(() -> {
-                    runTask(process);
+                    runner.runContinue(process);
                     ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
                     response.setResult(result);
                 });
@@ -125,30 +117,6 @@ public class ProcessController {
         registry.unregister(registry.getCurrentProcess().getId());
 
         return null;
-    }
-
-    /**
-     * Synchronous Continue process for testing purpose.
-     *
-     * @return the deferred result
-     */
-    @PostMapping(value = "/process/sync-continue")
-    public ResponseEntity<Void> syncContinueProcess() {
-        LoadProcess process = registry.getCurrentProcess();
-        ResponseEntity<Void> result;
-        if (process != null) {
-            if (process.getState().getClass().equals(DiffComputed.class)) {
-                runTask(process);
-                result = new ResponseEntity<Void>(HttpStatus.OK);
-                // Response OKlog.info("Processing complete"));
-                return result;
-            }
-            // Conflict if process is not in the expected state.
-            result = new ResponseEntity<>(HttpStatus.CONFLICT);
-        } else {
-            result = new ResponseEntity<>(HttpStatus.TOO_EARLY);
-        }
-        return result;
     }
 
     /**
@@ -201,27 +169,5 @@ public class ProcessController {
         }
     }
 
-    private void runTask(LoadProcess process) {
-        try {
-            // upload changes
-            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-            customMetrics.resetSizeMetrics();
-            process.nextStep();
-            process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, mapsManager));
-            // Step 5 : call pscload
-            process.nextStep();
-            registry.unregister(process.getId());
-            customMetrics.setStageMetric(0);
-        } catch (LoadProcessException e) {
-            if (e.getClass().equals(ChangesApplicationException.class)) {
-                // TODO think about publish metrics
-                customMetrics.setStageMetric(50, "warning" + e.getMessage());
-                registry.unregister(process.getId());
-            }
 
-            // TODO
-            // se mettre dans un état pending, en attente d'un resume ?
-            log.error("error when uploading changes", e);
-        }
-    }
 }

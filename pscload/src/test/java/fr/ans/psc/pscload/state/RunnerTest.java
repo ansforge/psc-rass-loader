@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Scheduler;
+import fr.ans.psc.pscload.component.Runner;
 import fr.ans.psc.pscload.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,13 +55,13 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
-public class SchedulerTest {
+public class RunnerTest {
 
 	@Autowired
 	private ProcessRegistry registry;
 
 	@Autowired
-	private Scheduler scheduler;
+	private Runner runner;
 
 	@Autowired
 	private MockMvc mockmvc;
@@ -121,14 +120,14 @@ public class SchedulerTest {
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
 		httpMockServer.stubFor(any(urlMatching("/ps")).willReturn(aResponse().withStatus(200)));
 		httpMockServer.stubFor(any(urlMatching("/structure")).willReturn(aResponse().withStatus(200)));
-		scheduler.run();
+		runner.runScheduler();
 		assertFalse(registry.isEmpty());
 		mockmvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/process/info")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status()
 				.is2xxSuccessful())
 		.andDo(print());
-		// TODO fix problem with async request of controller(wiremock is stopped before
+
 		httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
 		mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is2xxSuccessful()).andDo(print());

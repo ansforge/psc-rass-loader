@@ -140,7 +140,6 @@ public class PscloadApplication {
 		@Override
 		public void onApplicationEvent(ContextClosedEvent event) {
 			// Wait for upload finished
-			// TODO configure timeout
 			ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
 			// Save the registry if not empty
 			if (!registry.isEmpty()) {

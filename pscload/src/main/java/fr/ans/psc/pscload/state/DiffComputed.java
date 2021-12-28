@@ -42,14 +42,10 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-
 	}
 
 	private void publishPsMetrics() {

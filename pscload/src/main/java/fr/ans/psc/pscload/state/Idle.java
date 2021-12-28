@@ -119,11 +119,11 @@ public class Idle extends ProcessState {
 			}
 			zipFile = downloadFile();
 		} catch (GeneralSecurityException e) {
-			// TODO log
+			log.error("SSL exception during downloading", e);
 			throw new DownloadException("SSL exception during downloading", e);
 
 		} catch (IOException e) {
-			// TODO log
+			log.error("Exception during downloading", e);
 			throw new DownloadException("Exception during downloading", e);
 		}
 		// If download is OK next step !
