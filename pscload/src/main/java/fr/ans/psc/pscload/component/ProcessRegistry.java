@@ -102,6 +102,21 @@ public class ProcessRegistry implements  Externalizable  {
 			
 	}
 	
+	/**
+	 * Gets the process by id.
+	 *
+	 * @param id the id
+	 * @return the process by id
+	 */
+	public LoadProcess getProcessById(String id) {
+		return registry.get(id);		
+	}
+	
+	/**
+	 * List.
+	 *
+	 * @return the list of processes.
+	 */
 	public List<LoadProcess> list(){
 		return List.copyOf(registry.values());
 	}
