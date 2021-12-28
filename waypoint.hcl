@@ -27,7 +27,7 @@ app "prosanteconnect/pscload-v2" {
     # Uncomment below to use a remote docker registry to push your built images.
     registry {
       use "docker" {
-        image = "${var.registry_path}/psc-api-maj"
+        image = "${var.registry_path}/pscload-v2"
         tag = gitrefpretty()
         encoded_auth = filebase64("/secrets/dockerAuth.json")
       }
