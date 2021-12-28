@@ -13,7 +13,6 @@
 package fr.ans.psc.pscload.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

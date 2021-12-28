@@ -3,35 +3,22 @@
  */
 package fr.ans.psc.pscload.state;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import fr.ans.psc.pscload.model.*;
-import fr.ans.psc.pscload.service.MapsManager;
-import org.apache.any23.encoding.TikaEncodingDetector;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
-import com.univocity.parsers.common.ParsingContext;
-import com.univocity.parsers.common.processor.ObjectRowProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
 
-import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
+import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.Professionnel;
+import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReadyToComputeDiff extends ProcessState {
 
-	private static final int ROW_LENGTH = 50;
 
 	private static final long serialVersionUID = 1208602116799660764L;
 
-	private MapsHandler newMaps;
+	private MapsHandler newMaps = new MapsHandler();
 	private MapsHandler oldMaps = new MapsHandler();
-	private MapsManager mapsManager;
 	
 
 	/**
@@ -58,26 +43,22 @@ public class ReadyToComputeDiff extends ProcessState {
 		super();
 	}
 
-	public ReadyToComputeDiff(MapsManager mapsManager) {
-		super();
-		this.mapsManager = mapsManager;
-	}
 
 	@Override
 	public void nextStep() throws LoadProcessException {
 
 		File fileToLoad = new File(process.getExtractedFilename());
 		try {
-			newMaps = mapsManager.loadMapsFromFile(fileToLoad);
+			newMaps.loadMapsFromFile(fileToLoad);
 			// we serialize new map now in a temp file (maps.{timestamp}.lock
 			File tmpmaps = new File(
 					fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
 			process.setTmpMapsPath(tmpmaps.getAbsolutePath());
-			mapsManager.serializeMaps(tmpmaps.getPath(), newMaps);
+			newMaps.serializeMaps(tmpmaps.getPath());
 			// deserialize the old file if exists
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
-				mapsManager.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
+				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
 				setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 			}
 			// Launch diff
@@ -89,7 +70,7 @@ public class ReadyToComputeDiff extends ProcessState {
 		} catch (IOException e) {
 			throw new DiffException("I/O Error when deserializing file", e);
 		} catch (ClassNotFoundException e) {
-			throw new DiffException(".ser file not found", e);
+			throw new DiffException(".ser file not compatible with model", e);
 		}
 
 	}

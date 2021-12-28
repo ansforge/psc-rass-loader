@@ -3,20 +3,23 @@
  */
 package fr.ans.psc.pscload.state;
 
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.Structure;
-import fr.ans.psc.pscload.service.MapsManager;
-import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Map;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
-import java.util.Map;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.Professionnel;
+import fr.ans.psc.pscload.model.Structure;
+import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ChangesApplied.
@@ -31,20 +34,18 @@ public class ChangesApplied extends ProcessState {
 
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
-    private MapsManager mapsManager;
-
-    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl, MapsManager mapsManager) {
-        super();
-        this.customMetrics = customMetrics;
-        this.extractBaseUrl = extractBaseUrl;
-        this.mapsManager = mapsManager;
-    }
-
-    public ChangesApplied() {
-    }
 
     private MapsHandler newMaps = new MapsHandler();
     private MapsHandler oldMaps = new MapsHandler();
+
+    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl) {
+        super();
+        this.customMetrics = customMetrics;
+        this.extractBaseUrl = extractBaseUrl;
+    }
+
+    public ChangesApplied() {}
+
 
     @Override
     public void nextStep() {
@@ -53,9 +54,9 @@ public class ChangesApplied extends ProcessState {
         File serFile = new File(serFileName);
 
         try {
-            mapsManager.deserializeMaps(lockedFilePath, newMaps);
+        	newMaps.deserializeMaps(lockedFilePath);
             if (serFile.exists()) {
-                mapsManager.deserializeMaps(serFileName, oldMaps);
+            	oldMaps.deserializeMaps(serFileName);
             }
         } catch (IOException | ClassNotFoundException e) {
             String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
@@ -82,7 +83,7 @@ public class ChangesApplied extends ProcessState {
 
         try {
             serFile.delete();
-            mapsManager.serializeMaps(serFileName, newMaps);
+            newMaps.serializeMaps(serFileName);
         } catch (IOException e) { log.error("Error during serialization"); }
 
         RestTemplate restTemplate = new RestTemplate();
