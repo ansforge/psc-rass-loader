@@ -76,6 +76,8 @@ public class ChangesAppliedTest {
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
         propertiesRegistry.add("deactivation.excluded.profession.codes", () -> "0");
         propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
+        propertiesRegistry.add("files.directory", ()-> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
+
     }
 
     @BeforeEach

@@ -15,14 +15,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +39,12 @@ class ReadyToComputeDiffTest {
 
 	@Autowired
 	CustomMetrics customMetrics;
+	
+	@Autowired
+	private EmailService emailService;
+
+	@Mock
+	private JavaMailSender javaMailSender;
 
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
@@ -51,12 +61,12 @@ class ReadyToComputeDiffTest {
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
-		propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
-		propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
 	}
 
 	@BeforeEach
-	void setUp() {
+	void setUp() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
+		emailService.setEmailSender(javaMailSender);
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
 		File[] files = outputfolder.listFiles();
 		if (files != null) { // some JVMs return null for empty dirs
