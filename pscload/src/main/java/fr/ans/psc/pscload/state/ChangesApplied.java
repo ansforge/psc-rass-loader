@@ -77,8 +77,8 @@ public class ChangesApplied extends ProcessState {
                     .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
                             " \"resume\"");
 
-            customMetrics.setStageMetric(40, message.toString());
-        } else { customMetrics.setStageMetric(40); }
+            customMetrics.setStageMetric(70, message.toString());
+        } else { customMetrics.setStageMetric(70); }
 
         try {
             serFile.delete();

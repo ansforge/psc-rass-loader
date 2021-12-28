@@ -99,13 +99,12 @@ public class PscloadApplication {
 				if (process != null) {
 					Class<? extends ProcessState> stateClass = process.getState().getClass();
 					if (stateClass.equals(UploadingChanges.class)) {
-						UploadingChanges state = (UploadingChanges) registry.getCurrentProcess().getState();
 							ForkJoinPool.commonPool().submit(() -> {
 								try {
 									// upload changes
 									process.nextStep();
 									process.setState(new ChangesApplied());
-									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(40);
+									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(70);
 									// Step 5 : call pscload
 									process.nextStep();
 									registry.unregister(process.getId());
