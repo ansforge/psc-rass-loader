@@ -21,8 +21,10 @@ import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -37,6 +39,12 @@ class ReadyToComputeDiffTest {
 	CustomMetrics customMetrics;
 	@Autowired
 	MapsManager mapsManager;
+
+	@Autowired
+	private EmailService emailService;
+
+	@Mock
+	private JavaMailSender javaMailSender;
 
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
@@ -53,12 +61,10 @@ class ReadyToComputeDiffTest {
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
-		propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
-		propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
 	}
 
 	@BeforeEach
-	void setUp() {
+	void setUp() throws Exception {
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
 		File[] files = outputfolder.listFiles();
 		if (files != null) { // some JVMs return null for empty dirs
@@ -69,6 +75,9 @@ class ReadyToComputeDiffTest {
 
 		httpMockServer.stubFor(any(urlMatching("/generate-extract"))
 				.willReturn(aResponse().withStatus(200)));
+
+		MockitoAnnotations.openMocks(this).close();
+		emailService.setEmailSender(javaMailSender);
 	}
 
 	/**

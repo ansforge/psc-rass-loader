@@ -9,6 +9,7 @@ import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.service.MapsManager;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -40,12 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureMockMvc
 public class ChangesAppliedTest {
 
-    /**
-     * The mock mvc.
-     */
-    @Autowired
-    private MockMvc mockMvc;
-
     @Autowired
     private MapsManager mapsManager;
 
@@ -54,6 +52,12 @@ public class ChangesAppliedTest {
 
     @Autowired
     private ProcessRegistry registry;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Mock
+    private JavaMailSender javaMailSender;
 
     /**
      * The http api mock server.
@@ -70,12 +74,10 @@ public class ChangesAppliedTest {
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
         propertiesRegistry.add("deactivation.excluded.profession.codes", () -> "0");
         propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
-        propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
-        propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
     }
 
     @BeforeEach
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
         File[] files = outputfolder.listFiles();
         if (files != null) { // some JVMs return null for empty dirs
@@ -86,6 +88,9 @@ public class ChangesAppliedTest {
 
         httpMockServer.stubFor(any(urlMatching("/generate-extract"))
                 .willReturn(aResponse().withStatus(200)));
+
+        MockitoAnnotations.openMocks(this).close();
+        emailService.setEmailSender(javaMailSender);
     }
 
     // CAS 100% PASSANT : pas de message généré, appel à extract

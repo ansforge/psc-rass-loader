@@ -10,14 +10,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.MapsManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -61,6 +66,12 @@ public class UploadingStateTest {
     @Autowired
     private MapsManager mapsManager;
 
+    @Autowired
+    private EmailService emailService;
+
+    @Mock
+    private JavaMailSender javaMailSender;
+
     /**
      * The http api mock server.
      */
@@ -78,10 +89,13 @@ public class UploadingStateTest {
                 () -> httpApiMockServer.baseUrl());
         propertiesRegistry.add("deactivation.excluded.profession.codes", () -> "0");
         propertiesRegistry.add("pscextract.base.url", () -> httpApiMockServer.baseUrl());
-        propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
-        propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
     }
 
+    @BeforeEach
+    public void setup() throws Exception {
+        MockitoAnnotations.openMocks(this).close();
+        emailService.setEmailSender(javaMailSender);
+    }
     /**
      * Api call test.
      *
