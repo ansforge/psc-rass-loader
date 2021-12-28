@@ -101,8 +101,8 @@ EOF
         change_mode = "restart"
       }
       resources {
-        cpu = 7000
-        memory = 11264
+        cpu = 300
+        memory = 8264
       }
       service {
         name = "$\u007BNOMAD_JOB_NAME\u007D"
