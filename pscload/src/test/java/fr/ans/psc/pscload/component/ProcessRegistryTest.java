@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
@@ -37,12 +39,17 @@ import lombok.extern.slf4j.Slf4j;
 class ProcessRegistryTest {
 	
 	/** The rootpath. */
-	String rootpath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+	String rootpath = Thread.currentThread().getContextClassLoader().getResource("work").getPath();
 	
 	/** The registry. */
 	@Autowired
 	ProcessRegistry registry;
 	
+	
+    @DynamicPropertySource
+    static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
+        propertiesRegistry.add("files.directory", ()-> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
+    }
 	/**
 	 * Serialization test.
 	 *

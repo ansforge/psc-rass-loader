@@ -3,22 +3,17 @@
  */
 package fr.ans.psc.pscload.state;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.service.MapsManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import fr.ans.psc.pscload.service.LoadProcess;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -27,6 +22,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.service.LoadProcess;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class FileExtractedTest.
@@ -37,8 +39,6 @@ class ReadyToComputeDiffTest {
 
 	@Autowired
 	CustomMetrics customMetrics;
-	@Autowired
-	MapsManager mapsManager;
 
 	@Autowired
 	private EmailService emailService;
@@ -65,6 +65,8 @@ class ReadyToComputeDiffTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
+		emailService.setEmailSender(javaMailSender);
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
 		File[] files = outputfolder.listFiles();
 		if (files != null) { // some JVMs return null for empty dirs
@@ -75,9 +77,6 @@ class ReadyToComputeDiffTest {
 
 		httpMockServer.stubFor(any(urlMatching("/generate-extract"))
 				.willReturn(aResponse().withStatus(200)));
-
-		MockitoAnnotations.openMocks(this).close();
-		emailService.setEmailSender(javaMailSender);
 	}
 
 	/**
@@ -93,7 +92,7 @@ class ReadyToComputeDiffTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
 		p.setExtractedFilename(Thread.currentThread().getContextClassLoader()
 				.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 		p.nextStep();
@@ -115,14 +114,14 @@ class ReadyToComputeDiffTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 		p.nextStep();
-		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), mapsManager));
+		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(mapsManager));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
 		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
 		p2.getState().setProcess(p2);
 		p2.nextStep();
@@ -145,7 +144,7 @@ class ReadyToComputeDiffTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
 		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112140852.txt").getPath());
 		p.nextStep();
 		assertEquals(p.getPsToCreate().size(), 99171);

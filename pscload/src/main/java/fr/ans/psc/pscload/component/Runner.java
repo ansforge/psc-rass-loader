@@ -3,9 +3,6 @@
  */
 package fr.ans.psc.pscload.component;
 
-import fr.ans.psc.pscload.service.MapsManager;
-import fr.ans.psc.pscload.state.*;
-import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,6 +10,14 @@ import org.springframework.stereotype.Component;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.Idle;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,9 +33,6 @@ public class Runner {
 
 	@Autowired
 	private CustomMetrics customMetrics;
-
-	@Autowired
-	private MapsManager mapsManager;
 
 	@Value("${enable.scheduler:true}")
 	private boolean enabled;
@@ -91,7 +93,7 @@ public class Runner {
 					customMetrics.setStageMetric(10);
 					// Step 2 : Extract
 					process.nextStep();
-					process.setState(new ReadyToComputeDiff(mapsManager));
+					process.setState(new ReadyToComputeDiff());
 					customMetrics.setStageMetric(30);
 					// Step 4 : Load maps and compute diff
 					process.nextStep();
@@ -117,7 +119,7 @@ public class Runner {
 			customMetrics.resetSizeMetrics();
 			customMetrics.setStageMetric(60);
 			process.nextStep();
-			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, mapsManager));
+			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
 			// Step 5 : call pscload
 			process.nextStep();
 			processRegistry.unregister(process.getId());

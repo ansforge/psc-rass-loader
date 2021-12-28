@@ -28,3 +28,12 @@ jobs:
     - name: Publish Test Report
       if: ${{ always() }}
       uses: scacap/action-surefire-report@v1
+    - name: Run codecov reporter
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+        files: ./pscload/target/site/jacoco/jacoco.xml
+        flags: unittests # optional
+        name: codecov-umbrella # optional
+        fail_ci_if_error: false
+        verbose: true

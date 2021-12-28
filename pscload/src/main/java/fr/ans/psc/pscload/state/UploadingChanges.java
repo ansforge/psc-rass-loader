@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
