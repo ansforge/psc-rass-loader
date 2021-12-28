@@ -41,7 +41,10 @@ app "prosanteconnect/pscload-v2" {
   deploy {
     use "nomad-jobspec" {
       jobspec = templatefile("${path.app}/pscload-v2.nomad.tpl", {
-        datacenter = var.datacenter
+        datacenter = var.datacenter,
+        proxy_port = var.proxy_port,
+        proxy_host = var.proxy_host,
+        non_proxy_hosts = var.non_proxy_hosts
       })
     }
   }
@@ -52,9 +55,19 @@ variable "datacenter" {
   default = "dc1"
 }
 
-variable "proxy_address" {
+variable "proxy_port" {
   type = string
-  default = "proxy_address"
+  default = ""
+}
+
+variable "proxy_host" {
+  type = string
+  default = ""
+}
+
+variable "non_proxy_hosts" {
+  type = string
+  default = "10.0.0.0/8"
 }
 
 variable "dockerfile_path" {
