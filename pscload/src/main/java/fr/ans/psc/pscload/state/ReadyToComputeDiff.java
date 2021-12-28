@@ -6,14 +6,11 @@ package fr.ans.psc.pscload.state;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -22,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import fr.ans.psc.pscload.model.*;
+import fr.ans.psc.pscload.service.MapsManager;
 import org.apache.any23.encoding.TikaEncodingDetector;
 
 import com.google.common.collect.MapDifference;
@@ -42,41 +40,47 @@ import lombok.extern.slf4j.Slf4j;
  * The Class FileExtracted.
  */
 @Slf4j
-public class FileExtracted extends ProcessState {
+public class ReadyToComputeDiff extends ProcessState {
 
 	private static final int ROW_LENGTH = 50;
 
 	private static final long serialVersionUID = 1208602116799660764L;
 
-	private MapsHandler newMaps = new MapsHandler();
+	private MapsHandler newMaps;
 	private MapsHandler oldMaps = new MapsHandler();
+	private MapsManager mapsManager;
 	
 
 	/**
 	 * Instantiates a new file extracted.
 	 */
-	public FileExtracted() {
+	public ReadyToComputeDiff() {
 		super();
+	}
+
+	public ReadyToComputeDiff(MapsManager mapsManager) {
+		super();
+		this.mapsManager = mapsManager;
 	}
 
 	@Override
 	public void nextStep() throws LoadProcessException {
-		// TODO load maps
+
 		File fileToLoad = new File(process.getExtractedFilename());
 		try {
-			loadMapsFromTextFile(fileToLoad);
+			newMaps = mapsManager.loadMapsFromFile(fileToLoad);
 			// we serialize new map now in a temp file (maps.{timestamp}.lock
 			File tmpmaps = new File(
 					fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
 			process.setTmpMapsPath(tmpmaps.getAbsolutePath());
-			serializeMaps(tmpmaps.getPath(), newMaps);
+			mapsManager.serializeMaps(tmpmaps.getPath(), newMaps);
 			// deserialize the old file if exists
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
-				deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
+				mapsManager.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser", oldMaps);
+				setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 			}
 			// Launch diff
-			// TODO check to return a modifiable map
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
 			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(), newMaps.getStructureMap());
 
@@ -112,8 +116,8 @@ public class FileExtracted extends ProcessState {
 		pstmpmap = (ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
 		//Convert ValueDifference to PscValueDifference for serialization
-		Map<String, SerializableValueDifference<Professionnel>> pstu = process.getPsToUpdate();
-		pstmpmap.forEach((k, v) -> pstu.put(k,new SerializableValueDifference<Professionnel>(v.leftValue(), v.rightValue())));
+		Map<String, Professionnel> pstu = process.getPsToUpdate();
+		pstmpmap.forEach((k, v) -> pstu.put(k,v.rightValue()));
 
 		process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
@@ -125,11 +129,9 @@ public class FileExtracted extends ProcessState {
 		Map<String, ValueDifference<Structure>> structtmpmap;
 		structtmpmap = (ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
 				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
-		Map<String, SerializableValueDifference<Structure>> structtu = process.getStructureToUpdate();
-		structtmpmap.forEach((k, v) -> structtu.put(k,new SerializableValueDifference<Structure>(v.leftValue(), v.rightValue())));
+		Map<String, Structure> structtu = process.getStructureToUpdate();
+		structtmpmap.forEach((k, v) -> structtu.put(k, v.rightValue()));
 
-		process.setStructureToDelete((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnLeft().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	private void loadMapsFromTextFile(File file) throws IOException {
@@ -163,7 +165,7 @@ public class FileExtracted extends ProcessState {
 						// Add profession and worksituation
 						ExerciceProfessionnel exepro = new ExerciceProfessionnel(items);
 						psMapped.addProfessionsItem(exepro);
-						;
+
 					}
 				}
 				// get structure in map by its reference from row
@@ -193,23 +195,6 @@ public class FileExtracted extends ProcessState {
 		}
 		log.info("loading complete!");
 	}
-
-	private void serializeMaps(String filename, MapsHandler mapsHandler) throws IOException {
-		File mapsFile = new File(filename);
-		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
-		ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-		mapsHandler.writeExternal(oos);
-		oos.close();
-	}
-
-	private void deserializeMaps(String filename, MapsHandler mapsHandler) throws IOException, ClassNotFoundException {
-		FileInputStream fileInputStream = new FileInputStream(filename);
-		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-		mapsHandler.readExternal(ois);
-		ois.close();
-		setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
-	}
-
 	
 	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap, Map<String, Structure> structureMap) {
 		process.getUploadMetrics().setPsAdeliUploadSize(Math.toIntExact(psMap.values().stream()

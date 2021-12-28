@@ -53,8 +53,5 @@ public class ProcessInfo implements Serializable{
   
   @JsonProperty("structureToUpdate")
   private int structureToUpdate;
-  
-  @JsonProperty("structureToDelete")
-  private int structureToDelete;
 
 }

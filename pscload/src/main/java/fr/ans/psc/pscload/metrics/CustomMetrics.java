@@ -259,7 +259,6 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 	
 	public void setStageMetric(int state, String message) {
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
-		//TODO Fire event
 		StateChangeEvent event = new StateChangeEvent(this, appMiscGauges.get(MiscCustomMetric.STAGE).get(), message);
 		publisher.publishEvent(event);
 	}

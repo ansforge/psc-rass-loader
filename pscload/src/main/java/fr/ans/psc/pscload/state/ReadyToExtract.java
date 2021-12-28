@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * The Class FileDownloaded.
  */
 @Slf4j
-public class FileDownloaded extends ProcessState {
+public class ReadyToExtract extends ProcessState {
 
     /**
      *
@@ -43,7 +43,7 @@ public class FileDownloaded extends ProcessState {
         try {
             process.setExtractedFilename(unzip(process.getDownloadedFilename()));
         } catch (IOException e) {
-            // TODO log
+            log.error("Error during file extraction, e");
             throw new ExtractException(e);
         }
 

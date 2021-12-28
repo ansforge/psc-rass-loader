@@ -7,16 +7,16 @@ import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.service.MapsManager;
 import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.util.Map;
-
-import static com.google.common.io.Files.move;
 
 /**
  * The Class ChangesApplied.
@@ -30,9 +30,14 @@ public class ChangesApplied extends ProcessState {
     private static final long serialVersionUID = -2486351862090505174L;
 
     private CustomMetrics customMetrics;
+    private String extractBaseUrl;
+    private MapsManager mapsManager;
 
-    public ChangesApplied(CustomMetrics customMetrics) {
+    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl, MapsManager mapsManager) {
+        super();
         this.customMetrics = customMetrics;
+        this.extractBaseUrl = extractBaseUrl;
+        this.mapsManager = mapsManager;
     }
 
     public ChangesApplied() {
@@ -43,85 +48,51 @@ public class ChangesApplied extends ProcessState {
 
     @Override
     public void nextStep() {
-
-        deserializeMaps(newMaps, process.getTmpMapsPath());
-        File tmpSerFile = new File(process.getTmpMapsPath());
-
-        String serFileName = tmpSerFile.getParent() + File.separator + "maps.ser";
+        String lockedFilePath = process.getTmpMapsPath();
+        String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
         File serFile = new File(serFileName);
-        if (serFile.exists()) {
-            deserializeMaps(oldMaps, serFileName);
+
+        try {
+            mapsManager.deserializeMaps(lockedFilePath, newMaps);
+            if (serFile.exists()) {
+                mapsManager.deserializeMaps(serFileName, oldMaps);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
+            log.error(msgLogged, e.getLocalizedMessage());
+            throw new ChangesApplicationException(e);
         }
-
-        StringBuilder message = new StringBuilder();
-
-        message.append("Créations PS en échec :");
-        message.append(System.lineSeparator());
-        process.getPsToCreate().values().stream().forEach(ps -> {
-            appendOperationFailureInfos(message, "PS", ps.getNationalId(), ps.getReturnStatus());
-            removePsIfClientError(process.getPsToCreate(), ps);
-        });
-
-        message.append("Suppressions PS en échec :");
-        message.append(System.lineSeparator());
-        process.getPsToDelete().values().stream().forEach(ps -> {
-            appendOperationFailureInfos(message, "PS", ps.getNationalId(), ps.getReturnStatus());
-            removePsIfClientError(process.getPsToDelete(), ps);
-        });
-
-        message.append("Modifications PS en échec :");
-        message.append(System.lineSeparator());
-        process.getPsToUpdate().values().stream().forEach(psDiff -> {
-            appendOperationFailureInfos(message, "PS", psDiff.rightValue().getNationalId(), psDiff.rightValue().getReturnStatus());
-            if (HttpStatus.valueOf(psDiff.rightValue().getReturnStatus()).is4xxClientError()) {
-                process.getPsToUpdate().remove(psDiff.rightValue().getNationalId());
-            }
-        });
-
-        message.append("Créations Structure en échec :");
-        message.append(System.lineSeparator());
-        process.getStructureToCreate().values().stream().forEach(structure -> {
-            appendOperationFailureInfos(message, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
-            removeStructureIfClientError(process.getStructureToCreate(), structure);
-        });
-
-        message.append("Suppressions Structure en échec :");
-        message.append(System.lineSeparator());
-        process.getStructureToDelete().values().stream().forEach(structure -> {
-            appendOperationFailureInfos(message, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
-            removeStructureIfClientError(process.getStructureToDelete(), structure);
-        });
-
-        message.append("Modifications Structure en échec :");
-        message.append(System.lineSeparator());
-        process.getStructureToUpdate().values().stream().forEach(structureDiff -> {
-            appendOperationFailureInfos(message, "Structure", structureDiff.rightValue().getStructureTechnicalId(),
-                    structureDiff.rightValue().getReturnStatus());
-            if (HttpStatus.valueOf(structureDiff.rightValue().getReturnStatus()).is4xxClientError()) {
-                process.getStructureToUpdate().remove(structureDiff.rightValue().getStructureTechnicalId());
-            }
-        });
-
-        message.append("Si certaines modifications n'ont pas été appliquées, ");
-        message.append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint \"resume\"");
-
-
-        // TODO remove failures from newMaps
-
-        // TODO serialize newMaps
-        serFile.delete();
-        tmpSerFile.renameTo(serFile);
-
 
 
         if (process.isRemainingPsOrStructuresInMaps()) {
-//            String message = buildMessageBody(process);
-//            customMetrics.setStageMetric(40, message.toString());
-        } else {
-            customMetrics.setStageMetric(40);
+            StringBuilder message = new StringBuilder();
+            handlePsCreateFailed(message, process.getPsToCreate());
+            handlePsDeleteFailed(message, process.getPsToDelete());
+            handlePsUpdateFailed(message, process.getPsToUpdate());
+
+            handleStructureCreateFailed(message, process.getStructureToCreate());
+            handleStructureUpdateFailed(message, process.getStructureToUpdate());
+
+            message.append("Si certaines modifications n'ont pas été appliquées, ")
+                    .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
+                            " \"resume\"");
+
+            customMetrics.setStageMetric(40, message.toString());
+        } else { customMetrics.setStageMetric(40); }
+
+        try {
+            serFile.delete();
+            mapsManager.serializeMaps(serFileName, newMaps);
+        } catch (IOException e) { log.error("Error during serialization"); }
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+        } catch (RestClientException e) {
+            log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
+            throw new ChangesApplicationException(e);
         }
 
-        // TODO call pscextract and deregister process now because we can't know the status of pscextract.
     }
 
     @Override
@@ -137,36 +108,75 @@ public class ChangesApplied extends ProcessState {
 
     }
 
-    private void deserializeMaps(MapsHandler mapsToDeserializeHandler, String serializedFileName) throws ChangesApplicationException {
-        try {
-            FileInputStream fileInputStream = new FileInputStream(serializedFileName);
-            ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-            mapsToDeserializeHandler.readExternal(ois);
-            ois.close();
-        } catch (IOException ioe) {
-            throw new ChangesApplicationException("Error during I/O", ioe);
-        } catch (ClassNotFoundException cnfe) {
-            throw new ChangesApplicationException("File " + serializedFileName + " has not been found", cnfe);
-        }
+    private void handlePsCreateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
+        addOperationHeader(sb, psMap, "Créations PS en échec : ");
 
+        psMap.values().forEach(ps -> {
+            appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
+            if (is5xxError(ps.getReturnStatus())) {
+                newMaps.getPsMap().remove(ps.getNationalId());
+            }
+        });
+    }
+
+    private void handlePsUpdateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
+        addOperationHeader(sb, psMap, "Modifications PS en échec : ");
+
+        psMap.values().forEach(ps -> {
+            appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
+            if (is5xxError(ps.getReturnStatus())) {
+                newMaps.getPsMap().replace(ps.getNationalId(), oldMaps.getPsMap().get(ps.getNationalId()));
+            }
+        });
+    }
+
+    private void handlePsDeleteFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
+        addOperationHeader(sb, psMap, "Suppressions PS en échec : ");
+
+        psMap.values().forEach(ps -> {
+            appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
+            if (is5xxError(ps.getReturnStatus())) {
+                newMaps.getPsMap().put(ps.getNationalId(), ps);
+            }
+        });
+    }
+
+    private void handleStructureCreateFailed(StringBuilder sb, Map<String, Structure> structureMap) {
+        addOperationHeader(sb, structureMap, "Créations Structure en échec : ");
+
+        structureMap.values().forEach(structure -> {
+            appendOperationFailureInfos(sb, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
+            if (is5xxError(structure.getReturnStatus())) {
+                newMaps.getStructureMap().remove(structure.getStructureTechnicalId());
+            }
+
+        });
+    }
+
+    private void handleStructureUpdateFailed(StringBuilder sb, Map<String, Structure> structureMap) {
+        addOperationHeader(sb, structureMap, "Modifications Structure en échec : ");
+
+        structureMap.values().forEach(structure -> {
+            appendOperationFailureInfos(sb, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
+            if (is5xxError(structure.getReturnStatus())) {
+                newMaps.getStructureMap().replace(structure.getStructureTechnicalId(),
+                        oldMaps.getStructureMap().get(structure.getStructureTechnicalId()));
+            }
+
+        });
+    }
+
+    private void addOperationHeader(StringBuilder sb, Map map, String header) {
+        sb.append(header).append(map.size()).append(System.lineSeparator());
     }
 
     private void appendOperationFailureInfos(StringBuilder sb, String entityKind, String entityKey, int httpStatusCode) {
-        sb.append(System.lineSeparator());
-        sb.append(entityKind + " : " + entityKey + " ");
-        sb.append("status code : " + httpStatusCode);
-        sb.append(System.lineSeparator());
+        sb.append(System.lineSeparator())
+                .append(entityKind).append(" : ").append(entityKey).append(" ")
+                .append("status code : ").append(httpStatusCode).append(System.lineSeparator());
     }
 
-    private void removePsIfClientError(Map<String, Professionnel> psMap, Professionnel ps) {
-        if (HttpStatus.valueOf(ps.getReturnStatus()).is4xxClientError()) {
-            psMap.remove(ps.getNationalId());
-        }
-    }
-
-    private void removeStructureIfClientError(Map<String, Structure> structureMap, Structure structure) {
-        if (HttpStatus.valueOf(structure.getReturnStatus()).is4xxClientError()) {
-            structureMap.remove(structure.getStructureTechnicalId());
-        }
+    private boolean is5xxError(int rawReturnStatus) {
+        return HttpStatus.valueOf(rawReturnStatus).is5xxServerError();
     }
 }

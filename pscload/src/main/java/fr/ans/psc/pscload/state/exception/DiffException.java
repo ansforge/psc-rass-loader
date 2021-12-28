@@ -18,7 +18,6 @@ public class DiffException extends LoadProcessException {
 	 */
 	public DiffException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -29,7 +28,6 @@ public class DiffException extends LoadProcessException {
 	 */
 	public DiffException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -39,7 +37,6 @@ public class DiffException extends LoadProcessException {
 	 */
 	public DiffException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -49,7 +46,6 @@ public class DiffException extends LoadProcessException {
 	 */
 	public DiffException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

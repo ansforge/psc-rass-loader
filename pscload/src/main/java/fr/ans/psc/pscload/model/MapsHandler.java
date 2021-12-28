@@ -1,5 +1,6 @@
 package fr.ans.psc.pscload.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter @Setter
+@Getter @Setter @EqualsAndHashCode()
 public class MapsHandler implements Externalizable {
 
     private Map<String, Professionnel> psMap = new HashMap<>();
@@ -26,5 +27,10 @@ public class MapsHandler implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         psMap = (Map<String, Professionnel>) in.readObject();
         structureMap = (Map<String, Structure>) in.readObject();
+    }
+
+    public void clearMaps() {
+        psMap.clear();
+        structureMap.clear();
     }
 }

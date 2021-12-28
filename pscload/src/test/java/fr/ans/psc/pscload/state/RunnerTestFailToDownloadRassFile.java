@@ -7,20 +7,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,18 +21,16 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Scheduler;
+import fr.ans.psc.pscload.component.Runner;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,13 +41,13 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
-public class SchedulerTestFailToDownloadRassFile {
+public class RunnerTestFailToDownloadRassFile {
 
 	@Autowired
 	private ProcessRegistry registry;
 
 	@Autowired
-	private Scheduler scheduler;
+	private Runner runner;
 
 	/** The http  mock server. */
 	@RegisterExtension
@@ -98,7 +88,7 @@ public class SchedulerTestFailToDownloadRassFile {
 		// Configure the mock service to serve zipfile
 		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnectFalse";
 		httpMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(404)));
-		scheduler.run();
+		runner.runScheduler();
 		assertTrue(registry.isEmpty());
 	}
 
