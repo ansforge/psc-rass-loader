@@ -133,68 +133,6 @@ public class ReadyToComputeDiff extends ProcessState {
 		structtmpmap.forEach((k, v) -> structtu.put(k, v.rightValue()));
 
 	}
-
-	private void loadMapsFromTextFile(File file) throws IOException {
-		log.info("loading {} into list of Ps", file.getName());
-		newMaps.getPsMap().clear();
-		newMaps.getStructureMap().clear();
-		// ObjectRowProcessor converts the parsed values and gives you the resulting
-		// row.
-		ObjectRowProcessor rowProcessor = new ObjectRowProcessor() {
-			@Override
-			public void rowProcessed(Object[] objects, ParsingContext parsingContext) {
-				if (objects.length != ROW_LENGTH) {
-					throw new IllegalArgumentException();
-				}
-				String[] items = Arrays.asList(objects).toArray(new String[ROW_LENGTH]);
-				// test if exists by nationalId (item 2)
-				Professionnel psMapped = newMaps.getPsMap().get(items[RassItems.NATIONAL_ID.column]);
-				if (psMapped == null) {
-					// create PS and add to map
-					Professionnel psRow = new Professionnel(items, true);
-					newMaps.getPsMap().put(psRow.getNationalId(), psRow);
-				} else {
-					// if ps exists then add expro and situ exe.
-					Optional<Profession> p = psMapped.getProfessionByCodeAndCategory(
-							items[RassItems.EX_PRO_CODE.column], items[RassItems.CATEGORY_CODE.column]);
-					if (p.isPresent()) {
-						// add worksituation : it can't exists, otherwise it is a duplicate entry.
-						SituationExercice situ = new SituationExercice(items);
-						p.get().addWorkSituationsItem(situ);
-					} else {
-						// Add profession and worksituation
-						ExerciceProfessionnel exepro = new ExerciceProfessionnel(items);
-						psMapped.addProfessionsItem(exepro);
-
-					}
-				}
-				// get structure in map by its reference from row
-				if (newMaps.getStructureMap().get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
-					Structure newStructure = new Structure(items);
-					newMaps.getStructureMap().put(newStructure.getStructureTechnicalId(), newStructure);
-				}
-			}
-		};
-
-		CsvParserSettings parserSettings = new CsvParserSettings();
-		parserSettings.getFormat().setLineSeparator("\n");
-		parserSettings.getFormat().setDelimiter('|');
-		parserSettings.setProcessor(rowProcessor);
-		parserSettings.setHeaderExtractionEnabled(true);
-		parserSettings.setNullValue("");
-
-		CsvParser parser = new CsvParser(parserSettings);
-
-		// get file charset to secure data encoding
-		InputStream is = new FileInputStream(file);
-		try {
-			Charset detectedCharset = Charset.forName(new TikaEncodingDetector().guessEncoding(is));
-			parser.parse(new BufferedReader(new FileReader(file, detectedCharset)));
-		} catch (IOException e) {
-			throw new IOException("Encoding detection failure", e);
-		}
-		log.info("loading complete!");
-	}
 	
 	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap, Map<String, Structure> structureMap) {
 		process.getUploadMetrics().setPsAdeliUploadSize(Math.toIntExact(psMap.values().stream()
