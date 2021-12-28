@@ -38,10 +38,11 @@ app "prosanteconnect/pscload-v2" {
   deploy {
     use "nomad-jobspec" {
       jobspec = templatefile("${path.app}/pscload-v2.nomad.tpl", {
-        datacenter = var.datacenter,
-        proxy_port = var.proxy_port,
-        proxy_host = var.proxy_host,
+        datacenter = var.datacenter
+        proxy_port = var.proxy_port
+        proxy_host = var.proxy_host
         non_proxy_hosts = var.non_proxy_hosts
+        registry_path = var.registry_path
       })
     }
   }
