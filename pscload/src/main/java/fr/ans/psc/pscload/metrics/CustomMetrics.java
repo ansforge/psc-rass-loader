@@ -206,7 +206,6 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 
 		// PS size metrics :
 		// initialize metric for each type and operation for a PS
-
 		Arrays.stream(ID_TYPE.values()).forEach(id_type -> Arrays.stream(OPERATION.values()).forEach(operation -> {
 			String metricKey = String.join("_", ENTITY_TYPE.PS.name(), id_type.name(), operation.name(), "SIZE");
 			appPsSizeGauges.put(PsCustomMetric.valueOf(metricKey),
@@ -222,7 +221,6 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 
 		// Structure size metrics :
 		// initialize metric for each operation for a Structure
-
 		Arrays.stream(OPERATION.values()).forEach(operation -> {
 			String metricKey = String.join("_", ENTITY_TYPE.STRUCTURE.name(), operation.name(), "SIZE");
 			appStructureSizeGauges.put(StructureCustomMetric.valueOf(metricKey),
