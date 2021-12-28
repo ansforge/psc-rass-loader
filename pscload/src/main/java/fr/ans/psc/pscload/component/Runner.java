@@ -94,11 +94,11 @@ public class Runner {
 					// Step 2 : Extract
 					process.nextStep();
 					process.setState(new ReadyToComputeDiff());
-					customMetrics.setStageMetric(20);
+					customMetrics.setStageMetric(30);
 					// Step 4 : Load maps and compute diff
 					process.nextStep();
 					process.setState(new DiffComputed(customMetrics));
-					customMetrics.setStageMetric(30);
+					customMetrics.setStageMetric(50);
 					// Step 3 : publish metrics
 					process.nextStep();
 					// End of scheduled steps
@@ -117,6 +117,7 @@ public class Runner {
 			// upload changes
 			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 			customMetrics.resetSizeMetrics();
+			customMetrics.setStageMetric(60);
 			process.nextStep();
 			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
 			// Step 5 : call pscload
@@ -125,7 +126,7 @@ public class Runner {
 			customMetrics.setStageMetric(0);
 		} catch (LoadProcessException e) {
 			if (e.getClass().equals(ChangesApplicationException.class)) {
-				customMetrics.setStageMetric(50, "warning" + e.getMessage());
+				customMetrics.setStageMetric(60, "warning" + e.getMessage());
 				processRegistry.unregister(process.getId());
 			}
 

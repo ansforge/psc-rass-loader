@@ -39,7 +39,7 @@ class ReadyToComputeDiffTest {
 
 	@Autowired
 	CustomMetrics customMetrics;
-	
+
 	@Autowired
 	private EmailService emailService;
 

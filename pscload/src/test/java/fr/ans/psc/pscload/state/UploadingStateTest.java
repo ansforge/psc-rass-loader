@@ -71,7 +71,7 @@ public class UploadingStateTest {
 
 	@Mock
 	private JavaMailSender javaMailSender;
-    
+
     /**
      * The http api mock server.
      */
@@ -106,7 +106,7 @@ public class UploadingStateTest {
 			}
 		}
 	}
-    
+
     /**
      * Api call test.
      *

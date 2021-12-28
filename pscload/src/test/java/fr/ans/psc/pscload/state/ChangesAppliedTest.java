@@ -60,7 +60,7 @@ public class ChangesAppliedTest {
 
 	@Mock
 	private JavaMailSender javaMailSender;
-    
+
     /**
      * The http api mock server.
      */

@@ -77,14 +77,12 @@ public class ReadyToComputeDiff extends ProcessState {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO save metrics
 		out.writeObject(newMaps);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO restore metrics
 		oldMaps = (MapsHandler) in.readObject();
 
 	}
