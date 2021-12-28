@@ -3,35 +3,44 @@
  */
 package fr.ans.psc.pscload.state;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.service.MapsManager;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.io.File;
-import java.io.IOException;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest
@@ -40,21 +49,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureMockMvc
 public class ChangesAppliedTest {
 
-    /**
-     * The mock mvc.
-     */
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private MapsManager mapsManager;
-
     @Autowired
     private CustomMetrics customMetrics;
 
     @Autowired
     private ProcessRegistry registry;
 
+	@Autowired
+	private EmailService emailService;
+
+	@Mock
+	private JavaMailSender javaMailSender;
+    
     /**
      * The http api mock server.
      */
@@ -70,12 +76,12 @@ public class ChangesAppliedTest {
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
         propertiesRegistry.add("deactivation.excluded.profession.codes", () -> "0");
         propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
-        propertiesRegistry.add("spring.mail.username", () -> "securisation.psc@gmail.com");
-        propertiesRegistry.add("spring.mail.password", () -> "prosanteconnect");
     }
 
     @BeforeEach
-    public void setup() throws IOException {
+    public void setup() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
+		emailService.setEmailSender(javaMailSender);
         File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
         File[] files = outputfolder.listFiles();
         if (files != null) { // some JVMs return null for empty dirs
@@ -109,14 +115,14 @@ public class ChangesAppliedTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(mapsManager));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
         p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
         p.nextStep();
-        p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), mapsManager));
+        p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff
-        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(mapsManager));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
         registry.register(Integer.toString(registry.nextId()), p2);
         p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
         p2.nextStep();
@@ -138,13 +144,13 @@ public class ChangesAppliedTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), p2.getStructureToCreate().get("R10100000063415").getReturnStatus());
 
         // Apply changes and generate new ser
-        p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), mapsManager));
+        p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
         p2.getState().setProcess(p2);
         p2.nextStep();
 
         // check ser file : 4xx create should be in, 4xx delete should not, 5xx are in the previous state
         MapsHandler serializedMaps = new MapsHandler();
-        mapsManager.deserializeMaps(mapser.getAbsolutePath(), serializedMaps);
+        serializedMaps.deserializeMaps(mapser.getAbsolutePath());
         assert serializedMaps.getPsMap().get("810100375103") != null;
         assert serializedMaps.getPsMap().get("810107592585") == null;
         assert serializedMaps.getStructureMap().get("R10100000063415") == null;

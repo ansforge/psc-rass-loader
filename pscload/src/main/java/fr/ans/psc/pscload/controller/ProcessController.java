@@ -3,7 +3,11 @@
  */
 package fr.ans.psc.pscload.controller;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,10 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
-import fr.ans.psc.pscload.component.Runner;
-import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.service.MapsManager;
-import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -24,17 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.component.Runner;
+import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.ProcessInfo;
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.UploadingChanges;
-import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * The Class ProcessController.
@@ -45,9 +43,6 @@ public class ProcessController {
 
     @Value("${files.directory}")
     private String filesDirectory;
-
-    @Autowired
-    private MapsManager mapsManager;
 
     @Autowired
     private Runner runner;
@@ -159,8 +154,9 @@ public class ProcessController {
                 out.write(buffer);
             }
 
-            MapsHandler mapsToSerialize = mapsManager.loadMapsFromFile(origin);
-            mapsManager.serializeMaps(filesDirectory + File.separator + "maps.ser", mapsToSerialize);
+            MapsHandler mapsToSerialize = new MapsHandler();
+            mapsToSerialize.loadMapsFromFile(origin);
+            mapsToSerialize.serializeMaps(filesDirectory + File.separator + "maps.ser");
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IOException e) {
