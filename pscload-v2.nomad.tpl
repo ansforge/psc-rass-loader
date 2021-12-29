@@ -87,8 +87,8 @@ schedule.cron.expression = 0 0 12,15,18,21 * * ?
 schedule.cron.timeZone = Europe/Paris
 process.expiration.delay=12
 management.endpoints.web.exposure.include=health,info,prometheus,metric
-spring.servlet.multipart.max-file-size=20MB
-spring.servlet.multipart.max-request-size=20MB
+spring.servlet.multipart.max-file-size=600MB
+spring.servlet.multipart.max-request-size=600MB
 deactivation.excluded.profession.codes={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.deactivation_codes_exclusion_list }}{{ end }}
 spring.mail.host={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.spring_mail_host }}{{ end }}
 spring.mail.port={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.spring_mail_port }}{{ end }}
@@ -102,8 +102,8 @@ EOF
         change_mode = "restart"
       }
       resources {
-        cpu = 7000
-        memory = 11264
+        cpu = 300
+        memory = 8264
       }
       service {
         name = "$\u007BNOMAD_JOB_NAME\u007D"

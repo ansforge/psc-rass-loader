@@ -22,15 +22,12 @@ app "prosanteconnect/pscload-v2" {
   # we'll build using a Dockerfile and keeping it in a local registry.
   build {
     use "docker" {
-      build_args = {
-        "proxy_address" = var.proxy_address
-      }
       dockerfile = "${path.app}/${var.dockerfile_path}"
     }
     # Uncomment below to use a remote docker registry to push your built images.
     registry {
       use "docker" {
-        image = "${var.registry_path}/psc-api-maj"
+        image = "${var.registry_path}/pscload-v2"
         tag = gitrefpretty()
         encoded_auth = filebase64("/secrets/dockerAuth.json")
       }
@@ -42,6 +39,10 @@ app "prosanteconnect/pscload-v2" {
     use "nomad-jobspec" {
       jobspec = templatefile("${path.app}/pscload-v2.nomad.tpl", {
         datacenter = var.datacenter
+        proxy_port = var.proxy_port
+        proxy_host = var.proxy_host
+        non_proxy_hosts = var.non_proxy_hosts
+        registry_path = var.registry_path
       })
     }
   }
@@ -52,9 +53,19 @@ variable "datacenter" {
   default = "dc1"
 }
 
-variable "proxy_address" {
+variable "proxy_port" {
   type = string
-  default = "proxy_address"
+  default = ""
+}
+
+variable "proxy_host" {
+  type = string
+  default = ""
+}
+
+variable "non_proxy_hosts" {
+  type = string
+  default = "10.0.0.0/8"
 }
 
 variable "dockerfile_path" {

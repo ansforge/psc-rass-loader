@@ -82,7 +82,7 @@ public class Runner {
 	 *
 	 * @throws DuplicateKeyException    the duplicate key exception
 	 */
-	@Scheduled(cron  = "${scheduler.cron}")
+	@Scheduled(cron  = "${schedule.cron.expression}", zone = "${schedule.cron.timeZone}")
 	public void runScheduler() throws DuplicateKeyException {
 		if (enabled) {
 			if (processRegistry.isEmpty() || isProcessExpired()) {
