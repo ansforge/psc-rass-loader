@@ -70,7 +70,6 @@ public class ReadyToExtract extends ProcessState {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath))) {
             if (zf.size() == 1) {
                 ZipEntry zipEntry = zis.getNextEntry();
-                String filename = zipEntry.getName();
                 while (zipEntry != null) {
                     newFile = newFile(destDir, zipEntry);
                     // check only entries that are files
@@ -78,7 +77,13 @@ public class ReadyToExtract extends ProcessState {
                         // check if newer than what exists, otherwise go to next entry
                         if (!isNew(newFile, existingFiles)) {
                             log.info("{} is not new, will not be extracted", newFile.getName());
-                            throw new ExtractException("downloaded file is not new");
+                            // Exit here just for case of file exists from a previous process which abort during diff
+                            // i.e. OOM, so we can continue
+                            zis.closeEntry();
+                            zf.close();
+                            log.info("Deleting {}", zip.getName());
+                            zip.delete();
+                            return newFile.getName();
                         }
                         // fix for Windows-created archives
                         File parent = newFile.getParentFile();
@@ -98,14 +103,13 @@ public class ReadyToExtract extends ProcessState {
                     zipEntry = zis.getNextEntry();
                 }
                 zis.closeEntry();
-
-                log.info("clean set to true, deleting {}", zip.getName());
-                zip.delete();
-
                 zf.close();
+                log.info("Deleting {}", zip.getName());
+                zip.delete();
                 return newFile.getAbsolutePath();
             } else {
                 zf.close();
+                zip.delete();
                 throw new ExtractException("Zip contains multiples files");
             }
         }
