@@ -48,11 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Idle extends ProcessState {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8215232377218261245L;
-
 	private boolean customSSLContext;
 
 	private String certfile;

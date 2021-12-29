@@ -12,8 +12,6 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
  * The Class ProcessState.
  */
 public abstract class ProcessState implements KryoSerializable {
-
-	private static final long serialVersionUID = 5783897138047021249L;
 	
 	/** The process. */
 	protected LoadProcess process;

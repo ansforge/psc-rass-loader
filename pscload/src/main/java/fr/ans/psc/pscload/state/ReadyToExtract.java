@@ -35,10 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReadyToExtract extends ProcessState {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -1938173997893575974L;
 
     @Override
     public void nextStep() throws LoadProcessException {

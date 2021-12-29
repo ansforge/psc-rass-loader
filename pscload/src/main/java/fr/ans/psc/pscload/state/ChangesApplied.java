@@ -29,11 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChangesApplied extends ProcessState {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -2486351862090505174L;
-
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
 

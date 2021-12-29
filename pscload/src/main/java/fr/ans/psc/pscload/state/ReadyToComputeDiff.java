@@ -22,16 +22,12 @@ import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class FileExtracted.
  */
-@Slf4j
 public class ReadyToComputeDiff extends ProcessState {
 
-
-	private static final long serialVersionUID = 1208602116799660764L;
 
 	private MapsHandler newMaps = new MapsHandler();
 	private MapsHandler oldMaps = new MapsHandler();

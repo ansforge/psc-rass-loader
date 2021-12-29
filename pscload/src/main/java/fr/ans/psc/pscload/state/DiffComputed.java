@@ -16,11 +16,6 @@ import fr.ans.psc.pscload.metrics.CustomMetrics.StructureCustomMetric;
  */
 public class DiffComputed extends ProcessState {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2486351862090505174L;
-
 	private CustomMetrics customMetrics;
 
 	public DiffComputed() {

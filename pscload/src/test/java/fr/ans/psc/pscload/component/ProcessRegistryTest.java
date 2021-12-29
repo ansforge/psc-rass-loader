@@ -13,22 +13,12 @@ import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.model.StructureRef;
-import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.Professionnel;

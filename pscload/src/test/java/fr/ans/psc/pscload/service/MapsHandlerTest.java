@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.esotericsoftware.minlog.Log;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;

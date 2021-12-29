@@ -31,10 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UploadingChanges extends ProcessState {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 5204972581902084236L;
 
     private String[] excludedProfessions;
 
