@@ -3,11 +3,6 @@
  */
 package fr.ans.psc.pscload.model;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import fr.ans.psc.model.Expertise;
 import lombok.EqualsAndHashCode;
 
@@ -18,7 +13,7 @@ import lombok.EqualsAndHashCode;
  * @return true, if successful
  */
 @EqualsAndHashCode(callSuper = true)
-public class SavoirFaire extends Expertise implements Externalizable{
+public class SavoirFaire extends Expertise {
 
 	/**
 	 * 
@@ -42,17 +37,4 @@ public class SavoirFaire extends Expertise implements Externalizable{
 	        setTypeCode(items[RassItems.EXPERTISE_TYPE_CODE.column]);
 	        setCode(items[RassItems.EXPERTISE_CODE.column]);
 	    }
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(getTypeCode());
-		out.writeObject(getCode());
-		
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		setCode((String) in.readObject());
-		setTypeCode((String) in.readObject());
-	}
 }

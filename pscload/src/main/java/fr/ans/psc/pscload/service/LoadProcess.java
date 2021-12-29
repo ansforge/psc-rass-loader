@@ -3,13 +3,15 @@
  */
 package fr.ans.psc.pscload.service;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.Professionnel;
@@ -24,7 +26,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class LoadProcess implements Externalizable {
+public class LoadProcess implements KryoSerializable {
 
     /**
      *
@@ -101,41 +103,44 @@ public class LoadProcess implements Externalizable {
         state.setProcess(this);
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(id);
-        out.writeLong(timestamp);
-        out.writeObject(downloadedFilename);
-        out.writeObject(extractedFilename);
-        out.writeObject(state);
-        out.writeObject(psToCreate);
-        out.writeObject(psToUpdate);
-        out.writeObject(psToDelete);
-        out.writeObject(structureToCreate);
-        out.writeObject(structureToUpdate);
-        out.writeObject(uploadMetrics);
-
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        id = (String) in.readObject();
-        timestamp = in.readLong();
-        downloadedFilename = (String) in.readObject();
-        extractedFilename = (String) in.readObject();
-        state = (ProcessState) in.readObject();
-        psToCreate = (Map<String, Professionnel>) in.readObject();
-        psToUpdate = (Map<String, Professionnel>) in.readObject();
-        psToDelete = (Map<String, Professionnel>) in.readObject();
-        structureToCreate = (Map<String, Structure>) in.readObject();
-        structureToUpdate = (Map<String, Structure>) in.readObject();
-        uploadMetrics = (UploadMetrics) in.readObject();
-    }
 
     public boolean isRemainingPsOrStructuresInMaps() {
         return psToCreate.size() + psToDelete.size() + psToUpdate.size()
                 + structureToCreate.size() + structureToUpdate.size() > 0;
     }
+
+	@Override
+	public void write(Kryo kryo, Output output) {
+        output.writeString(id);
+        output.writeLong(timestamp);
+        output.writeString(downloadedFilename);
+        output.writeString(extractedFilename);
+        // We need to write the class also because state is an abstract class (hope never null)
+        kryo.writeClassAndObject(output,state);
+        kryo.writeObjectOrNull(output,psToCreate, HashMap.class);
+        kryo.writeObjectOrNull(output,psToUpdate, HashMap.class);
+        kryo.writeObjectOrNull(output,psToDelete, HashMap.class);
+        kryo.writeObjectOrNull(output,structureToCreate, HashMap.class);
+        kryo.writeObjectOrNull(output,structureToUpdate, HashMap.class);
+        kryo.writeObjectOrNull(output,uploadMetrics, UploadMetrics.class);
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void read(Kryo kryo, Input input) {
+        id = input.readString();
+        timestamp = input.readLong();
+        downloadedFilename = input.readString();
+        extractedFilename = input.readString();
+        state = (ProcessState) kryo.readClassAndObject(input);
+        psToCreate = (Map<String, Professionnel>) kryo.readObjectOrNull(input, HashMap.class);
+        psToUpdate = (Map<String, Professionnel>) kryo.readObjectOrNull(input, HashMap.class);
+        psToDelete = (Map<String, Professionnel>) kryo.readObjectOrNull(input, HashMap.class);
+        structureToCreate = (Map<String, Structure>) kryo.readObjectOrNull(input, HashMap.class);
+        structureToUpdate = (Map<String, Structure>) kryo.readObjectOrNull(input, HashMap.class);
+        uploadMetrics = (UploadMetrics) kryo.readObjectOrNull(input, UploadMetrics.class);
+		
+	}
 
 }

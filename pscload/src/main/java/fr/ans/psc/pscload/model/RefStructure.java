@@ -3,11 +3,6 @@
  */
 package fr.ans.psc.pscload.model;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import fr.ans.psc.model.StructureRef;
 import lombok.EqualsAndHashCode;
 
@@ -18,7 +13,12 @@ import lombok.EqualsAndHashCode;
  * @return true, if successful
  */
 @EqualsAndHashCode(callSuper = true)
-public class RefStructure extends StructureRef implements Externalizable {
+public class RefStructure extends StructureRef {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7056694315975238906L;
 
 	/**
 	 * Instantiates a new ref structure.
@@ -35,16 +35,6 @@ public class RefStructure extends StructureRef implements Externalizable {
 	public RefStructure(String structureId) {
 		super();
 		setStructureId(structureId);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(getStructureId());
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		setStructureId((String) in.readObject());
 	}
 
 }

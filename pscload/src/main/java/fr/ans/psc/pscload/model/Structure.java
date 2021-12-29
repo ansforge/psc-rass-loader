@@ -3,16 +3,16 @@
  */
 package fr.ans.psc.pscload.model;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
-public class Structure extends fr.ans.psc.model.Structure implements Externalizable {
+public class Structure extends fr.ans.psc.model.Structure {
 
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4792642166799662339L;
 	
 	/**
 	 * returnStatus after failure in change request
@@ -61,66 +61,6 @@ public class Structure extends fr.ans.psc.model.Structure implements Externaliza
 		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 	}
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(returnStatus);
-		out.writeObject(getSiteSIRET());
-		out.writeObject(getSiteSIREN());
-		out.writeObject(getSiteFINESS());
-		out.writeObject(getLegalEstablishmentFINESS());
-		out.writeObject(getStructureTechnicalId());
-		out.writeObject(getLegalCommercialName());
-		out.writeObject(getPublicCommercialName());
-		out.writeObject(getRecipientAdditionalInfo());
-		out.writeObject(getGeoLocationAdditionalInfo());
-		out.writeObject(getStreetNumber());
-		out.writeObject(getStreetNumberRepetitionIndex());
-		out.writeObject(getStreetCategoryCode());
-		out.writeObject(getStreetLabel());
-		out.writeObject(getDistributionMention());
-		out.writeObject(getCedexOffice());
-		out.writeObject(getPostalCode());
-		out.writeObject(getCommuneCode());
-		out.writeObject(getCountryCode());
-		out.writeObject(getPhone());
-		out.writeObject(getPhone2());
-		out.writeObject(getFax());
-		out.writeObject(getEmail());
-		out.writeObject(getDepartmentCode());
-		out.writeObject(getOldStructureId());
-		out.writeObject(getRegistrationAuthority());
-
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		returnStatus = in.readInt();
-		setSiteSIRET((String) in.readObject());
-		setSiteSIREN((String) in.readObject());
-		setSiteFINESS((String) in.readObject());
-		setLegalEstablishmentFINESS((String) in.readObject());
-		setStructureTechnicalId((String) in.readObject());
-		setLegalCommercialName((String) in.readObject());
-		setPublicCommercialName((String) in.readObject());
-		setRecipientAdditionalInfo((String) in.readObject());
-		setGeoLocationAdditionalInfo((String) in.readObject());
-		setStreetNumber((String) in.readObject());
-		setStreetNumberRepetitionIndex((String) in.readObject());
-		setStreetCategoryCode((String) in.readObject());
-		setStreetLabel((String) in.readObject());
-		setDistributionMention((String) in.readObject());
-		setCedexOffice((String) in.readObject());
-		setPostalCode((String) in.readObject());
-		setCommuneCode((String) in.readObject());
-		setCountryCode((String) in.readObject());
-		setPhone((String) in.readObject());
-		setPhone2((String) in.readObject());
-		setFax((String) in.readObject());
-		setEmail((String) in.readObject());
-		setDepartmentCode((String) in.readObject());
-		setOldStructureId((String) in.readObject());
-		setRegistrationAuthority((String) in.readObject());
-	}
 
 	public int getReturnStatus() {
 		return returnStatus;

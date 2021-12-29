@@ -8,8 +8,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -36,6 +34,10 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import fr.ans.psc.pscload.state.exception.DownloadException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +47,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class Idle extends ProcessState {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8215232377218261245L;
 
 	private boolean customSSLContext;
 
@@ -230,25 +227,25 @@ public class Idle extends ProcessState {
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeBoolean(customSSLContext);
-		out.writeObject(cafile);
-		out.writeObject(certfile);
-		out.writeObject(keyfile);
-		out.writeObject(kspwd);
-		out.writeObject(filesDirectory);
-		out.writeObject(extractDownloadUrl);
+	public void write(Kryo kryo, Output output) {
+		output.writeBoolean(customSSLContext);
+		output.writeString(cafile);
+		output.writeString(certfile);
+		output.writeString(keyfile);
+		output.writeString(kspwd);
+		output.writeString(filesDirectory);
+		output.writeString(extractDownloadUrl);
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		customSSLContext = in.readBoolean();
-		cafile = (String) in.readObject();
-		certfile = (String) in.readObject();
-		keyfile = (String) in.readObject();
-		kspwd = (String) in.readObject();
-		filesDirectory = (String) in.readObject();
-		extractDownloadUrl = (String) in.readObject();
+	public void read(Kryo kryo, Input input) {
+		customSSLContext = input.readBoolean();
+		cafile = input.readString();
+		certfile = input.readString();
+		keyfile = input.readString();
+		kspwd = input.readString();
+		filesDirectory = input.readString();
+		extractDownloadUrl = input.readString();
 
 	}
 

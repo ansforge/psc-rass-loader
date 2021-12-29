@@ -34,6 +34,7 @@ public class MapsHandlerTest {
     @Test
     @DisplayName("Serialize and deserialize file")
     public void serializerTest() throws IOException, ClassNotFoundException {
+    	//Log.TRACE();
         File initialFile = new File(Thread.currentThread().getContextClassLoader()
                 .getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 
