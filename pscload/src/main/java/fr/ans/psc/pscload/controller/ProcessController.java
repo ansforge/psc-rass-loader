@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.state.ChangesApplied;
-import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.state.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,6 @@ import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.component.Runner;
 import fr.ans.psc.pscload.model.ProcessInfo;
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.DiffComputed;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,6 +44,15 @@ public class ProcessController {
     private CustomMetrics customMetrics;
 
     private final ProcessRegistry registry;
+
+    @Value("${api.base.url}")
+    private String apiBaseUrl;
+
+    @Value("${deactivation.excluded.profession.codes:}")
+    private String[] excludedProfessions;
+
+    @Value("${pscextract.base.url}")
+    private String pscextractBaseUrl;
 
     /**
      * Instantiates a new process controller.
@@ -92,7 +99,8 @@ public class ProcessController {
         DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
 
         if (process != null) {
-            if (process.getState().getClass().equals(UploadingChanges.class) && customMetrics.getStageMetricValue() == 70) {
+            if (process.getState().getClass().equals(UploadInterrupted.class)) {
+                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
                 return callRunnerContinueAndSetResponse(process, response);
             }
             // Conflict if process is not in the expected state.
@@ -152,7 +160,8 @@ public class ProcessController {
         DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
 
         if (process != null) {
-            if (process.getState().getClass().equals(ChangesApplied.class)) {
+            if (process.getState().getClass().equals(SerializationInterrupted.class)) {
+                process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
                 // launch process in a separate thread
                 ForkJoinPool.commonPool().submit(() -> {
                     runner.runEnding(process);

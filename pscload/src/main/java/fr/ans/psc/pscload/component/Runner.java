@@ -4,6 +4,7 @@
 package fr.ans.psc.pscload.component;
 
 import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.state.*;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +14,6 @@ import org.springframework.stereotype.Component;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.ChangesApplied;
-import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Idle;
-import fr.ans.psc.pscload.state.ProcessState;
-import fr.ans.psc.pscload.state.ReadyToComputeDiff;
-import fr.ans.psc.pscload.state.ReadyToExtract;
-import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -144,6 +138,7 @@ public class Runner {
 			// error during uploading
 			if (e.getClass().equals(UploadException.class)) {
 				log.error("error when uploading changes", e);
+				process.setState(new UploadInterrupted());
 				customMetrics.setStageMetric(70, EmailNature.UPLOAD_REST_INTERRUPTION);
 			} else {
 				// error during ChangesAppliedState
@@ -166,6 +161,8 @@ public class Runner {
 	private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) {
 		// error during serialization/deserialization
 		if (e.getClass().equals(SerFileGenerationException.class)) {
+			log.warn("Error when (de)serializing");
+			process.setState(new SerializationInterrupted());
 			customMetrics.setStageMetric(60, EmailNature.SERIALIZATION_FAILURE);
 			// error when triggering extract
 		} else if (e.getClass().equals(ExtractTriggeringException.class)) {
