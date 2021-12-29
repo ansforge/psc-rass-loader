@@ -69,7 +69,7 @@ public class ProcessController {
         DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
         if (process != null) {
             if (process.getState().getClass().equals(DiffComputed.class)) {
-                callRunnerContinueAndSetResponse(process, response);
+                return callRunnerContinueAndSetResponse(process, response);
             }
             // Conflict if process is not in the expected state.
             ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
@@ -93,7 +93,7 @@ public class ProcessController {
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadingChanges.class) && customMetrics.getStageMetricValue() == 70) {
-                callRunnerContinueAndSetResponse(process, response);
+                return callRunnerContinueAndSetResponse(process, response);
             }
             // Conflict if process is not in the expected state.
             ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
