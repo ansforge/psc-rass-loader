@@ -53,6 +53,7 @@ public class ChangesApplied extends ProcessState {
     public void nextStep() {
         String lockedFilePath = process.getTmpMapsPath();
         String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
+        File lockedSerFile = new File(lockedFilePath);
         File serFile = new File(serFileName);
 
         try {
@@ -88,6 +89,7 @@ public class ChangesApplied extends ProcessState {
             }
             serFile.delete();
             newMaps.serializeMaps(serFileName);
+            lockedSerFile.delete();
         } catch (IOException e) {
             // error during ser
             log.error("Error during serialization");
