@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.esotericsoftware.minlog.Log;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
@@ -34,6 +35,7 @@ public class MapsHandlerTest {
     @Test
     @DisplayName("Serialize and deserialize file")
     public void serializerTest() throws IOException, ClassNotFoundException {
+    	//Log.TRACE();
         File initialFile = new File(Thread.currentThread().getContextClassLoader()
                 .getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
 

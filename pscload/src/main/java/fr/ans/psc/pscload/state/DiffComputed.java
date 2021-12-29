@@ -3,9 +3,9 @@
  */
 package fr.ans.psc.pscload.state;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.PsCustomMetric;
@@ -40,13 +40,6 @@ public class DiffComputed extends ProcessState {
 		publishStructureMetrics();
 	}
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-	}
 
 	private void publishPsMetrics() {
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_ADELI_DELETE_SIZE)
@@ -111,5 +104,17 @@ public class DiffComputed extends ProcessState {
 		customMetrics.getAppStructureSizeGauges().get(StructureCustomMetric.STRUCTURE_UPLOAD_SIZE)
 				.set(process.getUploadMetrics().getStructureUploadSize());
 
+	}
+
+	@Override
+	public void write(Kryo kryo, Output output) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void read(Kryo kryo, Input input) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -3,13 +3,6 @@
  */
 package fr.ans.psc.pscload.model;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.List;
-
-import fr.ans.psc.model.StructureRef;
 import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
 
@@ -19,12 +12,19 @@ import lombok.EqualsAndHashCode;
  * @param other the other
  * @return true, if successful
  */
+
 @EqualsAndHashCode(callSuper = true)
-public class SituationExercice extends WorkSituation implements Externalizable {
+public class SituationExercice extends WorkSituation {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2664005257511101075L;
 
 	/**
 	 * Instantiates a new situation exercice.
 	 */
+	
 	public SituationExercice() {
 		super();
 	}
@@ -42,27 +42,4 @@ public class SituationExercice extends WorkSituation implements Externalizable {
 		setRoleCode(items[RassItems.SITUATION_ROLE_CODE.column]);
 		addStructuresItem(new RefStructure(items[28])); // structureTechnicalId
 	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(getModeCode());
-		out.writeObject(getActivitySectorCode());
-		out.writeObject(getPharmacistTableSectionCode());
-		out.writeObject(getRoleCode());
-		out.writeObject(getStructures());
-		
-
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		setModeCode((String) in.readObject());
-		setActivitySectorCode((String) in.readObject());
-		setPharmacistTableSectionCode((String) in.readObject());
-		setRoleCode((String) in.readObject());
-		setStructures((List<StructureRef>) in.readObject());
-
-	}
-
 }

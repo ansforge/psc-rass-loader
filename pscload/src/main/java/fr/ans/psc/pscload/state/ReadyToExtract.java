@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,6 +20,10 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.state.exception.ExtractException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
@@ -183,14 +185,14 @@ public class ReadyToExtract extends ProcessState {
         return new Date(0);
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
+	@Override
+	public void write(Kryo kryo, Output output) {
+		
+	}
 
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-
-    }
+	@Override
+	public void read(Kryo kryo, Input input) {
+		
+	}
 
 }
