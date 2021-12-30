@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
@@ -20,7 +22,7 @@ import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
-import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
+import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -48,6 +50,7 @@ public class ChangesApplied extends ProcessState {
     public void nextStep() {
         String lockedFilePath = process.getTmpMapsPath();
         String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
+        File lockedSerFile = new File(lockedFilePath);
         File serFile = new File(serFileName);
 
         try {
@@ -58,37 +61,44 @@ public class ChangesApplied extends ProcessState {
         } catch (IOException | ClassNotFoundException e) {
             String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
             log.error(msgLogged, e.getLocalizedMessage());
-            throw new ChangesApplicationException(e);
+            throw new SerFileGenerationException(e);
         }
 
-
-        if (process.isRemainingPsOrStructuresInMaps()) {
-            StringBuilder message = new StringBuilder();
-            handlePsCreateFailed(message, process.getPsToCreate());
-            handlePsDeleteFailed(message, process.getPsToDelete());
-            handlePsUpdateFailed(message, process.getPsToUpdate());
-
-            handleStructureCreateFailed(message, process.getStructureToCreate());
-            handleStructureUpdateFailed(message, process.getStructureToUpdate());
-
-            message.append("Si certaines modifications n'ont pas été appliquées, ")
-                    .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
-                            " \"resume\"");
-
-            customMetrics.setStageMetric(70, message.toString());
-        } else { customMetrics.setStageMetric(70); }
-
         try {
+            if (process.isRemainingPsOrStructuresInMaps()) {
+                StringBuilder message = new StringBuilder();
+                handlePsCreateFailed(message, process.getPsToCreate());
+                handlePsDeleteFailed(message, process.getPsToDelete());
+                handlePsUpdateFailed(message, process.getPsToUpdate());
+
+                handleStructureCreateFailed(message, process.getStructureToCreate());
+                handleStructureUpdateFailed(message, process.getStructureToUpdate());
+
+                message.append("Si certaines modifications n'ont pas été appliquées, ")
+                        .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
+                                " \"resume\"");
+
+                customMetrics.setStageMetric(70, EmailNature.UPLOAD_INCOMPLETE, message.toString());
+            } else {
+                customMetrics.setStageMetric(70, EmailNature.PROCESS_FINISHED,
+                        "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
+                                " a été correctement traité.");
+            }
             serFile.delete();
             newMaps.serializeMaps(serFileName);
-        } catch (IOException e) { log.error("Error during serialization"); }
+            lockedSerFile.delete();
+        } catch (IOException e) {
+            // error during ser
+            log.error("Error during serialization");
+            throw new SerFileGenerationException("Error during serialization");
+        }
 
         RestTemplate restTemplate = new RestTemplate();
         try {
             restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
         } catch (RestClientException e) {
             log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
-            throw new ChangesApplicationException(e);
+            throw new ExtractTriggeringException(e);
         }
 
     }

@@ -59,6 +59,10 @@ public class PscloadApplication {
 
 	@Value("${files.directory:.}")
 	private String filesDirectory;
+
+	@Value("${pscextract.base.url}")
+	private String pscextractBaseUrl;
+
 	/**
 	 * The main method.
 	 *
@@ -106,13 +110,16 @@ public class PscloadApplication {
 				LoadProcess process = registry.getCurrentProcess();
 				if (process != null) {
 					Class<? extends ProcessState> stateClass = process.getState().getClass();
-					if (stateClass.equals(UploadingChanges.class)) {
+					if (stateClass.equals(UploadingChanges.class) || stateClass.equals(ChangesApplied.class)) {
 							ForkJoinPool.commonPool().submit(() -> {
 								try {
-									// upload changes
-									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(60);
-									process.nextStep();
-									process.setState(new ChangesApplied());
+									if (stateClass.equals(UploadingChanges.class)) {
+										// upload changes
+										customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(60);
+										process.nextStep();
+										process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
+										process.getState().setProcess(process);
+									}
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(70);
 									// Step 5 : call pscload
 									process.nextStep();

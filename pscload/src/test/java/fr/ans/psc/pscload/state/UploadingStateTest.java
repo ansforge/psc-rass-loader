@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
+import fr.ans.psc.pscload.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -142,14 +143,15 @@ public class UploadingStateTest {
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         //Test
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String rootpath = cl.getResource(".").getPath();
+        String rootpath = cl.getResource("work").getPath();
         File mapser = new File(rootpath + File.separator + "maps.ser");
         if (mapser.exists()) {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
         LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
-        p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
+        File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
+        p.setExtractedFilename(extractFile1.getPath());
         p.getState().setProcess(p);
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl()));
@@ -158,7 +160,8 @@ public class UploadingStateTest {
         // Day 2 : Compute diff (1 delete)
         LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
         registry.register(Integer.toString(registry.nextId()), p2);
-        p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
+        File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120514.txt");
+        p2.setExtractedFilename(extractFile2.getPath());
         p2.getState().setProcess(p2);
         p2.nextStep();
         // Day 2 : upload changes (1 delete)
@@ -194,7 +197,8 @@ public class UploadingStateTest {
         }
         //Day 1 : Generate old ser file
         LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
-        p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120513.txt").getPath());
+        File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
+        p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl()));
         p.getState().setProcess(p);
@@ -202,7 +206,8 @@ public class UploadingStateTest {
         // Day 2 : Compute diff (1 delete)
         LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
         registry.register(Integer.toString(registry.nextId()), p2);
-        p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120514.txt").getPath());
+        File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120514.txt");
+        p2.setExtractedFilename(extractFile2.getPath());
         p2.nextStep();
         p2.setState(new DiffComputed(customMetrics));
         p2.nextStep();

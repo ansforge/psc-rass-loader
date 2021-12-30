@@ -31,44 +31,21 @@ public class EmailService {
     public void setEmailSender(JavaMailSender emailSender) {
 		this.emailSender = emailSender;
 	}
-    /**
-     * Send mail.
-     *
-     * @param emailNature the email nature
-     * @param latestTxtAndSer the latest txt and ser
-     */
-    public void sendMail(EmailNature emailNature, Map<String, File> latestTxtAndSer) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(sender);
-        String[] allReceivers = receiver.split(",");
-        message.setTo(allReceivers);
-        message.setSubject(emailNature.subject);
-        message.setText(getEmailMessage(emailNature, latestTxtAndSer));
-
-        emailSender.send(message);
-    }
 
     /**
      * Send mail.
      *
-     * @param emailNature the email nature
-     * @param latestTxtAndSer the latest txt and ser
+     * @param subject the email nature
+     * @param body the body of the mail
      */
-    public void sendMail(EmailNature emailNature, String body) {
+    public void sendMail(String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(sender);
         String[] allReceivers = receiver.split(",");
         message.setTo(allReceivers);
-        message.setSubject(emailNature.subject);
+        message.setSubject(subject);
         message.setText(body);
         emailSender.send(message);
-    }
-    
-    private String getEmailMessage(EmailNature emailNature, Map<String, File> latestTxtAndSer) {
-        String latestTxt = latestTxtAndSer.get("txt").getName();
-        String latestSer = latestTxtAndSer.get("ser").getName();
-
-        return String.format(emailNature.message, latestSer, latestTxt);
     }
 
 }

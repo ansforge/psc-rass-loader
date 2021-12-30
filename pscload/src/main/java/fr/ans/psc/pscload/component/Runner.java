@@ -3,6 +3,10 @@
  */
 package fr.ans.psc.pscload.component;
 
+import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.state.*;
+import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
+import fr.ans.psc.pscload.state.exception.UploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -11,16 +15,12 @@ import org.springframework.stereotype.Component;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.ChangesApplied;
-import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Idle;
-import fr.ans.psc.pscload.state.ProcessState;
-import fr.ans.psc.pscload.state.ReadyToComputeDiff;
-import fr.ans.psc.pscload.state.ReadyToExtract;
-import fr.ans.psc.pscload.state.UploadingChanges;
-import fr.ans.psc.pscload.state.exception.ChangesApplicationException;
+import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.Duration;
+import java.util.Date;
 
 /**
  * The Class Scheduler.
@@ -68,6 +68,9 @@ public class Runner {
 	@Value("${pscextract.base.url}")
 	private String pscextractBaseUrl;
 
+	@Value("${process.expiration.delay}")
+	private Long expirationDelay;
+
 
 	/**
 	 * Run.
@@ -77,7 +80,11 @@ public class Runner {
 	@Scheduled(cron  = "${schedule.cron.expression}", zone = "${schedule.cron.timeZone}")
 	public void runScheduler() throws DuplicateKeyException {
 		if (enabled) {
-			if (processRegistry.isEmpty()) {
+			if (processRegistry.isEmpty() || isProcessExpired()) {
+				// clear registry if latest is expired
+				processRegistry.clear();
+
+				// register new process with Idle state
 				String id = Integer.toString(processRegistry.nextId());
 				ProcessState idle;
 				if (useX509Auth) {
@@ -105,6 +112,9 @@ public class Runner {
 					// End of scheduled steps
 				} catch (LoadProcessException e) {
 					log.error("Error when loading RASS data", e);
+					customMetrics.setStageMetric(
+							customMetrics.getStageMetricValue(),
+							EmailNature.INTERRUPTED_PROCESS);
 					processRegistry.unregister(id);
 				}
 			} else {
@@ -135,14 +145,48 @@ public class Runner {
 			processRegistry.unregister(process.getId());
 			customMetrics.setStageMetric(0);
 		} catch (LoadProcessException e) {
-			if (e.getClass().equals(ChangesApplicationException.class)) {
-				customMetrics.setStageMetric(60, "warning" + e.getMessage());
-				processRegistry.unregister(process.getId());
+			// error during uploading
+			if (e.getClass().equals(UploadException.class)) {
+				log.error("error when uploading changes", e);
+				process.setState(new UploadInterrupted());
+				customMetrics.setStageMetric(70, EmailNature.UPLOAD_REST_INTERRUPTION);
+			} else {
+				// error during ChangesAppliedState
+				handleChangesAppliedStateExceptions(process, e);
 			}
-
-			// TODO
-			// se mettre dans un état pending, en attente d'un resume ?
-			log.error("error when uploading changes", e);
 		}
+	}
+
+	public void runEnding(LoadProcess process) {
+		try {
+			process.nextStep();
+			processRegistry.unregister(process.getId());
+			customMetrics.setStageMetric(0);
+		} catch (LoadProcessException e) {
+				// error during serialization/deserialization
+			handleChangesAppliedStateExceptions(process, e);
+		}
+	}
+
+	private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) {
+		// error during serialization/deserialization
+		if (e.getClass().equals(SerFileGenerationException.class)) {
+			log.warn("Error when (de)serializing");
+			process.setState(new SerializationInterrupted());
+			customMetrics.setStageMetric(60, EmailNature.SERIALIZATION_FAILURE);
+			// error when triggering extract
+		} else if (e.getClass().equals(ExtractTriggeringException.class)) {
+			log.warn("Error when triggering pscextract", e);
+			customMetrics.setStageMetric(70, EmailNature.TRIGGER_EXTRACT_FAILED);
+			processRegistry.unregister(process.getId());
+		}
+	}
+
+	private boolean isProcessExpired() {
+		if (processRegistry.isEmpty()) { return true; }
+		Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
+		Date now = new Date();
+		return now.after(
+				Date.from(lastProcessDate.toInstant().plus(Duration.ofHours(expirationDelay))));
 	}
 }
