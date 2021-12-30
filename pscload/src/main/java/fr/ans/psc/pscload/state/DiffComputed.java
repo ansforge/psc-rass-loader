@@ -45,7 +45,7 @@ public class DiffComputed extends ProcessState {
 						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_ADELI_UPDATE_SIZE)
 				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
+						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.rightValue().getIdType())).count()));
 
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_FINESS_DELETE_SIZE)
 				.set(Math.toIntExact(process.getPsToDelete().values().stream()
@@ -55,7 +55,7 @@ public class DiffComputed extends ProcessState {
 						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_FINESS_UPDATE_SIZE)
 				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
+						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.rightValue().getIdType())).count()));
 
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_SIRET_DELETE_SIZE)
 				.set(Math.toIntExact(process.getPsToDelete().values().stream()
@@ -65,7 +65,7 @@ public class DiffComputed extends ProcessState {
 						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_SIRET_UPDATE_SIZE)
 				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
+						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.rightValue().getIdType())).count()));
 
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_RPPS_DELETE_SIZE)
 				.set(Math.toIntExact(process.getPsToDelete().values().stream()
@@ -75,7 +75,7 @@ public class DiffComputed extends ProcessState {
 						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_RPPS_UPDATE_SIZE)
 				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
+						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.rightValue().getIdType())).count()));
 
 	}
 
@@ -103,13 +103,9 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void write(Kryo kryo, Output output) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void read(Kryo kryo, Input input) {
-		// TODO Auto-generated method stub
-		
 	}
 }
