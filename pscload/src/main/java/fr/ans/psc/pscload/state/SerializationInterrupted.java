@@ -1,10 +1,10 @@
 package fr.ans.psc.pscload.state;
 
-import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
 public class SerializationInterrupted extends ProcessState {
     @Override
@@ -12,13 +12,16 @@ public class SerializationInterrupted extends ProcessState {
 
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
+	@Override
+	public void write(Kryo kryo, Output output) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    }
+	@Override
+	public void read(Kryo kryo, Input input) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-
-    }
 }

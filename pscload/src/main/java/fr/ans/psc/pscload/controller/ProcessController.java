@@ -36,6 +36,15 @@ public class ProcessController {
 
     @Value("${files.directory}")
     private String filesDirectory;
+    
+    @Value("${api.base.url}")
+    private String apiBaseUrl;
+
+    @Value("${deactivation.excluded.profession.codes:}")
+    private String[] excludedProfessions;
+
+    @Value("${pscextract.base.url}")
+    private String pscextractBaseUrl;
 
     @Autowired
     private Runner runner;
