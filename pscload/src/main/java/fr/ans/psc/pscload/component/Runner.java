@@ -5,6 +5,7 @@ package fr.ans.psc.pscload.component;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -111,7 +112,15 @@ public class Runner {
 			}
 		}
 	}
+	
+	
 
+	/**
+	 * Run continue.
+	 *
+	 * @param continue the process (called by continue endpoint)
+	 */
+	@Async("processExecutor")
 	public void runContinue(LoadProcess process) {
 		try {
 			// upload changes

@@ -49,6 +49,7 @@ public class SerializerConfiguration {
 		kryo.register(UploadingChanges.class, 24);
 		kryo.register(ChangesApplied.class, 25);
 		kryo.register(UploadMetrics.class, 26);
+		kryo.register(String[].class, 27);
 		return kryo;
 	}
 }

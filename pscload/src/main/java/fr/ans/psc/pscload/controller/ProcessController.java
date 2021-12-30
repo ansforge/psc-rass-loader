@@ -63,12 +63,10 @@ public class ProcessController {
 		DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
 		if (process != null) {
 			if (process.getState().getClass().equals(DiffComputed.class)) {
-				// launch process in a separate thread
-				ForkJoinPool.commonPool().submit(() -> {
+				// launch process in a separate thread because this method is annoted Async
 					runner.runContinue(process);
 					ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 					response.setResult(result);
-				});
 				// Response OK
 				response.onCompletion(() -> log.info("Processing complete"));
 				return response;
