@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import fr.ans.psc.pscload.model.SerializableValueDifference;
-import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.service.EmailTemplate;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -78,9 +78,9 @@ public class ChangesApplied extends ProcessState {
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
                                 " \"resume\"");
 
-                customMetrics.setStageMetric(70, EmailNature.UPLOAD_INCOMPLETE, message.toString());
+                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_INCOMPLETE, message.toString());
             } else {
-                customMetrics.setStageMetric(70, EmailNature.PROCESS_FINISHED,
+                customMetrics.setStageMetric(70, EmailTemplate.PROCESS_FINISHED,
                         "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
                                 " a été correctement traité.");
             }
