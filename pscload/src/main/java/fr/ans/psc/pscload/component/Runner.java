@@ -124,6 +124,7 @@ public class Runner {
 	public void runContinue(LoadProcess process) {
 		try {
 			// upload changes
+			log.info("Received request to process in Runner.runContinue()");
 			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 			customMetrics.resetSizeMetrics();
 			customMetrics.setStageMetric(60);
