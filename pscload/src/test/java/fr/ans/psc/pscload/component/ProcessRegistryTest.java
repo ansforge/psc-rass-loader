@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,6 +95,8 @@ class ProcessRegistryTest {
 	        kryo.register(UploadingChanges.class, 24);
 	        kryo.register(ChangesApplied.class, 25);
 	        kryo.register(UploadMetrics.class, 26);
+	        kryo.register(String[].class, 27);
+	        kryo.register(ConcurrentHashMap.class, 28);
 	        
 	        
 		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);

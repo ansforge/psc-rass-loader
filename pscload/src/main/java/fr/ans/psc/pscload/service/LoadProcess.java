@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
@@ -37,17 +38,17 @@ public class LoadProcess implements KryoSerializable {
 
     private String extractedFilename;
 
-    private Map<String, Professionnel> psToCreate;
+    private ConcurrentMap<String, Professionnel> psToCreate;
 
     private String tmpMapsPath;
 
-    private Map<String, Professionnel> psToUpdate;
+    private ConcurrentMap<String, Professionnel> psToUpdate;
 
-    private Map<String, Professionnel> psToDelete;
+    private ConcurrentMap<String, Professionnel> psToDelete;
 
-    private Map<String, Structure> structureToCreate;
+    private ConcurrentMap<String, Structure> structureToCreate;
 
-    private Map<String, Structure> structureToUpdate;
+    private ConcurrentMap<String, Structure> structureToUpdate;
 
     private long timestamp;
 
@@ -117,11 +118,11 @@ public class LoadProcess implements KryoSerializable {
         output.writeString(extractedFilename);
         // We need to write the class also because state is an abstract class (hope never null)
         kryo.writeClassAndObject(output,state);
-        kryo.writeObjectOrNull(output,psToCreate, HashMap.class);
-        kryo.writeObjectOrNull(output,psToUpdate, HashMap.class);
-        kryo.writeObjectOrNull(output,psToDelete, HashMap.class);
-        kryo.writeObjectOrNull(output,structureToCreate, HashMap.class);
-        kryo.writeObjectOrNull(output,structureToUpdate, HashMap.class);
+        kryo.writeObjectOrNull(output,psToCreate, ConcurrentHashMap.class);
+        kryo.writeObjectOrNull(output,psToUpdate, ConcurrentHashMap.class);
+        kryo.writeObjectOrNull(output,psToDelete, ConcurrentHashMap.class);
+        kryo.writeObjectOrNull(output,structureToCreate, ConcurrentHashMap.class);
+        kryo.writeObjectOrNull(output,structureToUpdate, ConcurrentHashMap.class);
         kryo.writeObjectOrNull(output,uploadMetrics, UploadMetrics.class);
 		
 	}
@@ -134,11 +135,11 @@ public class LoadProcess implements KryoSerializable {
         downloadedFilename = input.readString();
         extractedFilename = input.readString();
         state = (ProcessState) kryo.readClassAndObject(input);
-        psToCreate = (Map<String, Professionnel>) kryo.readObjectOrNull(input, HashMap.class);
-        psToUpdate = (Map<String, Professionnel>) kryo.readObjectOrNull(input, HashMap.class);
-        psToDelete = (Map<String, Professionnel>) kryo.readObjectOrNull(input, HashMap.class);
-        structureToCreate = (Map<String, Structure>) kryo.readObjectOrNull(input, HashMap.class);
-        structureToUpdate = (Map<String, Structure>) kryo.readObjectOrNull(input, HashMap.class);
+        psToCreate = (ConcurrentMap<String, Professionnel>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+        psToUpdate = (ConcurrentMap<String, Professionnel>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+        psToDelete = (ConcurrentMap<String, Professionnel>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+        structureToCreate = (ConcurrentMap<String, Structure>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+        structureToUpdate = (ConcurrentMap<String, Structure>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
         uploadMetrics = (UploadMetrics) kryo.readObjectOrNull(input, UploadMetrics.class);
 		
 	}

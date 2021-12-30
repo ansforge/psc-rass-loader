@@ -96,7 +96,7 @@ public class UploadingChanges extends ProcessState {
             }
 
         });
-
+        log.info("structuresToCreate size is now {}", structuresToCreate.size() );
     }
 
     private void uploadStructuresToUpdate(Map<String, Structure> structuresToUpdate) throws LoadProcessException {
@@ -118,7 +118,7 @@ public class UploadingChanges extends ProcessState {
             }
 
         });
-
+        	log.info("structuresToUpdate size is now {}", structuresToUpdate.size() );
     }
 
     private void uploadPsToCreate(Map<String, Professionnel> psToCreate) throws LoadProcessException {
@@ -138,7 +138,7 @@ public class UploadingChanges extends ProcessState {
                 throw new UploadException(e);
             }
         });
-
+        log.info("psToCreate size is now {}", psToCreate.size() );
     }
 
     private void uploadPsToDelete(Map<String, Professionnel> psToDelete) throws LoadProcessException {
@@ -173,6 +173,8 @@ public class UploadingChanges extends ProcessState {
                 psToDelete.remove(ps.getNationalId());
             }
         });
+        
+        log.info("psToDelete size is now {}", psToDelete.size() );
     }
 
     private void uploadPsToUpdate(Map<String, Professionnel> psToUpdate) throws LoadProcessException {
@@ -194,6 +196,7 @@ public class UploadingChanges extends ProcessState {
             }
 
         });
+        log.info("psToUpdate size is now {}", psToUpdate.size() );
     }
 
 
