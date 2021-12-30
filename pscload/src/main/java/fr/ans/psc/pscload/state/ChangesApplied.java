@@ -5,8 +5,6 @@ package fr.ans.psc.pscload.state;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Map;
 
 import fr.ans.psc.pscload.service.EmailNature;
@@ -15,6 +13,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
@@ -28,11 +30,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ChangesApplied extends ProcessState {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = -2486351862090505174L;
 
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
@@ -106,18 +103,6 @@ public class ChangesApplied extends ProcessState {
 
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        // TODO save metrics
-
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        // TODO restore metrics
-
-    }
 
     private void handlePsCreateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
         addOperationHeader(sb, psMap, "Créations PS en échec : ");
@@ -190,4 +175,16 @@ public class ChangesApplied extends ProcessState {
     private boolean is5xxError(int rawReturnStatus) {
         return HttpStatus.valueOf(rawReturnStatus).is5xxServerError();
     }
+
+	@Override
+	public void write(Kryo kryo, Output output) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void read(Kryo kryo, Input input) {
+		// TODO Auto-generated method stub
+		
+	}
 }

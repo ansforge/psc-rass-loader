@@ -3,11 +3,6 @@
  */
 package fr.ans.psc.pscload.model;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.List;
 import java.util.Optional;
 
 import fr.ans.psc.model.Profession;
@@ -21,7 +16,7 @@ import lombok.EqualsAndHashCode;
  * @return true, if successful
  */
 @EqualsAndHashCode(callSuper = true)
-public class Professionnel extends Ps implements Externalizable {
+public class Professionnel extends Ps {
 
 	/**
 	 * 
@@ -77,48 +72,6 @@ public class Professionnel extends Ps implements Externalizable {
 		return getProfessions().stream()
 				.filter(exo -> exo.getCode().concat(exo.getCategoryCode()).equals(code.concat(category))).findAny();
 
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(returnStatus);
-		out.writeObject(getIdType());
-		out.writeObject(getId());
-		out.writeObject(getNationalId());
-		out.writeObject(getLastName());
-		out.writeObject(getFirstName());
-		out.writeObject(getDateOfBirth());
-		out.writeObject(getBirthAddressCode());
-		out.writeObject(getBirthCountryCode());
-		out.writeObject(getBirthAddress());
-		out.writeObject(getGenderCode());
-		out.writeObject(getPhone());
-		out.writeObject(getEmail());
-		out.writeObject(getSalutationCode());
-		out.writeObject(getProfessions());
-
-		
-
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		returnStatus = in.readInt();
-		setIdType((String) in.readObject());
-		setId((String) in.readObject());
-		setNationalId((String) in.readObject());
-		setLastName((String) in.readObject());
-		setFirstName((String) in.readObject());
-		setDateOfBirth((String) in.readObject());
-		setBirthAddressCode((String) in.readObject());
-		setBirthCountryCode((String) in.readObject());
-		setBirthAddress((String) in.readObject());
-		setGenderCode((String) in.readObject());
-		setPhone((String) in.readObject());
-		setEmail((String) in.readObject());
-		setSalutationCode((String) in.readObject());
-		setProfessions((List<Profession>) in.readObject());
 	}
 
 	public int getReturnStatus() {

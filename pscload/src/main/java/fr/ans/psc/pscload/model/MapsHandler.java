@@ -1,34 +1,41 @@
 package fr.ans.psc.pscload.model;
 
 import java.io.BufferedReader;
-import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.any23.encoding.TikaEncodingDetector;
-import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.ObjectRowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.metrics.UploadMetrics;
+import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.Idle;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.UploadingChanges;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,13 +45,21 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @EqualsAndHashCode()
 @Slf4j
-public class MapsHandler implements Externalizable {
+public class MapsHandler implements KryoSerializable {
+
+	private static Kryo kryo;
 
 	{
-		final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
-		conf.registerClass(HashMap.class, Professionnel.class, Structure.class, SavoirFaire.class,
-				SituationExercice.class, ExerciceProfessionnel.class, RefStructure.class);
-	}
+		kryo = new Kryo();
+		kryo.register(HashMap.class, 9);
+		kryo.register(ArrayList.class, 10);
+		kryo.register(Professionnel.class, 11);
+		kryo.register(ExerciceProfessionnel.class, 12);
+		kryo.register(SavoirFaire.class, 13);
+		kryo.register(SituationExercice.class, 14);
+		kryo.register(RefStructure.class, 15);
+		kryo.register(Structure.class, 16);
+		}
 
 	private static final int ROW_LENGTH = 50;
 
@@ -116,33 +131,29 @@ public class MapsHandler implements Externalizable {
 	public void serializeMaps(String filename) throws IOException {
 		File mapsFile = new File(filename);
 		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
-		ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-		FSTObjectOutput out = new FSTObjectOutput(oos);
-		writeExternal(out);
-		out.close();
-		oos.close();
+		Output output = new Output(fileOutputStream);
+		write(kryo, output);
+		output.close();
 	}
 
 	public void deserializeMaps(String filename) throws IOException, ClassNotFoundException {
 		FileInputStream fileInputStream = new FileInputStream(filename);
-		ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-		FSTObjectInput in = new FSTObjectInput(ois);
-		readExternal(in);
-		in.close();
-		ois.close();
+		Input input = new Input(fileInputStream);
+		read(kryo, input);
+		input.close();
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(psMap);
-		out.writeObject(structureMap);
+	public void write(Kryo kryo, Output output) {
+		kryo.writeObject(output, psMap);
+		kryo.writeObject(output, structureMap);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		psMap = (Map<String, Professionnel>) in.readObject();
-		structureMap = (Map<String, Structure>) in.readObject();
+	public void read(Kryo kryo, Input input) {
+		psMap = (Map<String, Professionnel>) kryo.readObject(input, HashMap.class);
+		structureMap = (Map<String, Structure>) kryo.readObject(input, HashMap.class);
 	}
 
 	public void clearMaps() {

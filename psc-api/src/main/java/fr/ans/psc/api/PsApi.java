@@ -23,8 +23,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")@Component("fr.ans.psc.api.PsApi")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-30T08:44:48.497Z[GMT]")@Component("fr.ans.psc.api.PsApi")
 public class PsApi {
     private ApiClient apiClient;
 
@@ -51,16 +52,30 @@ public class PsApi {
      * <p><b>201</b> - Created
      * <p><b>400</b> - Bad Request
      * <p><b>409</b> - Ps already exists
-     * @param body The Ps to be created
+     * @param body The Ps to be created (required)
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
     public void createNewPs(Ps body) throws RestClientException {
+        createNewPsWithHttpInfo(body);
+    }
+
+    /**
+     * Create new Ps
+     * Create a new Ps
+     * <p><b>201</b> - Created
+     * <p><b>400</b> - Bad Request
+     * <p><b>409</b> - Ps already exists
+     * @param body The Ps to be created (required)
+     * @return ResponseEntity&lt;Void&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<Void> createNewPsWithHttpInfo(Ps body) throws RestClientException {
         Object postBody = body;
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling createNewPs");
         }
-        String path = UriComponentsBuilder.fromPath("/ps").build().toUriString();
+        String path = UriComponentsBuilder.fromPath("/v2/ps").build().toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -78,7 +93,7 @@ public class PsApi {
         String[] authNames = new String[] {  };
 
         ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        apiClient.invokeAPI(path, HttpMethod.POST, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+        return apiClient.invokeAPI(path, HttpMethod.POST, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
     /**
      * Delete Ps by id
@@ -86,10 +101,24 @@ public class PsApi {
      * <p><b>204</b> - No Content
      * <p><b>400</b> - Bad Request
      * <p><b>404</b> - Not Found
-     * @param psId The psId parameter
+     * @param psId  (required)
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
     public void deletePsById(String psId) throws RestClientException {
+        deletePsByIdWithHttpInfo(psId);
+    }
+
+    /**
+     * Delete Ps by id
+     * Delete a PS by its id
+     * <p><b>204</b> - No Content
+     * <p><b>400</b> - Bad Request
+     * <p><b>404</b> - Not Found
+     * @param psId  (required)
+     * @return ResponseEntity&lt;Void&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<Void> deletePsByIdWithHttpInfo(String psId) throws RestClientException {
         Object postBody = null;
         // verify the required parameter 'psId' is set
         if (psId == null) {
@@ -98,7 +127,7 @@ public class PsApi {
         // create path and map variables
         final Map<String, Object> uriVariables = new HashMap<String, Object>();
         uriVariables.put("psId", psId);
-        String path = UriComponentsBuilder.fromPath("/ps/{psId}").buildAndExpand(uriVariables).toUriString();
+        String path = UriComponentsBuilder.fromPath("/v2/ps/{psId}").buildAndExpand(uriVariables).toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -114,7 +143,7 @@ public class PsApi {
         String[] authNames = new String[] {  };
 
         ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        apiClient.invokeAPI(path, HttpMethod.DELETE, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+        return apiClient.invokeAPI(path, HttpMethod.DELETE, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
     /**
      * Physical delete of Ps
@@ -122,10 +151,24 @@ public class PsApi {
      * <p><b>204</b> - No Content
      * <p><b>400</b> - Bad Request
      * <p><b>404</b> - Not Found
-     * @param psId The psId parameter
+     * @param psId  (required)
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
     public void forceDeletePsById(String psId) throws RestClientException {
+        forceDeletePsByIdWithHttpInfo(psId);
+    }
+
+    /**
+     * Physical delete of Ps
+     * completely delete Ps (not only deactivate it)
+     * <p><b>204</b> - No Content
+     * <p><b>400</b> - Bad Request
+     * <p><b>404</b> - Not Found
+     * @param psId  (required)
+     * @return ResponseEntity&lt;Void&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<Void> forceDeletePsByIdWithHttpInfo(String psId) throws RestClientException {
         Object postBody = null;
         // verify the required parameter 'psId' is set
         if (psId == null) {
@@ -134,7 +177,7 @@ public class PsApi {
         // create path and map variables
         final Map<String, Object> uriVariables = new HashMap<String, Object>();
         uriVariables.put("psId", psId);
-        String path = UriComponentsBuilder.fromPath("/ps/force/{psId}").buildAndExpand(uriVariables).toUriString();
+        String path = UriComponentsBuilder.fromPath("/v2/ps/force/{psId}").buildAndExpand(uriVariables).toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -150,7 +193,7 @@ public class PsApi {
         String[] authNames = new String[] {  };
 
         ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        apiClient.invokeAPI(path, HttpMethod.DELETE, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+        return apiClient.invokeAPI(path, HttpMethod.DELETE, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
     /**
      * Get Ps by id
@@ -158,11 +201,25 @@ public class PsApi {
      * <p><b>200</b> - OK
      * <p><b>400</b> - Bad Request
      * <p><b>404</b> - Not Found
-     * @param psId The psId parameter
+     * @param psId  (required)
      * @return Ps
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
     public Ps getPsById(String psId) throws RestClientException {
+        return getPsByIdWithHttpInfo(psId).getBody();
+    }
+
+    /**
+     * Get Ps by id
+     * get a Ps by one of its idNationalRef
+     * <p><b>200</b> - OK
+     * <p><b>400</b> - Bad Request
+     * <p><b>404</b> - Not Found
+     * @param psId  (required)
+     * @return ResponseEntity&lt;Ps&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<Ps> getPsByIdWithHttpInfo(String psId) throws RestClientException {
         Object postBody = null;
         // verify the required parameter 'psId' is set
         if (psId == null) {
@@ -171,7 +228,7 @@ public class PsApi {
         // create path and map variables
         final Map<String, Object> uriVariables = new HashMap<String, Object>();
         uriVariables.put("psId", psId);
-        String path = UriComponentsBuilder.fromPath("/ps/{psId}").buildAndExpand(uriVariables).toUriString();
+        String path = UriComponentsBuilder.fromPath("/v2/ps/{psId}").buildAndExpand(uriVariables).toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -195,16 +252,30 @@ public class PsApi {
      * <p><b>200</b> - OK
      * <p><b>400</b> - Bad Request
      * <p><b>404</b> - Not Found
-     * @param body The body parameter
+     * @param body  (required)
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
     public void updatePs(Ps body) throws RestClientException {
+        updatePsWithHttpInfo(body);
+    }
+
+    /**
+     * Update Ps
+     * Update Ps
+     * <p><b>200</b> - OK
+     * <p><b>400</b> - Bad Request
+     * <p><b>404</b> - Not Found
+     * @param body  (required)
+     * @return ResponseEntity&lt;Void&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<Void> updatePsWithHttpInfo(Ps body) throws RestClientException {
         Object postBody = body;
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling updatePs");
         }
-        String path = UriComponentsBuilder.fromPath("/ps").build().toUriString();
+        String path = UriComponentsBuilder.fromPath("/v2/ps").build().toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -222,6 +293,6 @@ public class PsApi {
         String[] authNames = new String[] {  };
 
         ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        apiClient.invokeAPI(path, HttpMethod.PUT, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+        return apiClient.invokeAPI(path, HttpMethod.PUT, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
 }

@@ -28,7 +28,7 @@ import javax.validation.Valid;
  * Professionnel de santé
  */
 @Schema(description = "Professionnel de santé")
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-30T08:44:48.497Z[GMT]")
 public class Ps implements Serializable{
   private static final long serialVersionUID = 1L;
   @JsonProperty("idType")

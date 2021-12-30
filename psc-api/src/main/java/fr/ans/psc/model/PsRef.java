@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.io.Serializable;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -25,7 +26,7 @@ import javax.validation.Valid;
  * Mapping identifier to Ps
  */
 @Schema(description = "Mapping identifier to Ps")
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-30T08:44:48.497Z[GMT]")
 public class PsRef implements Serializable{
   private static final long serialVersionUID = 1L;
   @JsonProperty("nationalIdRef")
@@ -35,10 +36,10 @@ public class PsRef implements Serializable{
   private String nationalId = null;
 
   @JsonProperty("activated")
-  private String activated = null;
+  private BigDecimal activated = null;
 
   @JsonProperty("deactivated")
-  private String deactivated = null;
+  private BigDecimal deactivated = null;
 
   public PsRef nationalIdRef(String nationalIdRef) {
     this.nationalIdRef = nationalIdRef;
@@ -78,7 +79,7 @@ public class PsRef implements Serializable{
     this.nationalId = nationalId;
   }
 
-  public PsRef activated(String activated) {
+  public PsRef activated(BigDecimal activated) {
     this.activated = activated;
     return this;
   }
@@ -87,16 +88,17 @@ public class PsRef implements Serializable{
    * Get activated
    * @return activated
   **/
+  @Valid
   @Schema(description = "")
-  public String getActivated() {
+  public BigDecimal getActivated() {
     return activated;
   }
 
-  public void setActivated(String activated) {
+  public void setActivated(BigDecimal activated) {
     this.activated = activated;
   }
 
-  public PsRef deactivated(String deactivated) {
+  public PsRef deactivated(BigDecimal deactivated) {
     this.deactivated = deactivated;
     return this;
   }
@@ -105,12 +107,13 @@ public class PsRef implements Serializable{
    * Get deactivated
    * @return deactivated
   **/
+  @Valid
   @Schema(description = "")
-  public String getDeactivated() {
+  public BigDecimal getDeactivated() {
     return deactivated;
   }
 
-  public void setDeactivated(String deactivated) {
+  public void setDeactivated(BigDecimal deactivated) {
     this.deactivated = deactivated;
   }
 

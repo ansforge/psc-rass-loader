@@ -3,10 +3,6 @@
  */
 package fr.ans.psc.pscload.component;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,13 +12,18 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import fr.ans.psc.pscload.service.LoadProcess;
 
 /**
  * The Class ProcessRegistry.
  */
 @Component
-public class ProcessRegistry implements  Externalizable  {
+public class ProcessRegistry implements  KryoSerializable  {
 	
 
     @Value("${files.directory}")
@@ -132,17 +133,16 @@ public class ProcessRegistry implements  Externalizable  {
 		return registry.isEmpty();
 	}
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(id);
-		out.writeObject(registry);
-		
+	public void write(Kryo kryo, Output output) {
+		output.writeInt(id);
+		kryo.writeClassAndObject(output, registry);		
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		id = in.readInt();
-		registry = (Map<String,LoadProcess>) in.readObject();
+	public void read(Kryo kryo, Input input) {
+		id = input.readInt();
+		registry = (Map<String,LoadProcess>)  kryo.readClassAndObject(input);
 	}
 	
 }
