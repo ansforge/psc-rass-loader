@@ -19,10 +19,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
@@ -40,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 @Slf4j
 public class PscloadApplication {
 
@@ -93,8 +96,10 @@ public class PscloadApplication {
 					registry.read(kryo, input);
 					input.close();
 					registryFile.delete();
-				} catch (IOException e) {
-					log.error("Unable to restore registry I/O error", e);
+				} catch (IOException | KryoException e) {
+					log.warn("Unable to restore registry, start with an empty registry", e);
+					registryFile.delete();
+					registry.clear();
 				}
 
 				// RESUME PROCESS

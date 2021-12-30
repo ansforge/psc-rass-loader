@@ -132,6 +132,10 @@ public class RunnerTest {
 		mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is2xxSuccessful()).andDo(print());
 		ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
+		
+		mockmvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/process/info")
+				.accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is2xxSuccessful()).andDo(print());
 	}
 
 	private static void zipFile(String filename) throws Exception {

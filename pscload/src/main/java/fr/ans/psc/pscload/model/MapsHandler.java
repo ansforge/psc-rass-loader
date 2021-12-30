@@ -59,17 +59,7 @@ public class MapsHandler implements KryoSerializable {
 		kryo.register(SituationExercice.class, 14);
 		kryo.register(RefStructure.class, 15);
 		kryo.register(Structure.class, 16);
-		kryo.register(ProcessRegistry.class, 17);
-		kryo.register(LoadProcess.class, 18);
-		kryo.register(ProcessState.class, 19);
-		kryo.register(Idle.class, 20);
-		kryo.register(DiffComputed.class, 21);
-		kryo.register(ReadyToComputeDiff.class, 22);
-		kryo.register(ReadyToExtract.class, 23);
-		kryo.register(UploadingChanges.class, 24);
-		kryo.register(ChangesApplied.class, 25);
-		kryo.register(UploadMetrics.class, 26);
-	}
+		}
 
 	private static final int ROW_LENGTH = 50;
 

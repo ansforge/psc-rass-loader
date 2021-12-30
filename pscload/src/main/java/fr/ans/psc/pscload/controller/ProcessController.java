@@ -57,29 +57,23 @@ public class ProcessController {
 	 * @return the deferred result
 	 */
 	@PostMapping(value = "/process/continue")
-	public DeferredResult<ResponseEntity<Void>> continueProcess() {
+	public ResponseEntity<Void> continueProcess() {
 		LoadProcess process = registry.getCurrentProcess();
-
-		DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
+		ResponseEntity<Void> result;
 		if (process != null) {
 			if (process.getState().getClass().equals(DiffComputed.class)) {
-				// launch process in a separate thread
-				ForkJoinPool.commonPool().submit(() -> {
+				// launch process in a separate thread because this method is annoted Async
 					runner.runContinue(process);
-					ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-					response.setResult(result);
-				});
+					result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 				// Response OK
-				response.onCompletion(() -> log.info("Processing complete"));
-				return response;
+				return result;
 			}
 			// Conflict if process is not in the expected state.
-			ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-			response.setResult(result);
+			 result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
 		} else {
-			response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
+			 result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
 		}
-		return response;
+		return result;
 	}
 
 	/**
