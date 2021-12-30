@@ -72,7 +72,7 @@ EOH
       template {
         data = <<EOF
 server.servlet.context-path=/pscload/v2
-api.base.url=http://{{ range service "psc-api-maj" }}{{ .Address }}:{{ .Port }}{{ end }}/psc-api-maj
+api.base.url=http://{{ range service "psc-api-maj-v2" }}{{ .Address }}:{{ .Port }}{{ end }}/psc-api-maj
 pscextract.base.url=http://{{ range service "pscextract" }}{{ .Address }}:{{ .Port }}{{ end }}/pscextract/v1
 files.directory=/app/files-repo
 cert.path=/secrets/certificate.pem
