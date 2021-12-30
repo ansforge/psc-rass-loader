@@ -55,7 +55,8 @@ public class IdleStateRunTaskTest {
 		propertiesRegistry.add("extract.download.url", 
           () -> httpRassMockServer.baseUrl());
 		propertiesRegistry.add("files.directory", () -> Thread.currentThread().getContextClassLoader().getResource(".").getPath());
-    }	
+    }
+
 	/**
 	 * Http download test.
 	 *
@@ -78,7 +79,7 @@ public class IdleStateRunTaskTest {
 				.withBody(content)));
 		// Download test
 		String filesDirectory = Thread.currentThread().getContextClassLoader()
-				.getResource(".").getPath();
+				.getResource("work").getPath();
 		String extracturl = httpRassMockServer.baseUrl() + contextPath;
 		LoadProcess p = new LoadProcess(new Idle(extracturl, filesDirectory),"1");
 		p.nextStep();

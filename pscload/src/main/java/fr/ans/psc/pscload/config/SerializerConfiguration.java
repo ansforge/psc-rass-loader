@@ -24,6 +24,8 @@ import fr.ans.psc.pscload.state.Idle;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
 
 @Configuration
@@ -52,6 +54,8 @@ public class SerializerConfiguration {
 		kryo.register(UploadMetrics.class, 26);
 		kryo.register(String[].class, 27);
 		kryo.register(ConcurrentHashMap.class, 28);
+		kryo.register(UploadInterrupted.class, 29);
+		kryo.register(SerializationInterrupted.class, 30);
 		return kryo;
 	}
 }

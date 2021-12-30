@@ -85,6 +85,7 @@ keystore.password={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.keystor
 enable.scheduler={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.enable_scheduler }}{{ end }}
 schedule.cron.expression = 0 0 12,15,18,21 * * ?
 schedule.cron.timeZone = Europe/Paris
+process.expiration.delay=12
 management.endpoints.web.exposure.include=health,info,prometheus,metric
 spring.servlet.multipart.max-file-size=600MB
 spring.servlet.multipart.max-request-size=600MB
@@ -96,6 +97,7 @@ spring.mail.password={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.spr
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 pscload.mail.receiver={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.mail_receiver }}{{ end }}
+enable.emailing=false
 EOF
         destination = "secrets/application.properties"
         change_mode = "restart"

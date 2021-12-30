@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import fr.ans.psc.pscload.service.EmailNature;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
@@ -255,10 +256,18 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		});
 	}
 	
-	public void setStageMetric(int state, String message) {
+	public void setStageMetric(int state, EmailNature emailNature, String message) {
+		if (message == null || message.equals("")) {
+			message = emailNature.message;
+		}
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
-		StateChangeEvent event = new StateChangeEvent(this, appMiscGauges.get(MiscCustomMetric.STAGE).get(), message);
+		StateChangeEvent event = new StateChangeEvent(this, appMiscGauges.get(MiscCustomMetric.STAGE).get(),
+				emailNature, message);
 		publisher.publishEvent(event);
+	}
+
+	public void setStageMetric(int state, EmailNature emailNature) {
+		setStageMetric(state, emailNature, emailNature.message);
 	}
 	
 	public void setStageMetric(int state) {
@@ -280,6 +289,10 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 
 	public Map<MiscCustomMetric, AtomicInteger> getAppMiscGauges() {
 		return appMiscGauges;
+	}
+
+	public int getStageMetricValue() {
+		return appMiscGauges.get(MiscCustomMetric.STAGE).get();
 	}
 
 	@Override
