@@ -23,8 +23,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-08T16:04:23.441Z[GMT]")@Component("fr.ans.psc.api.ToggleApi")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-12-30T08:44:48.497Z[GMT]")@Component("fr.ans.psc.api.ToggleApi")
 public class ToggleApi {
     private ApiClient apiClient;
 
@@ -52,16 +53,31 @@ public class ToggleApi {
      * <p><b>400</b> - Bad Request
      * <p><b>404</b> - Not Found
      * <p><b>409</b> - Conflict
-     * @param body The body parameter
+     * @param body  (required)
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
     public void togglePsref(PsRef body) throws RestClientException {
+        togglePsrefWithHttpInfo(body);
+    }
+
+    /**
+     * toggle PsRef mapping
+     * Toggle PsRef mapping
+     * <p><b>200</b> - OK
+     * <p><b>400</b> - Bad Request
+     * <p><b>404</b> - Not Found
+     * <p><b>409</b> - Conflict
+     * @param body  (required)
+     * @return ResponseEntity&lt;Void&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<Void> togglePsrefWithHttpInfo(PsRef body) throws RestClientException {
         Object postBody = body;
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling togglePsref");
         }
-        String path = UriComponentsBuilder.fromPath("/toggle").build().toUriString();
+        String path = UriComponentsBuilder.fromPath("/v2/toggle").build().toUriString();
         
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
         final HttpHeaders headerParams = new HttpHeaders();
@@ -79,6 +95,6 @@ public class ToggleApi {
         String[] authNames = new String[] {  };
 
         ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        apiClient.invokeAPI(path, HttpMethod.PUT, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+        return apiClient.invokeAPI(path, HttpMethod.PUT, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
 }

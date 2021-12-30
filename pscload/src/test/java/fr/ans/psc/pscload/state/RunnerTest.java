@@ -118,8 +118,8 @@ public class RunnerTest {
 		httpMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(200)
 				.withHeader("Content-Type", "application/zip")
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
-		httpMockServer.stubFor(any(urlMatching("/ps")).willReturn(aResponse().withStatus(200)));
-		httpMockServer.stubFor(any(urlMatching("/structure")).willReturn(aResponse().withStatus(200)));
+		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+		httpMockServer.stubFor(any(urlMatching("/v2/structure")).willReturn(aResponse().withStatus(200)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
 		mockmvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/process/info")
