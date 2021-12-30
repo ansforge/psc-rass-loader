@@ -23,5 +23,5 @@ public class SerializationInterrupted extends ProcessState {
 		// TODO Auto-generated method stub
 		
 	}
-
+  
 }

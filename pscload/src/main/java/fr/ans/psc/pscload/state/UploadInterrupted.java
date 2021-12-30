@@ -12,7 +12,7 @@ public class UploadInterrupted extends ProcessState {
     public void nextStep() throws LoadProcessException {
 
     }
-
+  
 	@Override
 	public void write(Kryo kryo, Output output) {
 		// TODO Auto-generated method stub

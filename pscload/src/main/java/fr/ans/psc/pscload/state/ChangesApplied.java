@@ -67,11 +67,16 @@ public class ChangesApplied extends ProcessState {
         try {
             if (process.isRemainingPsOrStructuresInMaps()) {
                 StringBuilder message = new StringBuilder();
+                addOperationHeader(message, process.getPsToCreate(), "Créations PS en échec : ");
                 handlePsCreateFailed(message, process.getPsToCreate());
+                addOperationHeader(message, process.getPsToDelete(), "Suppressions PS en échec : ");
                 handlePsDeleteFailed(message, process.getPsToDelete());
+                addOperationHeader(message, process.getPsToUpdate(), "Modifications PS en échec : ");
                 handlePsUpdateFailed(message, process.getPsToUpdate());
 
+                addOperationHeader(message, process.getStructureToCreate(), "Créations Structure en échec : ");
                 handleStructureCreateFailed(message, process.getStructureToCreate());
+                addOperationHeader(message, process.getStructureToCreate(), "Modifications Structure en échec : ");
                 handleStructureUpdateFailed(message, process.getStructureToUpdate());
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")
@@ -105,8 +110,6 @@ public class ChangesApplied extends ProcessState {
 
 
     private void handlePsCreateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
-        addOperationHeader(sb, psMap, "Créations PS en échec : ");
-
         psMap.values().forEach(ps -> {
             appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
             if (is5xxError(ps.getReturnStatus())) {
@@ -116,8 +119,6 @@ public class ChangesApplied extends ProcessState {
     }
 
     private void handlePsUpdateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
-        addOperationHeader(sb, psMap, "Modifications PS en échec : ");
-
         psMap.values().forEach(ps -> {
             appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
             if (is5xxError(ps.getReturnStatus())) {
@@ -127,8 +128,6 @@ public class ChangesApplied extends ProcessState {
     }
 
     private void handlePsDeleteFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
-        addOperationHeader(sb, psMap, "Suppressions PS en échec : ");
-
         psMap.values().forEach(ps -> {
             appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
             if (is5xxError(ps.getReturnStatus())) {
@@ -138,8 +137,6 @@ public class ChangesApplied extends ProcessState {
     }
 
     private void handleStructureCreateFailed(StringBuilder sb, Map<String, Structure> structureMap) {
-        addOperationHeader(sb, structureMap, "Créations Structure en échec : ");
-
         structureMap.values().forEach(structure -> {
             appendOperationFailureInfos(sb, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
             if (is5xxError(structure.getReturnStatus())) {
@@ -150,8 +147,6 @@ public class ChangesApplied extends ProcessState {
     }
 
     private void handleStructureUpdateFailed(StringBuilder sb, Map<String, Structure> structureMap) {
-        addOperationHeader(sb, structureMap, "Modifications Structure en échec : ");
-
         structureMap.values().forEach(structure -> {
             appendOperationFailureInfos(sb, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
             if (is5xxError(structure.getReturnStatus())) {
