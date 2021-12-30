@@ -2,6 +2,7 @@ package fr.ans.psc.pscload.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,6 +51,7 @@ public class SerializerConfiguration {
 		kryo.register(ChangesApplied.class, 25);
 		kryo.register(UploadMetrics.class, 26);
 		kryo.register(String[].class, 27);
+		kryo.register(ConcurrentHashMap.class, 28);
 		return kryo;
 	}
 }
