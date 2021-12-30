@@ -54,15 +54,6 @@ public class ProcessController {
 
     private final ProcessRegistry registry;
 
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
-
-    @Value("${deactivated.excluded.profession.codes:}")
-    private String[] excludedProfessions;
-
-    @Value("${pscextract.base.url}")
-    private String pscextractBaseUrl;
-
       /**
      * Instantiates a new process controller.
      *
@@ -76,7 +67,7 @@ public class ProcessController {
 	/**
 	 * Continue process.
 	 *
-	 * @return the deferred result
+	 * @return the  result
 	 */
 	@PostMapping(value = "/process/continue")
 	public ResponseEntity<Void> continueProcess() {
