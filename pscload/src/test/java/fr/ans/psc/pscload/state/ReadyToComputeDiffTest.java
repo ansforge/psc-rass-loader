@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
+import fr.ans.psc.pscload.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -87,14 +88,14 @@ class ReadyToComputeDiffTest {
 	@Test
 	@DisplayName("Initial diff with no old ser file and 5 ps")
 	void initialDiffTaskTest() throws Exception {
-		String rootpath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+		String rootpath = Thread.currentThread().getContextClassLoader().getResource("work").getPath();
 		File mapser = new File(rootpath + File.separator + "maps.ser");
 		if (mapser.exists()) {
 			mapser.delete();
 		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
-		p.setExtractedFilename(Thread.currentThread().getContextClassLoader()
-				.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
+		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
+		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
 		assertEquals(5, p.getPsToCreate().size());
 		assertEquals(0, p.getPsToDelete().size());
@@ -109,20 +110,22 @@ class ReadyToComputeDiffTest {
 	@DisplayName(" diff with 1 supp, 2 modifs and 1 add")
 	void diffTaskTest() throws Exception {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource(".").getPath();
+		String rootpath = cl.getResource("work").getPath();
 		File mapser = new File(rootpath + File.separator + "maps.ser");
 		if (mapser.exists()) {
 			mapser.delete();
 		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
-		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
+		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
+		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
 		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
 		p.getState().setProcess(p);
 		p.nextStep();
 
 		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
-		p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
+		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
 		p2.nextStep();
 		assertEquals(1,p2.getPsToDelete().size());
@@ -139,13 +142,14 @@ class ReadyToComputeDiffTest {
 	@DisplayName("initial diff from large file (100000 lines)")
 	public void diffFromLargeFile() throws Exception {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource(".").getPath();
+		String rootpath = cl.getResource("work").getPath();
 		File mapser = new File(rootpath + File.separator + "maps.ser");
 		if (mapser.exists()) {
 			mapser.delete();
 		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
-		p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112140852.txt").getPath());
+		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112140852.txt");
+		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
 		assertEquals(p.getPsToCreate().size(), 99171);
 		assertEquals(p.getStructureToCreate().size(), 37534);

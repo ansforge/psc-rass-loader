@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 
+import fr.ans.psc.pscload.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -111,14 +112,15 @@ public class ChangesAppliedTest {
                 .willReturn(aResponse().withStatus(500)));
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String rootpath = cl.getResource(".").getPath();
+        String rootpath = cl.getResource("work").getPath();
         File mapser = new File(rootpath + File.separator + "maps.ser");
         if (mapser.exists()) {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
         LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
-        p.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
+        File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
+        p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
         p.getState().setProcess(p);
@@ -126,7 +128,8 @@ public class ChangesAppliedTest {
         // Day 2 : Compute diff
         LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
         registry.register(Integer.toString(registry.nextId()), p2);
-        p2.setExtractedFilename(cl.getResource("Extraction_ProSanteConnect_Personne_activite_202112120515.txt").getPath());
+        File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+        p2.setExtractedFilename(extractFile2.getPath());
         p2.nextStep();
         p2.setState(new DiffComputed(customMetrics));
         p2.nextStep();
