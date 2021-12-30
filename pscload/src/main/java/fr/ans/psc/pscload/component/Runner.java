@@ -9,6 +9,7 @@ import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -29,168 +30,171 @@ import java.util.Date;
 @Component
 public class Runner {
 
-	@Autowired
-	private ProcessRegistry processRegistry;
+    @Autowired
+    private ProcessRegistry processRegistry;
 
-	@Autowired
-	private CustomMetrics customMetrics;
+    @Autowired
+    private CustomMetrics customMetrics;
 
-	@Value("${enable.scheduler:true}")
-	private boolean enabled;
+    @Value("${enable.scheduler:true}")
+    private boolean enabled;
 
-	@Value("${extract.download.url}")
-	private String extractDownloadUrl;
+    @Value("${extract.download.url}")
+    private String extractDownloadUrl;
 
-	@Value("${cert.path}")
-	private String certfile;
+    @Value("${cert.path}")
+    private String certfile;
 
-	@Value("${key.path}")
-	private String keyfile;
+    @Value("${key.path}")
+    private String keyfile;
 
-	@Value("${ca.path}")
-	private String cafile;
+    @Value("${ca.path}")
+    private String cafile;
 
-	@Value("${keystore.password:mysecret}")
-	private String kspwd;
+    @Value("${keystore.password:mysecret}")
+    private String kspwd;
 
-	@Value("${files.directory}")
-	private String filesDirectory;
+    @Value("${files.directory}")
+    private String filesDirectory;
 
-	@Value("${use.x509.auth:true}")
-	private boolean useX509Auth;
+    @Value("${use.x509.auth:true}")
+    private boolean useX509Auth;
 
-	@Value("${api.base.url}")
-	private String apiBaseUrl;
+    @Value("${api.base.url}")
+    private String apiBaseUrl;
 
-	@Value("${deactivation.excluded.profession.codes:}")
-	private String[] excludedProfessions;
+    @Value("${deactivation.excluded.profession.codes:}")
+    private String[] excludedProfessions;
 
-	@Value("${pscextract.base.url}")
-	private String pscextractBaseUrl;
+    @Value("${pscextract.base.url}")
+    private String pscextractBaseUrl;
 
-	@Value("${process.expiration.delay}")
-	private Long expirationDelay;
+    @Value("${process.expiration.delay}")
+    private Long expirationDelay;
 
 
-	/**
-	 * Run.
-	 *
-	 * @throws DuplicateKeyException    the duplicate key exception
-	 */
-	@Scheduled(cron  = "${schedule.cron.expression}", zone = "${schedule.cron.timeZone}")
-	public void runScheduler() throws DuplicateKeyException {
-		if (enabled) {
-			if (processRegistry.isEmpty() || isProcessExpired()) {
-				// clear registry if latest is expired
-				processRegistry.clear();
+    /**
+     * Run.
+     *
+     * @throws DuplicateKeyException the duplicate key exception
+     */
+    @Scheduled(cron = "${schedule.cron.expression}", zone = "${schedule.cron.timeZone}")
+    public void runScheduler() throws DuplicateKeyException {
+        if (enabled) {
+            if (processRegistry.isEmpty() || isProcessExpired()) {
+                // clear registry if latest is expired
+                processRegistry.clear();
 
-				// register new process with Idle state
-				String id = Integer.toString(processRegistry.nextId());
-				ProcessState idle;
-				if (useX509Auth) {
-					idle = new Idle(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
-				} else {
-					idle = new Idle(extractDownloadUrl, filesDirectory);
-				}
-				LoadProcess process = new LoadProcess(idle);
-				processRegistry.register(id, process);
-				try {
-					// Step 1 : Download
-					process.nextStep();
-					process.setState(new ReadyToExtract());
-					customMetrics.setStageMetric(10);
-					// Step 2 : Extract
-					process.nextStep();
-					process.setState(new ReadyToComputeDiff());
-					customMetrics.setStageMetric(30);
-					// Step 4 : Load maps and compute diff
-					process.nextStep();
-					process.setState(new DiffComputed(customMetrics));
-					customMetrics.setStageMetric(50);
-					// Step 3 : publish metrics
-					process.nextStep();
-					// End of scheduled steps
-				} catch (LoadProcessException e) {
-					log.error("Error when loading RASS data", e);
-					customMetrics.setStageMetric(
-							customMetrics.getStageMetricValue(),
-							EmailTemplate.INTERRUPTED_PROCESS);
-					processRegistry.unregister(id);
-				}
-			} else {
-				log.warn("A process is already running !");
-			}
-		}
-	}
-	
-	
+                // register new process with Idle state
+                String id = Integer.toString(processRegistry.nextId());
+                ProcessState idle;
+                if (useX509Auth) {
+                    idle = new Idle(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
+                } else {
+                    idle = new Idle(extractDownloadUrl, filesDirectory);
+                }
+                LoadProcess process = new LoadProcess(idle);
+                processRegistry.register(id, process);
+                try {
+                    // Step 1 : Download
+                    process.nextStep();
+                    process.setState(new ReadyToExtract());
+                    customMetrics.setStageMetric(10);
+                    // Step 2 : Extract
+                    process.nextStep();
+                    process.setState(new ReadyToComputeDiff());
+                    customMetrics.setStageMetric(30);
+                    // Step 4 : Load maps and compute diff
+                    process.nextStep();
+                    process.setState(new DiffComputed(customMetrics));
+                    customMetrics.setStageMetric(50);
+                    // Step 3 : publish metrics
+                    process.nextStep();
+                    // End of scheduled steps
+                } catch (LoadProcessException e) {
+                    log.error("Error when loading RASS data", e);
+                    customMetrics.setStageMetric(
+                            customMetrics.getStageMetricValue(),
+                            EmailTemplate.INTERRUPTED_PROCESS);
+                    processRegistry.unregister(id);
+                }
+            } else {
+                log.warn("A process is already running !");
+            }
+        }
+    }
 
-	/**
-	 * Run continue.
-	 *
-	 */
-	@Async("processExecutor")
-	public void runContinue(LoadProcess process) {
-		try {
-			// upload changes
-			log.info("Received request to process in Runner.runContinue()");
-			process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-			customMetrics.resetSizeMetrics();
-			customMetrics.setStageMetric(60);
-			process.nextStep();
-			process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
-			// Step 5 : call pscload
-			process.nextStep();
-			processRegistry.unregister(process.getId());
-			customMetrics.setStageMetric(0);
-		} catch (LoadProcessException e) {
-			// error during uploading
-			if (e.getClass().equals(UploadException.class)) {
-				log.error("error when uploading changes", e);
-				process.setState(new UploadInterrupted());
-				customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_REST_INTERRUPTION);
-			} else {
-				// error during ChangesAppliedState
-				handleChangesAppliedStateExceptions(process, e);
-			}
-		}
-	}
 
-	/**
-	 * run ending operations
-	 *
-	 */
-	@Async("processExecutor")
-	public void runEnding(LoadProcess process) {
-		try {
-			process.nextStep();
-			processRegistry.unregister(process.getId());
-			customMetrics.setStageMetric(0);
-		} catch (LoadProcessException e) {
-				// error during serialization/deserialization
-			handleChangesAppliedStateExceptions(process, e);
-		}
-	}
+    /**
+     * Run continue.
+     */
+    @Async("processExecutor")
+    public void runContinue(LoadProcess process) {
+        try {
+            // upload changes
+            log.info("Received request to process in Runner.runContinue()");
+            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
+            customMetrics.resetSizeMetrics();
+            customMetrics.setStageMetric(60);
+            process.nextStep();
+            process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
+            // Step 5 : call pscload
+            process.nextStep();
+            processRegistry.unregister(process.getId());
+            customMetrics.setStageMetric(0);
+        } catch (LoadProcessException e) {
+            // error during uploading
+            if (e.getClass().equals(UploadException.class)) {
+                log.error("error when uploading changes", e);
+                process.setState(new UploadInterrupted());
+                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_REST_INTERRUPTION);
+            } else {
+                // error during ChangesAppliedState
+                handleChangesAppliedStateExceptions(process, e);
+            }
+        } catch (MailSendException mse) {
+            log.error("Mail sending error", mse);
+        }
+    }
 
-	private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) {
-		// error during serialization/deserialization
-		if (e.getClass().equals(SerFileGenerationException.class)) {
-			log.warn("Error when (de)serializing");
-			process.setState(new SerializationInterrupted());
-			customMetrics.setStageMetric(60, EmailTemplate.SERIALIZATION_FAILURE);
-			// error when triggering extract
-		} else if (e.getClass().equals(ExtractTriggeringException.class)) {
-			log.warn("Error when triggering pscextract", e);
-			customMetrics.setStageMetric(70, EmailTemplate.TRIGGER_EXTRACT_FAILED);
-			processRegistry.unregister(process.getId());
-		}
-	}
+    /**
+     * run ending operations
+     */
+    @Async("processExecutor")
+    public void runEnding(LoadProcess process) {
+        try {
+            process.nextStep();
+            processRegistry.unregister(process.getId());
+            customMetrics.setStageMetric(0);
+        } catch (LoadProcessException e) {
+            // error during serialization/deserialization
+            handleChangesAppliedStateExceptions(process, e);
+        }
+    }
 
-	private boolean isProcessExpired() {
-		if (processRegistry.isEmpty()) { return true; }
-		Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
-		Date now = new Date();
-		return now.after(
-				Date.from(lastProcessDate.toInstant().plus(Duration.ofHours(expirationDelay))));
-	}
+    private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) throws MailSendException {
+        // error during serialization/deserialization
+        if (e.getClass().equals(SerFileGenerationException.class)) {
+            log.warn("Error when (de)serializing");
+            process.setState(new SerializationInterrupted());
+            customMetrics.setStageMetric(60, EmailTemplate.SERIALIZATION_FAILURE);
+            // error when triggering extract
+        } else if (e.getClass().equals(ExtractTriggeringException.class)) {
+            log.warn("Error when triggering pscextract", e);
+            customMetrics.setStageMetric(70, EmailTemplate.TRIGGER_EXTRACT_FAILED);
+            processRegistry.unregister(process.getId());
+        }
+
+
+    }
+
+    private boolean isProcessExpired() {
+        if (processRegistry.isEmpty()) {
+            return true;
+        }
+        Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
+        Date now = new Date();
+        return now.after(
+                Date.from(lastProcessDate.toInstant().plus(Duration.ofHours(expirationDelay))));
+    }
 }

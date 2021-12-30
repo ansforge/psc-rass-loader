@@ -12,6 +12,7 @@ import fr.ans.psc.pscload.service.EmailTemplate;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailSendException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -87,15 +88,15 @@ public class ChangesApplied extends ProcessState {
             serFile.delete();
             newMaps.serializeMaps(serFileName);
             lockedSerFile.delete();
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+
         } catch (IOException e) {
-            // error during ser
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
-        }
-
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+        } catch (MailSendException e) {
+            log.error("Mail Sending Error", e);
         } catch (RestClientException e) {
             log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
             throw new ExtractTriggeringException(e);
