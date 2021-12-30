@@ -1,10 +1,10 @@
 # ToggleApi
 
-All URIs are relative to *http://localhost:8080/api/v1*
+All URIs are relative to *http://localhost:8080/api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**togglePsref**](ToggleApi.md#togglePsref) | **PUT** /toggle | toggle PsRef mapping
+[**togglePsref**](ToggleApi.md#togglePsref) | **PUT** /v2/toggle | toggle PsRef mapping
 
 <a name="togglePsref"></a>
 # **togglePsref**

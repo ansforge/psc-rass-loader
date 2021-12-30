@@ -1,14 +1,14 @@
 # PsApi
 
-All URIs are relative to *http://localhost:8080/api/v1*
+All URIs are relative to *http://localhost:8080/api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createNewPs**](PsApi.md#createNewPs) | **POST** /ps | Create new Ps
-[**deletePsById**](PsApi.md#deletePsById) | **DELETE** /ps/{psId} | Delete Ps by id
-[**forceDeletePsById**](PsApi.md#forceDeletePsById) | **DELETE** /ps/force/{psId} | Physical delete of Ps
-[**getPsById**](PsApi.md#getPsById) | **GET** /ps/{psId} | Get Ps by id
-[**updatePs**](PsApi.md#updatePs) | **PUT** /ps | Update Ps
+[**createNewPs**](PsApi.md#createNewPs) | **POST** /v2/ps | Create new Ps
+[**deletePsById**](PsApi.md#deletePsById) | **DELETE** /v2/ps/{psId} | Delete Ps by id
+[**forceDeletePsById**](PsApi.md#forceDeletePsById) | **DELETE** /v2/ps/force/{psId} | Physical delete of Ps
+[**getPsById**](PsApi.md#getPsById) | **GET** /v2/ps/{psId} | Get Ps by id
+[**updatePs**](PsApi.md#updatePs) | **PUT** /v2/ps | Update Ps
 
 <a name="createNewPs"></a>
 # **createNewPs**

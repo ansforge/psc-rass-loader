@@ -1,13 +1,13 @@
 # StructureApi
 
-All URIs are relative to *http://localhost:8080/api/v1*
+All URIs are relative to *http://localhost:8080/api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createNewStructure**](StructureApi.md#createNewStructure) | **POST** /structure | Create new structure
-[**deleteStructureByStructureId**](StructureApi.md#deleteStructureByStructureId) | **DELETE** /structure/{structureId} | Delete structure by id
-[**getStructureById**](StructureApi.md#getStructureById) | **GET** /structure/{structureId} | Get structure by id
-[**updateStructure**](StructureApi.md#updateStructure) | **PUT** /structure | Update structure
+[**createNewStructure**](StructureApi.md#createNewStructure) | **POST** /v2/structure | Create new structure
+[**deleteStructureByStructureId**](StructureApi.md#deleteStructureByStructureId) | **DELETE** /v2/structure/{structureId} | Delete structure by id
+[**getStructureById**](StructureApi.md#getStructureById) | **GET** /v2/structure/{structureId} | Get structure by id
+[**updateStructure**](StructureApi.md#updateStructure) | **PUT** /v2/structure | Update structure
 
 <a name="createNewStructure"></a>
 # **createNewStructure**

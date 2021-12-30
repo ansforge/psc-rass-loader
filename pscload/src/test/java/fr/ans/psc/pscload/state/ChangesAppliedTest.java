@@ -101,13 +101,13 @@ public class ChangesAppliedTest {
     @DisplayName("Changes applied with no errors")
     public void changesApplied() throws DuplicateKeyException, IOException, ClassNotFoundException {
         // SET UP : updates ok, 2 different 4xx on Ps, 5xx on structure
-        httpMockServer.stubFor(post("/ps")
+        httpMockServer.stubFor(post("/v2/ps")
                 .willReturn(aResponse().withStatus(409)));
-        httpMockServer.stubFor(put("/ps")
+        httpMockServer.stubFor(put("/v2/ps")
                 .willReturn(aResponse().withStatus(200)));
-        httpMockServer.stubFor(delete("/ps/810107592585")
+        httpMockServer.stubFor(delete("/v2/ps/810107592585")
                 .willReturn(aResponse().withStatus(404)));
-        httpMockServer.stubFor(post("/structure")
+        httpMockServer.stubFor(post("/v2/structure")
                 .willReturn(aResponse().withStatus(500)));
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
