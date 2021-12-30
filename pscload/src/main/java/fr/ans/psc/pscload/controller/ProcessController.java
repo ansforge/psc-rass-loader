@@ -82,7 +82,7 @@ public class ProcessController {
 	 * @return the deferred result
 	 */
 	@PostMapping(value = "/process/resume")
-	public DeferredResult<ResponseEntity<Void>> resumeProcess() {
+	public ResponseEntity<Void> resumeProcess() {
 		// We can call continue process because it contains the updated maps to apply.
 		return continueProcess();
 	}
