@@ -156,6 +156,11 @@ public class Runner {
 		}
 	}
 
+	/**
+	 * run ending operations
+	 *
+	 */
+	@Async("processExecutor")
 	public void runEnding(LoadProcess process) {
 		try {
 			process.nextStep();
