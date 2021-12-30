@@ -45,16 +45,7 @@ public class ProcessController {
 
     private final ProcessRegistry registry;
 
-    @Value("${api.base.url}")
-    private String apiBaseUrl;
-
-    @Value("${deactivation.excluded.profession.codes:}")
-    private String[] excludedProfessions;
-
-    @Value("${pscextract.base.url}")
-    private String pscextractBaseUrl;
-
-    /**
+      /**
      * Instantiates a new process controller.
      *
      * @param registry the registry
@@ -63,31 +54,33 @@ public class ProcessController {
         super();
         this.registry = registry;
     }
+  
+	/**
+	 * Continue process.
+	 *
+	 * @return the deferred result
+	 */
+	@PostMapping(value = "/process/continue")
+	public ResponseEntity<Void> continueProcess() {
+		LoadProcess process = registry.getCurrentProcess();
+		ResponseEntity<Void> result;
+		if (process != null) {
+			if (process.getState().getClass().equals(DiffComputed.class)) {
+				// launch process in a separate thread because this method is annoted Async
+					runner.runContinue(process);
+					result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+				// Response OK
+				return result;
+			}
+			// Conflict if process is not in the expected state.
+			 result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
+		} else {
+			 result = new ResponseEntity<Void>(HttpStatus.TOO_EARLY);
+		}
+		return result;
+	}
 
-    /**
-     * Continue process.
-     *
-     * @return the deferred result
-     */
-    @PostMapping(value = "/process/continue")
-    public DeferredResult<ResponseEntity<Void>> continueProcess() {
-        LoadProcess process = registry.getCurrentProcess();
-
-        DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
-        if (process != null) {
-            if (process.getState().getClass().equals(DiffComputed.class)) {
-                return callRunnerContinueAndSetResponse(process, response);
-            }
-            // Conflict if process is not in the expected state.
-            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-            response.setResult(result);
-        } else {
-            response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
-        }
-        return response;
-    }
-
-    /**
+	  /**
      * Resume process.
      *
      * @return the deferred result

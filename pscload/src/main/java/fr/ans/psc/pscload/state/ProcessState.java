@@ -3,7 +3,7 @@
  */
 package fr.ans.psc.pscload.state;
 
-import java.io.Externalizable;
+import com.esotericsoftware.kryo.KryoSerializable;
 
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
@@ -11,9 +11,7 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 /**
  * The Class ProcessState.
  */
-public abstract class ProcessState implements Externalizable {
-
-	private static final long serialVersionUID = 5783897138047021249L;
+public abstract class ProcessState implements KryoSerializable {
 	
 	/** The process. */
 	protected LoadProcess process;

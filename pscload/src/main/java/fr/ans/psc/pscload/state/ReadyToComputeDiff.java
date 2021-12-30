@@ -5,16 +5,15 @@ package fr.ans.psc.pscload.state;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
@@ -25,16 +24,12 @@ import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class FileExtracted.
  */
-@Slf4j
 public class ReadyToComputeDiff extends ProcessState {
 
-
-	private static final long serialVersionUID = 1208602116799660764L;
 
 	private MapsHandler newMaps = new MapsHandler();
 	private MapsHandler oldMaps = new MapsHandler();
@@ -81,14 +76,14 @@ public class ReadyToComputeDiff extends ProcessState {
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(newMaps);
+	public void write(Kryo kryo, Output output) {
+		kryo.writeObject(output, newMaps);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		oldMaps = (MapsHandler) in.readObject();
+	public void read(Kryo kryo, Input input) {
+		oldMaps = (MapsHandler) kryo.readObject(input, MapsHandler.class);
 
 	}
 

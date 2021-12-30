@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
@@ -21,8 +19,14 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
@@ -38,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 @Slf4j
 public class PscloadApplication {
 
@@ -48,6 +53,9 @@ public class PscloadApplication {
 	/** The custom metrics. */
 	@Autowired
 	private CustomMetrics customMetrics;
+	
+	@Autowired
+	private Kryo kryo;
 
 	@Value("${files.directory:.}")
 	private String filesDirectory;
@@ -88,14 +96,14 @@ public class PscloadApplication {
 			if (registryFile.exists()) {
 				try {
 					FileInputStream fileInputStream = new FileInputStream(registryFile);
-					ObjectInputStream ois = new ObjectInputStream(fileInputStream);
-					registry.readExternal(ois);
-					ois.close();
+					Input input = new Input(fileInputStream);
+					registry.read(kryo, input);
+					input.close();
 					registryFile.delete();
-				} catch (IOException e) {
-					log.error("Unable to restore registry I/O error", e);
-				} catch (ClassNotFoundException e) {
-					log.error("Unable to restore registry : file not compatible", e);
+				} catch (IOException | KryoException e) {
+					log.warn("Unable to restore registry, start with an empty registry", e);
+					registryFile.delete();
+					registry.clear();
 				}
 
 				// RESUME PROCESS
@@ -154,9 +162,9 @@ public class PscloadApplication {
 				try {
 					File registryFile = new File(filesDirectory + File.separator + "registry.ser");
 					FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
-					ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream);
-					registry.writeExternal(oos);
-					oos.close();
+					Output output = new Output(fileOutputStream);
+					registry.write(kryo, output);
+					output.close();
 				} catch (IOException e) {
 					log.error("Unable to save registry", e);
 				} 

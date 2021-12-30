@@ -116,7 +116,7 @@ public class UploadingStateTest {
     @Test
     @DisplayName("Structure Api Call")
     void apiCallTest() throws Exception {
-        httpApiMockServer.stubFor(get("/structure/1")
+        httpApiMockServer.stubFor(get("/v2/structure/1")
                 .willReturn(aResponse().withBodyFile("structure1.json")
                         .withHeader("Content-Type", "application/json")
                         .withStatus(200)));
@@ -136,9 +136,9 @@ public class UploadingStateTest {
     @Test
     @DisplayName("Call delete API with return code 200")
     void uploadChangesDeletePS() throws Exception {
-        httpApiMockServer.stubFor(delete("/ps/810107592544")
+        httpApiMockServer.stubFor(delete("/v2/ps/810107592544")
                 .willReturn(aResponse().withStatus(200)));
-        httpApiMockServer.stubFor(put("/structure")
+        httpApiMockServer.stubFor(put("/v2/structure")
                 .willReturn(aResponse().withStatus(200)));
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         //Test

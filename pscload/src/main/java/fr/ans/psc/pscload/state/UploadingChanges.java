@@ -3,9 +3,6 @@
  */
 package fr.ans.psc.pscload.state;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +10,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.PsApi;
@@ -30,10 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UploadingChanges extends ProcessState {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 5204972581902084236L;
 
     private String[] excludedProfessions;
 
@@ -70,15 +67,15 @@ public class UploadingChanges extends ProcessState {
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(excludedProfessions);
-        out.writeObject(apiBaseUrl);
+	public void write(Kryo kryo, Output output) {
+    	kryo.writeClassAndObject(output, excludedProfessions);
+    	output.writeString(apiBaseUrl);
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        excludedProfessions = (String[]) in.readObject();
-        apiBaseUrl = (String) in.readObject();
+	public void read(Kryo kryo, Input input) {
+        excludedProfessions = (String[]) kryo.readClassAndObject(input);
+        apiBaseUrl = input.readString();
     }
 
     private void uploadStructuresToCreate(Map<String, Structure> structuresToCreate) throws LoadProcessException {
@@ -99,7 +96,7 @@ public class UploadingChanges extends ProcessState {
             }
 
         });
-
+        log.info("structuresToCreate size is now {}", structuresToCreate.size() );
     }
 
     private void uploadStructuresToUpdate(Map<String, Structure> structuresToUpdate) throws LoadProcessException {
@@ -121,7 +118,7 @@ public class UploadingChanges extends ProcessState {
             }
 
         });
-
+        	log.info("structuresToUpdate size is now {}", structuresToUpdate.size() );
     }
 
     private void uploadPsToCreate(Map<String, Professionnel> psToCreate) throws LoadProcessException {
@@ -141,7 +138,7 @@ public class UploadingChanges extends ProcessState {
                 throw new UploadException(e);
             }
         });
-
+        log.info("psToCreate size is now {}", psToCreate.size() );
     }
 
     private void uploadPsToDelete(Map<String, Professionnel> psToDelete) throws LoadProcessException {
@@ -176,6 +173,8 @@ public class UploadingChanges extends ProcessState {
                 psToDelete.remove(ps.getNationalId());
             }
         });
+        
+        log.info("psToDelete size is now {}", psToDelete.size() );
     }
 
     private void uploadPsToUpdate(Map<String, Professionnel> psToUpdate) throws LoadProcessException {
@@ -197,6 +196,7 @@ public class UploadingChanges extends ProcessState {
             }
 
         });
+        log.info("psToUpdate size is now {}", psToUpdate.size() );
     }
 
 
