@@ -7,10 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.model.SerializableValueDifference;
+import fr.ans.psc.pscload.service.EmailTemplate;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailSendException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,9 +35,7 @@ public class ChangesApplied extends ProcessState {
 
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
-
     private MapsHandler newMaps = new MapsHandler();
-    private MapsHandler oldMaps = new MapsHandler();
 
     public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl) {
         super();
@@ -44,7 +44,6 @@ public class ChangesApplied extends ProcessState {
     }
 
     public ChangesApplied() {}
-
 
     @Override
     public void nextStep() {
@@ -55,9 +54,6 @@ public class ChangesApplied extends ProcessState {
 
         try {
         	newMaps.deserializeMaps(lockedFilePath);
-            if (serFile.exists()) {
-            	oldMaps.deserializeMaps(serFileName);
-            }
         } catch (IOException | ClassNotFoundException e) {
             String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
             log.error(msgLogged, e.getLocalizedMessage());
@@ -83,24 +79,24 @@ public class ChangesApplied extends ProcessState {
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
                                 " \"resume\"");
 
-                customMetrics.setStageMetric(70, EmailNature.UPLOAD_INCOMPLETE, message.toString());
+                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_INCOMPLETE, message.toString());
             } else {
-                customMetrics.setStageMetric(70, EmailNature.PROCESS_FINISHED,
+                customMetrics.setStageMetric(70, EmailTemplate.PROCESS_FINISHED,
                         "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
                                 " a été correctement traité.");
             }
             serFile.delete();
             newMaps.serializeMaps(serFileName);
             lockedSerFile.delete();
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+
         } catch (IOException e) {
-            // error during ser
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
-        }
-
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+        } catch (MailSendException e) {
+            log.error("Mail Sending Error", e);
         } catch (RestClientException e) {
             log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
             throw new ExtractTriggeringException(e);
@@ -118,11 +114,11 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handlePsUpdateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
+    private void handlePsUpdateFailed(StringBuilder sb, Map<String, SerializableValueDifference<Professionnel>> psMap) {
         psMap.values().forEach(ps -> {
-            appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
-            if (is5xxError(ps.getReturnStatus())) {
-                newMaps.getPsMap().replace(ps.getNationalId(), oldMaps.getPsMap().get(ps.getNationalId()));
+            appendOperationFailureInfos(sb, "PS", ps.rightValue().getNationalId(), ps.rightValue().getReturnStatus());
+            if (is5xxError(ps.rightValue().getReturnStatus())) {
+                newMaps.getPsMap().replace(ps.rightValue().getNationalId(), ps.leftValue());
             }
         });
     }
@@ -146,12 +142,11 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handleStructureUpdateFailed(StringBuilder sb, Map<String, Structure> structureMap) {
+    private void handleStructureUpdateFailed(StringBuilder sb, Map<String, SerializableValueDifference<Structure>> structureMap) {
         structureMap.values().forEach(structure -> {
-            appendOperationFailureInfos(sb, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
-            if (is5xxError(structure.getReturnStatus())) {
-                newMaps.getStructureMap().replace(structure.getStructureTechnicalId(),
-                        oldMaps.getStructureMap().get(structure.getStructureTechnicalId()));
+            appendOperationFailureInfos(sb, "Structure", structure.rightValue().getStructureTechnicalId(), structure.rightValue().getReturnStatus());
+            if (is5xxError(structure.rightValue().getReturnStatus())) {
+                newMaps.getStructureMap().replace(structure.rightValue().getStructureTechnicalId(), structure.leftValue());
             }
 
         });
@@ -173,13 +168,15 @@ public class ChangesApplied extends ProcessState {
 
 	@Override
 	public void write(Kryo kryo, Output output) {
-		// TODO Auto-generated method stub
-		
+		kryo.writeObject(output, customMetrics);
+		kryo.writeObject(output, extractBaseUrl);
+		kryo.writeObject(output, newMaps);
 	}
 
 	@Override
 	public void read(Kryo kryo, Input input) {
-		// TODO Auto-generated method stub
-		
-	}
+        customMetrics = kryo.readObject(input, CustomMetrics.class);
+        extractBaseUrl = kryo.readObject(input, String.class);
+        newMaps = kryo.readObject(input, MapsHandler.class);
+    }
 }

@@ -6,7 +6,7 @@ package fr.ans.psc.pscload.service;
 /**
  * The Enum EmailNature.
  */
-public enum EmailNature {
+public enum EmailTemplate {
 
     /**
      * The process has finished successfully.
@@ -63,7 +63,7 @@ public enum EmailNature {
      * @param subject the subject
      * @param message the default message
      */
-    EmailNature(String subject, String message) {
+    EmailTemplate(String subject, String message) {
         this.subject = subject;
         this.message = message;
     }

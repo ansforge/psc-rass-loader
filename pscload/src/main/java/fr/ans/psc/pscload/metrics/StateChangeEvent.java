@@ -1,6 +1,6 @@
 package fr.ans.psc.pscload.metrics;
 
-import fr.ans.psc.pscload.service.EmailNature;
+import fr.ans.psc.pscload.service.EmailTemplate;
 import org.springframework.context.ApplicationEvent;
 
 public class StateChangeEvent extends ApplicationEvent {
@@ -11,13 +11,13 @@ public class StateChangeEvent extends ApplicationEvent {
 	private static final long serialVersionUID = -2867706902828846647L;
 
 	private final int stage;
-	private EmailNature emailNature;
+	private EmailTemplate emailTemplate;
 	private final String message;
 
-	public StateChangeEvent(Object source, int stage, EmailNature emailNature, String message) {
+	public StateChangeEvent(Object source, int stage, EmailTemplate emailTemplate, String message) {
 		super(source);
 		this.stage = stage;
-		this.emailNature = emailNature;
+		this.emailTemplate = emailTemplate;
 		this.message = message;
 	}
 
@@ -29,7 +29,7 @@ public class StateChangeEvent extends ApplicationEvent {
 		return message;
 	}
 
-	public EmailNature getEmailNature() {
-		return emailNature;
+	public EmailTemplate getEmailNature() {
+		return emailTemplate;
 	}
 }

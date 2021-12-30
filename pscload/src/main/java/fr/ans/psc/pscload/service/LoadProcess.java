@@ -16,6 +16,7 @@ import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.Professionnel;
+import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
@@ -42,13 +43,13 @@ public class LoadProcess implements KryoSerializable {
 
     private String tmpMapsPath;
 
-    private ConcurrentMap<String, Professionnel> psToUpdate;
+    private ConcurrentMap<String, SerializableValueDifference<Professionnel>> psToUpdate;
 
     private ConcurrentMap<String, Professionnel> psToDelete;
 
     private ConcurrentMap<String, Structure> structureToCreate;
 
-    private ConcurrentMap<String, Structure> structureToUpdate;
+    private ConcurrentMap<String, SerializableValueDifference<Structure>> structureToUpdate;
 
     private long timestamp;
 
@@ -75,8 +76,8 @@ public class LoadProcess implements KryoSerializable {
         this.state = state;
         this.state.setProcess(this);
         timestamp = Calendar.getInstance().getTimeInMillis();
-        psToUpdate = new ConcurrentHashMap<String, Professionnel>();
-        structureToUpdate = new ConcurrentHashMap<String, Structure>();
+        psToUpdate = new ConcurrentHashMap<String, SerializableValueDifference<Professionnel>>();
+        structureToUpdate = new ConcurrentHashMap<String, SerializableValueDifference<Structure>>();
     }
 
     /**
@@ -136,10 +137,10 @@ public class LoadProcess implements KryoSerializable {
         extractedFilename = input.readString();
         state = (ProcessState) kryo.readClassAndObject(input);
         psToCreate = (ConcurrentMap<String, Professionnel>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
-        psToUpdate = (ConcurrentMap<String, Professionnel>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+        psToUpdate = (ConcurrentMap<String, SerializableValueDifference<Professionnel>>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
         psToDelete = (ConcurrentMap<String, Professionnel>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
         structureToCreate = (ConcurrentMap<String, Structure>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
-        structureToUpdate = (ConcurrentMap<String, Structure>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+        structureToUpdate = (ConcurrentMap<String, SerializableValueDifference<Structure>>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
         uploadMetrics = (UploadMetrics) kryo.readObjectOrNull(input, UploadMetrics.class);
 		
 	}
