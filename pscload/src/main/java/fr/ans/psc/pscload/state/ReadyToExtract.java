@@ -79,7 +79,7 @@ public class ReadyToExtract extends ProcessState {
                             zf.close();
                             log.info("Deleting {}", zip.getName());
                             zip.delete();
-                            return newFile.getName();
+                            return newFile.getPath();
                         }
                         // fix for Windows-created archives
                         File parent = newFile.getParentFile();
