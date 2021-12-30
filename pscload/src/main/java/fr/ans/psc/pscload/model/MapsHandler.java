@@ -120,6 +120,7 @@ public class MapsHandler implements Externalizable {
 		FSTObjectOutput out = new FSTObjectOutput(oos);
 		writeExternal(out);
 		out.close();
+		oos.close();
 	}
 
 	public void deserializeMaps(String filename) throws IOException, ClassNotFoundException {
@@ -128,6 +129,7 @@ public class MapsHandler implements Externalizable {
 		FSTObjectInput in = new FSTObjectInput(ois);
 		readExternal(in);
 		in.close();
+		ois.close();
 	}
 
 	@Override
