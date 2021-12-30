@@ -4,6 +4,7 @@
 package fr.ans.psc.pscload.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +21,14 @@ public class StateNotifierService implements ApplicationListener<StateChangeEven
     @Autowired
     private EmailService emailService;
 
+    @Value("${enable.emailing}")
+	private boolean enableEmailing;
+
 	@Override
 	public void onApplicationEvent(StateChangeEvent event) {
 		log.info(event.getMessage());
-		emailService.sendMail(event.getEmailNature().subject, event.getMessage());
+		if (enableEmailing) {
+			emailService.sendMail(event.getEmailNature().subject, event.getMessage());
+		}
 	}
 }
