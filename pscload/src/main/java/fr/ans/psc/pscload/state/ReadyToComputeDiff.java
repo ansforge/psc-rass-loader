@@ -51,7 +51,7 @@ public class ReadyToComputeDiff extends ProcessState {
 	@Override
 	public void nextStep() throws LoadProcessException {
 		File fileToLoad = new File(process.getExtractedFilename());
-		cleanup(fileToLoad.getParent());
+//		cleanup(fileToLoad.getParent());
 
 		try {
 			newMaps.loadMapsFromFile(fileToLoad);
