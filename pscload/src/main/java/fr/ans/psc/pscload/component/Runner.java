@@ -3,13 +3,12 @@
  */
 package fr.ans.psc.pscload.component;
 
-import fr.ans.psc.pscload.service.EmailTemplate;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.state.*;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailSendException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -160,8 +159,6 @@ public class Runner {
                 // error during ChangesAppliedState
                 handleChangesAppliedStateExceptions(process, e);
             }
-        } catch (MailSendException mse) {
-            log.error("Mail sending error", mse);
         }
     }
 
@@ -180,7 +177,7 @@ public class Runner {
         }
     }
 
-    private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) throws MailSendException {
+    private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) {
         // error during serialization/deserialization
         if (e.getClass().equals(SerFileGenerationException.class)) {
             log.warn("Error when (de)serializing");

@@ -17,11 +17,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
-import fr.ans.psc.pscload.service.EmailTemplate;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +39,13 @@ public class ChangesApplied extends ProcessState {
         super();
         this.customMetrics = customMetrics;
         this.extractBaseUrl = extractBaseUrl;
+        this.isAlreadyComputed = true;
     }
 
-    public ChangesApplied() {}
+    public ChangesApplied() {
+        super();
+        this.isAlreadyComputed = true;
+    }
 
     @Override
     public void nextStep() {
@@ -50,17 +54,6 @@ public class ChangesApplied extends ProcessState {
     	// after this memory is cleared
         callPscExtract();
     }
-
-    
-	@Override
-	public void write(Kryo kryo, Output output) {
-		kryo.writeObject(output, extractBaseUrl);
-	}
-
-	@Override
-	public void read(Kryo kryo, Input input) {
-	    extractBaseUrl = kryo.readObject(input, String.class);
-	}
 
 	private void callPscExtract() throws ExtractTriggeringException{
 		RestTemplate restTemplate = new RestTemplate();
@@ -182,5 +175,15 @@ public class ChangesApplied extends ProcessState {
 
     private boolean is5xxError(int rawReturnStatus) {
         return HttpStatus.valueOf(rawReturnStatus).is5xxServerError();
+    }
+
+	@Override
+	public void write(Kryo kryo, Output output) {
+		output.writeString(extractBaseUrl);
+	}
+
+	@Override
+	public void read(Kryo kryo, Input input) {
+        extractBaseUrl = input.readString();
     }
 }

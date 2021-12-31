@@ -6,8 +6,10 @@ package fr.ans.psc.pscload.service;
 import java.io.File;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
  * The Class EmailService.
  */
 @Service
+@Slf4j
 public class EmailService {
 
     @Autowired
@@ -39,13 +42,17 @@ public class EmailService {
      * @param body the body of the mail
      */
     public void sendMail(String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(sender);
-        String[] allReceivers = receiver.split(",");
-        message.setTo(allReceivers);
-        message.setSubject(subject);
-        message.setText(body);
-        emailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(sender);
+            String[] allReceivers = receiver.split(",");
+            message.setTo(allReceivers);
+            message.setSubject(subject);
+            message.setText(body);
+            emailSender.send(message);
+        } catch (MailSendException mse) {
+            log.error("Mail sending error", mse);
+        }
     }
 
 }
