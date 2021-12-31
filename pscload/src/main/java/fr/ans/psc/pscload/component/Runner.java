@@ -3,7 +3,7 @@
  */
 package fr.ans.psc.pscload.component;
 
-import fr.ans.psc.pscload.service.EmailTemplate;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.state.*;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.UploadException;

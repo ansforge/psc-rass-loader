@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import fr.ans.psc.pscload.model.SerializableValueDifference;
-import fr.ans.psc.pscload.service.EmailTemplate;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
