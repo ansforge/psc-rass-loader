@@ -19,12 +19,15 @@ public class DiffComputed extends ProcessState {
 	private CustomMetrics customMetrics;
 
 	public DiffComputed() {
+
 		super();
+		this.isAlreadyComputed = true;
 	}
 
 	public DiffComputed(CustomMetrics customMetrics) {
 		super();
 		this.customMetrics = customMetrics;
+		this.isAlreadyComputed = true;
 	}
 
 	@Override

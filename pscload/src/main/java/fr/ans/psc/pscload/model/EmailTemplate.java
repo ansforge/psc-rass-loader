@@ -1,7 +1,7 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.service;
+package fr.ans.psc.pscload.model;
 
 /**
  * The Enum EmailNature.

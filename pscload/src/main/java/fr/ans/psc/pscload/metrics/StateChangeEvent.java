@@ -1,6 +1,6 @@
 package fr.ans.psc.pscload.metrics;
 
-import fr.ans.psc.pscload.service.EmailTemplate;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import org.springframework.context.ApplicationEvent;
 
 public class StateChangeEvent extends ApplicationEvent {

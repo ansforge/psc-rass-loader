@@ -8,11 +8,10 @@ import java.io.IOException;
 import java.util.Map;
 
 import fr.ans.psc.pscload.model.SerializableValueDifference;
-import fr.ans.psc.pscload.service.EmailTemplate;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.MailSendException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,9 +40,13 @@ public class ChangesApplied extends ProcessState {
         super();
         this.customMetrics = customMetrics;
         this.extractBaseUrl = extractBaseUrl;
+        this.isAlreadyComputed = true;
     }
 
-    public ChangesApplied() {}
+    public ChangesApplied() {
+        super();
+        this.isAlreadyComputed = true;
+    }
 
     @Override
     public void nextStep() {
@@ -95,8 +98,6 @@ public class ChangesApplied extends ProcessState {
         } catch (IOException e) {
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
-        } catch (MailSendException e) {
-            log.error("Mail Sending Error", e);
         } catch (RestClientException e) {
             log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
             throw new ExtractTriggeringException(e);
@@ -168,15 +169,11 @@ public class ChangesApplied extends ProcessState {
 
 	@Override
 	public void write(Kryo kryo, Output output) {
-		kryo.writeObject(output, customMetrics);
-		kryo.writeObject(output, extractBaseUrl);
-		kryo.writeObject(output, newMaps);
+		output.writeString(extractBaseUrl);
 	}
 
 	@Override
 	public void read(Kryo kryo, Input input) {
-        customMetrics = kryo.readObject(input, CustomMetrics.class);
-        extractBaseUrl = kryo.readObject(input, String.class);
-        newMaps = kryo.readObject(input, MapsHandler.class);
+        extractBaseUrl = input.readString();
     }
 }
