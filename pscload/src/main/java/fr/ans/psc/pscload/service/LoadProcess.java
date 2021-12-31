@@ -111,10 +111,6 @@ public class LoadProcess implements KryoSerializable {
                 + structureToCreate.size() + structureToUpdate.size() > 0;
     }
 
-    public Integer getSizeIfNotNull(ConcurrentMap map) {
-        return map != null ? map.size() : null;
-    }
-
 	@Override
 	public void write(Kryo kryo, Output output) {
         output.writeString(id);

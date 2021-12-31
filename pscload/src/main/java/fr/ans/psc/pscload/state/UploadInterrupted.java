@@ -8,21 +8,21 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
 public class UploadInterrupted extends ProcessState {
 
+	public UploadInterrupted() {
+		super();
+		this.isAlreadyComputed = true;
+	}
+
     @Override
     public void nextStep() throws LoadProcessException {
-
     }
   
 	@Override
 	public void write(Kryo kryo, Output output) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void read(Kryo kryo, Input input) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -42,7 +42,7 @@ public class UploadingChanges extends ProcessState {
      */
     public UploadingChanges() {
         super();
-
+        this.isAlreadyComputed = true;
     }
 
     /**
@@ -54,7 +54,7 @@ public class UploadingChanges extends ProcessState {
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
-
+        this.isAlreadyComputed = true;
     }
 
     @Override
