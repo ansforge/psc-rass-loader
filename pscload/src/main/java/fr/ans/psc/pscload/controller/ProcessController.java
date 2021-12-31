@@ -134,25 +134,10 @@ public class ProcessController {
      */
     @GetMapping(value = "/process/info")
     public ResponseEntity<List<ProcessInfo>> processInfo() {
-        ProcessInfo infos = new ProcessInfo();
         List<LoadProcess> processes = registry.list();
         List<ProcessInfo> processesInfos = new ArrayList<>();
-        for (LoadProcess process : processes) {
-            infos.setProcessId(process.getId());
-            DateFormat df = new SimpleDateFormat();
-            infos.setCreatedOn(df.format(new Date(process.getTimestamp())));
-            infos.setState(process.getState().getClass().getSimpleName());
-            if (process.getState().isAlreadyComputed()) {
-                infos.setPsToCreate(process.getPsToCreate().size());
-                infos.setPsToUpdate(process.getPsToUpdate().size());
-                infos.setPsToDelete(process.getPsToDelete().size());
-                infos.setStructureToCreate(process.getStructureToCreate().size());
-                infos.setStructureToUpdate(process.getStructureToUpdate().size());
-            }
-
-            processesInfos.add(infos);
-        }
-        return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
+        processes.forEach(process -> processesInfos.add(process.getProcessInfos()));
+        return new ResponseEntity<>(processesInfos, HttpStatus.OK);
     }
 
     /**
@@ -181,18 +166,4 @@ public class ProcessController {
         }
         return response;
     }
-
-    private DeferredResult<ResponseEntity<Void>> callRunnerContinueAndSetResponse(LoadProcess process, DeferredResult<ResponseEntity<Void>> response) {
-        // launch process in a separate thread
-        ForkJoinPool.commonPool().submit(() -> {
-            runner.runContinue(process);
-            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-            response.setResult(result);
-        });
-        // Response OK
-        response.onCompletion(() -> log.info("Processing complete"));
-        return response;
-    }
-
-
 }

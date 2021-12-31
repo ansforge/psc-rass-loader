@@ -3,9 +3,10 @@
  */
 package fr.ans.psc.pscload.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,6 +16,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.UploadMetrics;
+import fr.ans.psc.pscload.model.ProcessInfo;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
@@ -39,9 +41,9 @@ public class LoadProcess implements KryoSerializable {
 
     private String extractedFilename;
 
-    private ConcurrentMap<String, Professionnel> psToCreate;
-
     private String tmpMapsPath;
+
+    private ConcurrentMap<String, Professionnel> psToCreate;
 
     private ConcurrentMap<String, SerializableValueDifference<Professionnel>> psToUpdate;
 
@@ -109,6 +111,26 @@ public class LoadProcess implements KryoSerializable {
     public boolean isRemainingPsOrStructuresInMaps() {
         return psToCreate.size() + psToDelete.size() + psToUpdate.size()
                 + structureToCreate.size() + structureToUpdate.size() > 0;
+    }
+
+    public ProcessInfo getProcessInfos() {
+        ProcessInfo processInfo = new ProcessInfo();
+        processInfo.setProcessId(id);
+        DateFormat df = new SimpleDateFormat();
+        processInfo.setCreatedOn(df.format(new Date(timestamp)));
+        processInfo.setState(state.getClass().getSimpleName());
+        processInfo.setDownloadedFileName(downloadedFilename);
+        processInfo.setExtractFileName(extractedFilename);
+        processInfo.setLockedSerializedFileName(tmpMapsPath);
+        if (state.isAlreadyComputed()) {
+            processInfo.setPsToCreate(psToCreate.size());
+            processInfo.setPsToUpdate(psToUpdate.size());
+            processInfo.setPsToDelete(psToDelete.size());
+            processInfo.setStructureToCreate(structureToCreate.size());
+            processInfo.setStructureToUpdate(structureToUpdate.size());
+        }
+
+        return processInfo;
     }
 
 	@Override

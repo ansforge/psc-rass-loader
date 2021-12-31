@@ -53,4 +53,13 @@ public class ProcessInfo implements Serializable{
   @JsonProperty("structureToUpdate")
   private Integer structureToUpdate;
 
+  @JsonProperty("downloadedFileName")
+  private String downloadedFileName;
+
+  @JsonProperty("extractFileName")
+  private String extractFileName;
+
+  @JsonProperty("lockedSerializedFileName")
+  private String lockedSerializedFileName;
+
 }
