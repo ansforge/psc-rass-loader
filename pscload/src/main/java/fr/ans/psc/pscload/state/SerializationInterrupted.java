@@ -7,21 +7,22 @@ import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
 public class SerializationInterrupted extends ProcessState {
+
+	public SerializationInterrupted() {
+		super();
+		this.isAlreadyComputed = true;
+	}
+
     @Override
     public void nextStep() throws LoadProcessException {
-
     }
 
 	@Override
 	public void write(Kryo kryo, Output output) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void read(Kryo kryo, Input input) {
-		// TODO Auto-generated method stub
-		
 	}
   
 }

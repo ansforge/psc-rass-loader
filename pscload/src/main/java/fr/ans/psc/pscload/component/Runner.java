@@ -3,13 +3,12 @@
  */
 package fr.ans.psc.pscload.component;
 
-import fr.ans.psc.pscload.service.EmailTemplate;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.state.*;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailSendException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,6 +19,9 @@ import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
 
@@ -106,11 +108,16 @@ public class Runner {
                     customMetrics.setStageMetric(30);
                     // Step 4 : Load maps and compute diff
                     process.nextStep();
-                    process.setState(new DiffComputed(customMetrics));
-                    customMetrics.setStageMetric(50);
-                    // Step 3 : publish metrics
-                    process.nextStep();
-                    // End of scheduled steps
+                    // check if differences exists
+                    if (process.isRemainingPsOrStructuresInMaps()) {
+                        process.setState(new DiffComputed(customMetrics));
+                        customMetrics.setStageMetric(50);
+                        // Step 3 : publish metrics
+                        process.nextStep();
+                        // End of scheduled steps
+                    } else {
+                        processRegistry.unregister(id);
+                    }
                 } catch (LoadProcessException e) {
                     log.error("Error when loading RASS data", e);
                     customMetrics.setStageMetric(
@@ -152,8 +159,6 @@ public class Runner {
                 // error during ChangesAppliedState
                 handleChangesAppliedStateExceptions(process, e);
             }
-        } catch (MailSendException mse) {
-            log.error("Mail sending error", mse);
         }
     }
 
@@ -172,7 +177,7 @@ public class Runner {
         }
     }
 
-    private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) throws MailSendException {
+    private void handleChangesAppliedStateExceptions(LoadProcess process, LoadProcessException e) {
         // error during serialization/deserialization
         if (e.getClass().equals(SerFileGenerationException.class)) {
             log.warn("Error when (de)serializing");

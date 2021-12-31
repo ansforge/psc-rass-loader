@@ -66,7 +66,7 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms10g -Xmx10g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts}"
+JAVA_TOOL_OPTIONS="-Xms1g -Xmx8g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts}"
 EOH
       }
       template {
@@ -83,7 +83,7 @@ test.download.url={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.test_do
 use.x509.auth=true
 keystore.password={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.keystore_password }}{{ end }}
 enable.scheduler={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.enable_scheduler }}{{ end }}
-schedule.cron.expression = 0 0 12,15,18,21 * * ?
+schedule.cron.expression = 0 */10 * * * ?
 schedule.cron.timeZone = Europe/Paris
 process.expiration.delay=12
 management.endpoints.web.exposure.include=health,info,prometheus,metric
@@ -104,7 +104,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 8264
+        memory = 8704
       }
       service {
         name = "$\u007BNOMAD_JOB_NAME\u007D"
