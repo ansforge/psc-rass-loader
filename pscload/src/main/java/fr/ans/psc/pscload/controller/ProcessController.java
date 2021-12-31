@@ -36,7 +36,7 @@ public class ProcessController {
 
     @Value("${files.directory}")
     private String filesDirectory;
-    
+
     @Value("${api.base.url}")
     private String apiBaseUrl;
 
@@ -54,7 +54,7 @@ public class ProcessController {
 
     private final ProcessRegistry registry;
 
-      /**
+    /**
      * Instantiates a new process controller.
      *
      * @param registry the registry
@@ -63,53 +63,55 @@ public class ProcessController {
         super();
         this.registry = registry;
     }
-  
-	/**
-	 * Continue process.
-	 *
-	 * @return the  result
-	 */
-	@PostMapping(value = "/process/continue")
-	public ResponseEntity<Void> continueProcess() {
-		LoadProcess process = registry.getCurrentProcess();
-		ResponseEntity<Void> result;
-		if (process != null) {
-			if (process.getState().getClass().equals(DiffComputed.class)) {
-				// launch process in a separate thread because this method is annoted Async
-					runner.runContinue(process);
-					result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-				// Response OK
-				return result;
-			}
-			// Conflict if process is not in the expected state.
-			 result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-		} else {
-			 result = new ResponseEntity<Void>(HttpStatus.TOO_EARLY);
-		}
-		return result;
-	}
 
-	  /**
+    /**
+     * Continue process.
+     *
+     * @return the  result
+     */
+    @PostMapping(value = "/process/continue")
+    public ResponseEntity<Void> continueProcess() {
+        LoadProcess process = registry.getCurrentProcess();
+        ResponseEntity<Void> result;
+        if (process != null) {
+            if (process.getState().getClass().equals(DiffComputed.class)) {
+                // launch process in a separate thread because this method is annoted Async
+                runner.runContinue(process);
+                result = new ResponseEntity<>(HttpStatus.ACCEPTED);
+                // Response OK
+                return result;
+            }
+            // Conflict if process is not in the expected state.
+            result = new ResponseEntity<>(HttpStatus.CONFLICT);
+        } else {
+            result = new ResponseEntity<>(HttpStatus.TOO_EARLY);
+        }
+        return result;
+    }
+
+    /**
      * Resume process.
      *
      * @return the deferred result
      */
     @PostMapping(value = "/process/resume")
-    public DeferredResult<ResponseEntity<Void>> resumeProcess() {
+    public ResponseEntity<Void> resumeProcess() {
         // We can call continue process because it contains the updated maps to apply.
         LoadProcess process = registry.getCurrentProcess();
-        DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
+        ResponseEntity<Void> response;
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
                 process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-                return callRunnerContinueAndSetResponse(process, response);
+                runner.runContinue(process);
+                response = new ResponseEntity<>(HttpStatus.ACCEPTED);
+                return response;
             }
             // Conflict if process is not in the expected state.
-            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-            response.setResult(result);
-        }else {
-            response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
+            response = new ResponseEntity<>(HttpStatus.CONFLICT);
+
+        } else {
+            response = new ResponseEntity<>(HttpStatus.TOO_EARLY);
         }
         return response;
     }
@@ -125,60 +127,56 @@ public class ProcessController {
         return null;
     }
 
-	/**
-	 * info on process.
-	 *
-	 * @return the result
-	 */
-	@GetMapping(value = "/process/info")
-	public ResponseEntity<List<ProcessInfo>> processInfo() {
-		ProcessInfo infos = new ProcessInfo();
-		List<LoadProcess> processes = registry.list();
-		List<ProcessInfo> processesInfos = new ArrayList<>();
-		for (LoadProcess process : processes) {
-			infos.setProcessId(process.getId());
-			DateFormat df = new SimpleDateFormat();
-			infos.setCreatedOn(df.format(new Date(process.getTimestamp())));
-			infos.setState(process.getState().getClass().getSimpleName());
-			if (process.getState().getClass().equals(DiffComputed.class)) {
-				infos.setPsToCreate(process.getPsToCreate().size());
-				infos.setPsToUpdate(process.getPsToUpdate().size());
-				infos.setPsToDelete(process.getPsToDelete().size());
-				infos.setStructureToCreate(process.getStructureToCreate().size());
-				infos.setStructureToUpdate(process.getStructureToUpdate().size());
-			}
-			processesInfos.add(infos);
-		}
-		return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
-	}
+    /**
+     * info on process.
+     *
+     * @return the result
+     */
+    @GetMapping(value = "/process/info")
+    public ResponseEntity<List<ProcessInfo>> processInfo() {
+        ProcessInfo infos = new ProcessInfo();
+        List<LoadProcess> processes = registry.list();
+        List<ProcessInfo> processesInfos = new ArrayList<>();
+        for (LoadProcess process : processes) {
+            infos.setProcessId(process.getId());
+            DateFormat df = new SimpleDateFormat();
+            infos.setCreatedOn(df.format(new Date(process.getTimestamp())));
+            infos.setState(process.getState().getClass().getSimpleName());
+            if (process.getState().getClass().equals(DiffComputed.class)) {
+                infos.setPsToCreate(process.getPsToCreate().size());
+                infos.setPsToUpdate(process.getPsToUpdate().size());
+                infos.setPsToDelete(process.getPsToDelete().size());
+                infos.setStructureToCreate(process.getStructureToCreate().size());
+                infos.setStructureToUpdate(process.getStructureToUpdate().size());
+            }
+            processesInfos.add(infos);
+        }
+        return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
+    }
 
     /**
      * Resume ending operations (ser generation, etc)
+     *
      * @return the response entity
      */
     @PostMapping(value = "/process/resume/ending-operations")
-    public DeferredResult<ResponseEntity<Void>> resumeEndingOperations() {
+    public ResponseEntity<Void> resumeEndingOperations() {
         LoadProcess process = registry.getCurrentProcess();
-        DeferredResult<ResponseEntity<Void>> response = new DeferredResult<>();
+        ResponseEntity<Void> response;
 
         if (process != null) {
             if (process.getState().getClass().equals(SerializationInterrupted.class)) {
                 process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
                 // launch process in a separate thread
-                ForkJoinPool.commonPool().submit(() -> {
-                    runner.runEnding(process);
-                    ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
-                    response.setResult(result);
-                });
-                // Response OK
-                response.onCompletion(() -> log.info("Processing complete"));
+                runner.runEnding(process);
+                response = new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+
                 return response;
             }
             // Conflict if process is not in the expected state.
-            ResponseEntity<Void> result = new ResponseEntity<Void>(HttpStatus.CONFLICT);
-            response.setResult(result);
+            response = new ResponseEntity<Void>(HttpStatus.CONFLICT);
         } else {
-            response.setResult(new ResponseEntity<Void>(HttpStatus.TOO_EARLY));
+            response = new ResponseEntity<Void>(HttpStatus.TOO_EARLY);
         }
         return response;
     }
