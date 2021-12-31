@@ -20,6 +20,9 @@ import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
 
@@ -106,11 +109,16 @@ public class Runner {
                     customMetrics.setStageMetric(30);
                     // Step 4 : Load maps and compute diff
                     process.nextStep();
-                    process.setState(new DiffComputed(customMetrics));
-                    customMetrics.setStageMetric(50);
-                    // Step 3 : publish metrics
-                    process.nextStep();
-                    // End of scheduled steps
+                    // check if differences exists
+                    if (process.isRemainingPsOrStructuresInMaps()) {
+                        process.setState(new DiffComputed(customMetrics));
+                        customMetrics.setStageMetric(50);
+                        // Step 3 : publish metrics
+                        process.nextStep();
+                        // End of scheduled steps
+                    } else {
+                        processRegistry.unregister(id);
+                    }
                 } catch (LoadProcessException e) {
                     log.error("Error when loading RASS data", e);
                     customMetrics.setStageMetric(
