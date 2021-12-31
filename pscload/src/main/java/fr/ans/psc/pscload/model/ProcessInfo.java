@@ -39,18 +39,18 @@ public class ProcessInfo implements Serializable{
   private String state;
   
   @JsonProperty("psToCreate")
-  private int psToCreate;
+  private Integer psToCreate;
   
   @JsonProperty("psToUpdate")
-  private int psToUpdate;
+  private Integer psToUpdate;
   
   @JsonProperty("psToDelete")
-  private int psToDelete;
+  private Integer psToDelete;
   
   @JsonProperty("structureToCreate")
-  private int structureToCreate;
+  private Integer structureToCreate;
   
   @JsonProperty("structureToUpdate")
-  private int structureToUpdate;
+  private Integer structureToUpdate;
 
 }

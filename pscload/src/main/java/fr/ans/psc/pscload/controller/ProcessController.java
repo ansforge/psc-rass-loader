@@ -142,13 +142,13 @@ public class ProcessController {
             DateFormat df = new SimpleDateFormat();
             infos.setCreatedOn(df.format(new Date(process.getTimestamp())));
             infos.setState(process.getState().getClass().getSimpleName());
-            if (process.getState().getClass().equals(DiffComputed.class)) {
-                infos.setPsToCreate(process.getPsToCreate().size());
-                infos.setPsToUpdate(process.getPsToUpdate().size());
-                infos.setPsToDelete(process.getPsToDelete().size());
-                infos.setStructureToCreate(process.getStructureToCreate().size());
-                infos.setStructureToUpdate(process.getStructureToUpdate().size());
-            }
+
+            infos.setPsToCreate(process.getSizeIfNotNull(process.getPsToCreate()));
+            infos.setPsToUpdate(process.getSizeIfNotNull(process.getPsToUpdate()));
+            infos.setPsToDelete(process.getSizeIfNotNull(process.getPsToDelete()));
+            infos.setStructureToCreate(process.getSizeIfNotNull(process.getStructureToCreate()));
+            infos.setStructureToUpdate(process.getSizeIfNotNull(process.getStructureToUpdate()));
+
             processesInfos.add(infos);
         }
         return new ResponseEntity<List<ProcessInfo>>(processesInfos, HttpStatus.OK);
