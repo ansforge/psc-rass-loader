@@ -104,7 +104,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 8704
+        memory = 9216
       }
       service {
         name = "$\u007BNOMAD_JOB_NAME\u007D"
