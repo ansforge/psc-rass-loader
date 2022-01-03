@@ -5,6 +5,12 @@ package fr.ans.psc.pscload.state;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import fr.ans.psc.pscload.model.SerializableValueDifference;
@@ -36,6 +42,8 @@ public class ChangesApplied extends ProcessState {
     private String extractBaseUrl;
     private MapsHandler newMaps = new MapsHandler();
 
+    private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_échec.";
+
     public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl) {
         super();
         this.customMetrics = customMetrics;
@@ -66,27 +74,37 @@ public class ChangesApplied extends ProcessState {
         try {
             if (process.isRemainingPsOrStructuresInMaps()) {
                 StringBuilder message = new StringBuilder();
+                List<String> dataLines = new ArrayList<>();
+
                 addOperationHeader(message, process.getPsToCreate(), "Créations PS en échec : ");
-                handlePsCreateFailed(message, process.getPsToCreate());
+                handlePsCreateFailed(process.getPsToCreate(), dataLines);
                 addOperationHeader(message, process.getPsToDelete(), "Suppressions PS en échec : ");
-                handlePsDeleteFailed(message, process.getPsToDelete());
+                handlePsDeleteFailed(process.getPsToDelete(), dataLines);
                 addOperationHeader(message, process.getPsToUpdate(), "Modifications PS en échec : ");
-                handlePsUpdateFailed(message, process.getPsToUpdate());
+                handlePsUpdateFailed(process.getPsToUpdate(), dataLines);
 
                 addOperationHeader(message, process.getStructureToCreate(), "Créations Structure en échec : ");
-                handleStructureCreateFailed(message, process.getStructureToCreate());
+                handleStructureCreateFailed(process.getStructureToCreate(), dataLines);
                 addOperationHeader(message, process.getStructureToCreate(), "Modifications Structure en échec : ");
-                handleStructureUpdateFailed(message, process.getStructureToUpdate());
+                handleStructureUpdateFailed(process.getStructureToUpdate(), dataLines);
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
                                 " \"resume\"");
 
-                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_INCOMPLETE, message.toString());
+                DateFormat df = new SimpleDateFormat("yyyMMddhhmm");
+                String now = df.format(new Date());
+                File csvOutputFile = new File(serFile.getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
+                try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+                    pw.println("Entité;identifiant;opération;Http status");
+                    dataLines.stream().forEach(pw::println);
+                }
+                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_INCOMPLETE, message.toString(), csvOutputFile);
+                csvOutputFile.delete();
             } else {
                 customMetrics.setStageMetric(70, EmailTemplate.PROCESS_FINISHED,
                         "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
-                                " a été correctement traité.");
+                                " a été correctement traité.", null);
             }
             serFile.delete();
             newMaps.serializeMaps(serFileName);
@@ -102,40 +120,39 @@ public class ChangesApplied extends ProcessState {
             log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
             throw new ExtractTriggeringException(e);
         }
-
     }
 
 
-    private void handlePsCreateFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
+    private void handlePsCreateFailed(Map<String, Professionnel> psMap, List<String> dataLines) {
         psMap.values().forEach(ps -> {
-            appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
+            dataLines.add(appendOperationFailureInfos("PS", ps.getNationalId(), ps.getReturnStatus(), "create"));
             if (is5xxError(ps.getReturnStatus())) {
                 newMaps.getPsMap().remove(ps.getNationalId());
             }
         });
     }
 
-    private void handlePsUpdateFailed(StringBuilder sb, Map<String, SerializableValueDifference<Professionnel>> psMap) {
+    private void handlePsUpdateFailed(Map<String, SerializableValueDifference<Professionnel>> psMap, List<String> dataLines) {
         psMap.values().forEach(ps -> {
-            appendOperationFailureInfos(sb, "PS", ps.rightValue().getNationalId(), ps.rightValue().getReturnStatus());
+            dataLines.add(appendOperationFailureInfos("PS", ps.rightValue().getNationalId(), ps.rightValue().getReturnStatus(), "update"));
             if (is5xxError(ps.rightValue().getReturnStatus())) {
                 newMaps.getPsMap().replace(ps.rightValue().getNationalId(), ps.leftValue());
             }
         });
     }
 
-    private void handlePsDeleteFailed(StringBuilder sb, Map<String, Professionnel> psMap) {
+    private void handlePsDeleteFailed(Map<String, Professionnel> psMap, List<String> dataLines) {
         psMap.values().forEach(ps -> {
-            appendOperationFailureInfos(sb, "PS", ps.getNationalId(), ps.getReturnStatus());
+            dataLines.add(appendOperationFailureInfos("PS", ps.getNationalId(), ps.getReturnStatus(), "delete"));
             if (is5xxError(ps.getReturnStatus())) {
                 newMaps.getPsMap().put(ps.getNationalId(), ps);
             }
         });
     }
 
-    private void handleStructureCreateFailed(StringBuilder sb, Map<String, Structure> structureMap) {
+    private void handleStructureCreateFailed(Map<String, Structure> structureMap, List<String> dataLines) {
         structureMap.values().forEach(structure -> {
-            appendOperationFailureInfos(sb, "Structure", structure.getStructureTechnicalId(), structure.getReturnStatus());
+            dataLines.add(appendOperationFailureInfos("Structure", structure.getStructureTechnicalId(), structure.getReturnStatus(), "create"));
             if (is5xxError(structure.getReturnStatus())) {
                 newMaps.getStructureMap().remove(structure.getStructureTechnicalId());
             }
@@ -143,9 +160,10 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handleStructureUpdateFailed(StringBuilder sb, Map<String, SerializableValueDifference<Structure>> structureMap) {
+    private void handleStructureUpdateFailed(Map<String, SerializableValueDifference<Structure>> structureMap, List<String> dataLines) {
         structureMap.values().forEach(structure -> {
-            appendOperationFailureInfos(sb, "Structure", structure.rightValue().getStructureTechnicalId(), structure.rightValue().getReturnStatus());
+            dataLines.add(appendOperationFailureInfos("Structure", structure.rightValue().getStructureTechnicalId(),
+                    structure.rightValue().getReturnStatus(), "update"));
             if (is5xxError(structure.rightValue().getReturnStatus())) {
                 newMaps.getStructureMap().replace(structure.rightValue().getStructureTechnicalId(), structure.leftValue());
             }
@@ -157,10 +175,9 @@ public class ChangesApplied extends ProcessState {
         sb.append(header).append(map.size()).append(System.lineSeparator());
     }
 
-    private void appendOperationFailureInfos(StringBuilder sb, String entityKind, String entityKey, int httpStatusCode) {
-        sb.append(System.lineSeparator())
-                .append(entityKind).append(" : ").append(entityKey).append(" ")
-                .append("status code : ").append(httpStatusCode).append(System.lineSeparator());
+    private String appendOperationFailureInfos(String entityKind, String entityKey, int httpStatusCode, String operation) {
+        String[] dataItems = new String[] {entityKind, entityKey, operation, String.valueOf(httpStatusCode)};
+        return String.join(";", dataItems);
     }
 
     private boolean is5xxError(int rawReturnStatus) {
