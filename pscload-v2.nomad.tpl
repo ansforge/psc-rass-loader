@@ -40,7 +40,7 @@ job "pscload" {
       config {
         image = "${artifact.image}:${artifact.tag}"
         volumes = [
-          "name=pscload-data,io_priority=high,size=3,repl=3:/app/files-repo"
+          "name=pscload-data,io_priority=high,size=10,repl=3:/app/files-repo"
         ]
         volume_driver = "pxd"
         ports = ["http"]
