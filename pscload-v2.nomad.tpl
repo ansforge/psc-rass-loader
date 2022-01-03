@@ -34,6 +34,8 @@ job "pscload" {
     }
 
     task "pscload" {
+      kill_timeout = "30s"
+      kill_signal = "SIGTERM"
       driver = "docker"
       config {
         image = "${artifact.image}:${artifact.tag}"
