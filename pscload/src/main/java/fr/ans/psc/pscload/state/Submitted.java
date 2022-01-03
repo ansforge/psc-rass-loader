@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  * The Class Idle.
  */
 @Slf4j
-public class Idle extends ProcessState {
+public class Submitted extends ProcessState {
 
 	private boolean customSSLContext;
 
@@ -65,7 +65,7 @@ public class Idle extends ProcessState {
 	/**
 	 * Instantiates a new idle.
 	 */
-	public Idle() {
+	public Submitted() {
 		super();
 		this.customSSLContext = false;
 	}
@@ -76,7 +76,7 @@ public class Idle extends ProcessState {
 	 * @param extractDownloadUrl the extract download url
 	 * @param filesDirectory     the files directory
 	 */
-	public Idle(String extractDownloadUrl, String filesDirectory) {
+	public Submitted(String extractDownloadUrl, String filesDirectory) {
 		super();
 		this.customSSLContext = false;
 		this.extractDownloadUrl = extractDownloadUrl;
@@ -93,8 +93,8 @@ public class Idle extends ProcessState {
 	 * @param filesDirectory     the files directory
 	 * @param extractDownloadUrl the extract download url
 	 */
-	public Idle(String keyfile, String certfile, String cafile, String kspwd, String extractDownloadUrl,
-			String filesDirectory) {
+	public Submitted(String keyfile, String certfile, String cafile, String kspwd, String extractDownloadUrl,
+					 String filesDirectory) {
 		super();
 		this.customSSLContext = true;
 		this.certfile = certfile;
