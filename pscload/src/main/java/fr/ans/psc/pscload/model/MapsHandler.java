@@ -26,16 +26,6 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
 import fr.ans.psc.model.Profession;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.metrics.UploadMetrics;
-import fr.ans.psc.pscload.service.LoadProcess;
-import fr.ans.psc.pscload.state.ChangesApplied;
-import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Idle;
-import fr.ans.psc.pscload.state.ProcessState;
-import fr.ans.psc.pscload.state.ReadyToComputeDiff;
-import fr.ans.psc.pscload.state.ReadyToExtract;
-import fr.ans.psc.pscload.state.UploadingChanges;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

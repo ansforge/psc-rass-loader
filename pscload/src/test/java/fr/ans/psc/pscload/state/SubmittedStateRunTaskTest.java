@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
-public class IdleStateRunTaskTest {
+public class SubmittedStateRunTaskTest {
 
 	/** The http rass mock server. */
 	@RegisterExtension
@@ -81,7 +81,7 @@ public class IdleStateRunTaskTest {
 		String filesDirectory = Thread.currentThread().getContextClassLoader()
 				.getResource("work").getPath();
 		String extracturl = httpRassMockServer.baseUrl() + contextPath;
-		LoadProcess p = new LoadProcess(new Idle(extracturl, filesDirectory),"1");
+		LoadProcess p = new LoadProcess(new Submitted(extracturl, filesDirectory),"1");
 		p.nextStep();
 		String zipFilePath = p.getDownloadedFilename();
 		File downloadedFile = new File(zipFilePath);

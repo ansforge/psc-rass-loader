@@ -3,6 +3,8 @@ package fr.ans.psc.pscload.metrics;
 import fr.ans.psc.pscload.model.EmailTemplate;
 import org.springframework.context.ApplicationEvent;
 
+import java.io.File;
+
 public class StateChangeEvent extends ApplicationEvent {
 	
 	/**
@@ -13,12 +15,14 @@ public class StateChangeEvent extends ApplicationEvent {
 	private final int stage;
 	private EmailTemplate emailTemplate;
 	private final String message;
+	private File attachmentFile;
 
-	public StateChangeEvent(Object source, int stage, EmailTemplate emailTemplate, String message) {
+	public StateChangeEvent(Object source, int stage, EmailTemplate emailTemplate, String message, File attachmentFile) {
 		super(source);
 		this.stage = stage;
 		this.emailTemplate = emailTemplate;
 		this.message = message;
+		this.attachmentFile = attachmentFile;
 	}
 
 	public int getStage() {
@@ -28,6 +32,8 @@ public class StateChangeEvent extends ApplicationEvent {
 	public String getMessage() {
 		return message;
 	}
+
+	public File getAttachmentFile() { return attachmentFile; }
 
 	public EmailTemplate getEmailNature() {
 		return emailTemplate;

@@ -20,7 +20,7 @@ import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Idle;
+import fr.ans.psc.pscload.state.Submitted;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
@@ -45,7 +45,7 @@ public class SerializerConfiguration {
 		kryo.register(ProcessRegistry.class, 17);
 		kryo.register(LoadProcess.class, 18);
 		kryo.register(ProcessState.class, 19);
-		kryo.register(Idle.class, 20);
+		kryo.register(Submitted.class, 20);
 		kryo.register(DiffComputed.class, 21);
 		kryo.register(ReadyToComputeDiff.class, 22);
 		kryo.register(ReadyToExtract.class, 23);

@@ -3,6 +3,7 @@
  */
 package fr.ans.psc.pscload.metrics;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
@@ -255,19 +256,16 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 			appStructureSizeGauges.get(CustomMetrics.StructureCustomMetric.valueOf(metricKey)).set(-1);
 		});
 	}
-	
-	public void setStageMetric(int state, EmailTemplate emailTemplate, String message) {
-		if (message == null || message.equals("")) {
-			message = emailTemplate.message;
-		}
+
+	public void setStageMetric(int state, EmailTemplate emailTemplate, String message, File attachmentFile) {
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
 		StateChangeEvent event = new StateChangeEvent(this, appMiscGauges.get(MiscCustomMetric.STAGE).get(),
-				emailTemplate, message);
+				emailTemplate, message, attachmentFile);
 		publisher.publishEvent(event);
 	}
 
 	public void setStageMetric(int state, EmailTemplate emailTemplate) {
-		setStageMetric(state, emailTemplate, emailTemplate.message);
+		setStageMetric(state, emailTemplate, emailTemplate.message, null);
 	}
 	
 	public void setStageMetric(int state) {

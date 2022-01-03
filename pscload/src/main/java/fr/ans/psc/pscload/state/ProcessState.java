@@ -16,14 +16,8 @@ public abstract class ProcessState implements KryoSerializable {
 	/** The process. */
 	protected LoadProcess process;
 
-	protected boolean isAlreadyComputed;
-
 	public boolean isAlreadyComputed() {
-		return isAlreadyComputed;
-	}
-
-	public void setAlreadyComputed(boolean alreadyComputed) {
-		isAlreadyComputed = alreadyComputed;
+		return false;
 	}
 
 	/**

@@ -92,9 +92,9 @@ public class Runner {
                 String id = Integer.toString(processRegistry.nextId());
                 ProcessState idle;
                 if (useX509Auth) {
-                    idle = new Idle(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
+                    idle = new Submitted(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
                 } else {
-                    idle = new Idle(extractDownloadUrl, filesDirectory);
+                    idle = new Submitted(extractDownloadUrl, filesDirectory);
                 }
                 LoadProcess process = new LoadProcess(idle);
                 processRegistry.register(id, process);

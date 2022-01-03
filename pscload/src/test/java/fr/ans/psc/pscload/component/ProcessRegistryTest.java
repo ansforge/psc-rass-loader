@@ -29,7 +29,7 @@ import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Idle;
+import fr.ans.psc.pscload.state.Submitted;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
@@ -73,7 +73,7 @@ class ProcessRegistryTest {
 			registryFile.delete();
 		}
 		String id = Integer.toString(registry.nextId());
-		registry.register(id, new LoadProcess(new Idle()));
+		registry.register(id, new LoadProcess(new Submitted()));
 		int currentId  = registry.currentId();
 		registry.getCurrentProcess().setDownloadedFilename("test");
 		Kryo kryo = new Kryo();
@@ -88,7 +88,7 @@ class ProcessRegistryTest {
 	        kryo.register(ProcessRegistry.class, 17);
 	        kryo.register(LoadProcess.class, 18);
 	        kryo.register(ProcessState.class, 19);
-	        kryo.register(Idle.class, 20);
+	        kryo.register(Submitted.class, 20);
 	        kryo.register(DiffComputed.class, 21);
 	        kryo.register(ReadyToComputeDiff.class, 22);
 	        kryo.register(ReadyToExtract.class, 23);
