@@ -13,9 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import fr.ans.psc.pscload.model.SerializableValueDifference;
-import fr.ans.psc.pscload.model.EmailTemplate;
-import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
@@ -26,9 +23,12 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Professionnel;
+import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
+import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +40,6 @@ public class ChangesApplied extends ProcessState {
 
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
-    private MapsHandler newMaps = new MapsHandler();
 
     private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_échec.";
 
@@ -57,6 +56,24 @@ public class ChangesApplied extends ProcessState {
 
     @Override
     public void nextStep() {
+    	//First step
+    	processRemainingPS();
+    	// after this memory is cleared
+        callPscExtract();
+    }
+
+	private void callPscExtract() throws ExtractTriggeringException{
+		RestTemplate restTemplate = new RestTemplate();
+		try {
+			restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+		} catch (RestClientException e) {
+			log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
+	        throw new ExtractTriggeringException(e);
+		}
+	}
+
+	private void processRemainingPS() throws SerFileGenerationException {
+		MapsHandler newMaps = new MapsHandler();
         String lockedFilePath = process.getTmpMapsPath();
         String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
         File lockedSerFile = new File(lockedFilePath);
@@ -76,16 +93,16 @@ public class ChangesApplied extends ProcessState {
                 List<String> dataLines = new ArrayList<>();
 
                 addOperationHeader(message, process.getPsToCreate(), "Créations PS en échec : ");
-                handlePsCreateFailed(process.getPsToCreate(), dataLines);
+                handlePsCreateFailed(process.getPsToCreate(), newMaps, dataLines);
                 addOperationHeader(message, process.getPsToDelete(), "Suppressions PS en échec : ");
-                handlePsDeleteFailed(process.getPsToDelete(), dataLines);
+                handlePsDeleteFailed(process.getPsToDelete(), newMaps, dataLines);
                 addOperationHeader(message, process.getPsToUpdate(), "Modifications PS en échec : ");
-                handlePsUpdateFailed(process.getPsToUpdate(), dataLines);
+                handlePsUpdateFailed(process.getPsToUpdate(), newMaps, dataLines);
 
                 addOperationHeader(message, process.getStructureToCreate(), "Créations Structure en échec : ");
-                handleStructureCreateFailed(process.getStructureToCreate(), dataLines);
+                handleStructureCreateFailed(process.getStructureToCreate(), newMaps, dataLines);
                 addOperationHeader(message, process.getStructureToCreate(), "Modifications Structure en échec : ");
-                handleStructureUpdateFailed(process.getStructureToUpdate(), dataLines);
+                handleStructureUpdateFailed(process.getStructureToUpdate(), newMaps, dataLines);
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
@@ -109,20 +126,15 @@ public class ChangesApplied extends ProcessState {
             newMaps.serializeMaps(serFileName);
             lockedSerFile.delete();
 
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
 
         } catch (IOException e) {
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
-        } catch (RestClientException e) {
-            log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
-            throw new ExtractTriggeringException(e);
         }
-    }
+	}
 
 
-    private void handlePsCreateFailed(Map<String, Professionnel> psMap, List<String> dataLines) {
+    private void handlePsCreateFailed(Map<String, Professionnel> psMap, MapsHandler newMaps, List<String> dataLines) {
         psMap.values().forEach(ps -> {
             dataLines.add(appendOperationFailureInfos("PS", ps.getNationalId(), ps.getReturnStatus(), "create"));
             if (is5xxError(ps.getReturnStatus())) {
@@ -131,7 +143,7 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handlePsUpdateFailed(Map<String, SerializableValueDifference<Professionnel>> psMap, List<String> dataLines) {
+    private void handlePsUpdateFailed(Map<String, SerializableValueDifference<Professionnel>> psMap, MapsHandler newMaps, List<String> dataLines) {
         psMap.values().forEach(ps -> {
             dataLines.add(appendOperationFailureInfos("PS", ps.rightValue().getNationalId(), ps.rightValue().getReturnStatus(), "update"));
             if (is5xxError(ps.rightValue().getReturnStatus())) {
@@ -140,7 +152,7 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handlePsDeleteFailed(Map<String, Professionnel> psMap, List<String> dataLines) {
+    private void handlePsDeleteFailed(Map<String, Professionnel> psMap, MapsHandler newMaps, List<String> dataLines) {
         psMap.values().forEach(ps -> {
             dataLines.add(appendOperationFailureInfos("PS", ps.getNationalId(), ps.getReturnStatus(), "delete"));
             if (is5xxError(ps.getReturnStatus())) {
@@ -149,7 +161,7 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handleStructureCreateFailed(Map<String, Structure> structureMap, List<String> dataLines) {
+    private void handleStructureCreateFailed(Map<String, Structure> structureMap, MapsHandler newMaps, List<String> dataLines) {
         structureMap.values().forEach(structure -> {
             dataLines.add(appendOperationFailureInfos("Structure", structure.getStructureTechnicalId(), structure.getReturnStatus(), "create"));
             if (is5xxError(structure.getReturnStatus())) {
@@ -159,7 +171,7 @@ public class ChangesApplied extends ProcessState {
         });
     }
 
-    private void handleStructureUpdateFailed(Map<String, SerializableValueDifference<Structure>> structureMap, List<String> dataLines) {
+    private void handleStructureUpdateFailed(Map<String, SerializableValueDifference<Structure>> structureMap, MapsHandler newMaps, List<String> dataLines) {
         structureMap.values().forEach(structure -> {
             dataLines.add(appendOperationFailureInfos("Structure", structure.rightValue().getStructureTechnicalId(),
                     structure.rightValue().getReturnStatus(), "update"));

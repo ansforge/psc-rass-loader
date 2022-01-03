@@ -8,4 +8,4 @@ FROM openjdk:11-slim-buster
 COPY --from=build /usr/src/app/pscload/target/pscload-*.jar /usr/app/pscload.jar
 USER daemon
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/usr/app/pscload.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -jar /usr/app/pscload.jar"]
