@@ -39,14 +39,6 @@ public class UploadingChanges extends ProcessState {
 
     /**
      * Instantiates a new Uploading Changes.
-     */
-    public UploadingChanges() {
-        super();
-        this.isAlreadyComputed = true;
-    }
-
-    /**
-     * Instantiates a new Uploading Changes.
      *
      * @param excludedProfessions the excluded professions
      * @param apiBaseUrl          the api base url
@@ -54,7 +46,6 @@ public class UploadingChanges extends ProcessState {
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
-        this.isAlreadyComputed = true;
     }
 
     @Override
@@ -77,6 +68,11 @@ public class UploadingChanges extends ProcessState {
 	public void read(Kryo kryo, Input input) {
         excludedProfessions = (String[]) kryo.readClassAndObject(input);
         apiBaseUrl = input.readString();
+    }
+
+    @Override
+    public boolean isAlreadyComputed() {
+        return true;
     }
 
     private void uploadStructuresToCreate(Map<String, Structure> structuresToCreate) throws LoadProcessException {

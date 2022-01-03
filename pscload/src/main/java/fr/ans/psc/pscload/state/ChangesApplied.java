@@ -48,12 +48,11 @@ public class ChangesApplied extends ProcessState {
         super();
         this.customMetrics = customMetrics;
         this.extractBaseUrl = extractBaseUrl;
-        this.isAlreadyComputed = true;
     }
 
-    public ChangesApplied() {
-        super();
-        this.isAlreadyComputed = true;
+    @Override
+    public boolean isAlreadyComputed() {
+        return true;
     }
 
     @Override

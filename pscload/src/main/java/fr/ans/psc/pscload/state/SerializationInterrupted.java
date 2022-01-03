@@ -10,7 +10,6 @@ public class SerializationInterrupted extends ProcessState {
 
 	public SerializationInterrupted() {
 		super();
-		this.isAlreadyComputed = true;
 	}
 
     @Override
@@ -24,5 +23,9 @@ public class SerializationInterrupted extends ProcessState {
 	@Override
 	public void read(Kryo kryo, Input input) {
 	}
-  
+
+	@Override
+	public boolean isAlreadyComputed() {
+		return true;
+	}
 }

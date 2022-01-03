@@ -18,16 +18,9 @@ public class DiffComputed extends ProcessState {
 
 	private CustomMetrics customMetrics;
 
-	public DiffComputed() {
-
-		super();
-		this.isAlreadyComputed = true;
-	}
-
 	public DiffComputed(CustomMetrics customMetrics) {
 		super();
 		this.customMetrics = customMetrics;
-		this.isAlreadyComputed = true;
 	}
 
 	@Override
@@ -38,6 +31,10 @@ public class DiffComputed extends ProcessState {
 		publishStructureMetrics();
 	}
 
+	@Override
+	public boolean isAlreadyComputed() {
+		return true;
+	}
 
 	private void publishPsMetrics() {
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_ADELI_DELETE_SIZE)
