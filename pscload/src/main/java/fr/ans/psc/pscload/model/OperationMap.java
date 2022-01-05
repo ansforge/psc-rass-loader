@@ -23,7 +23,6 @@ public class OperationMap<K, V> extends ConcurrentHashMap<String, RassEntity> im
 	
 	public OperationMap() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public OperationMap(OperationType operation) {
