@@ -10,9 +10,9 @@ import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.PsCustomMetric;
 import fr.ans.psc.pscload.metrics.CustomMetrics.StructureCustomMetric;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.visitor.OperationType;
 
 /**
@@ -22,6 +22,11 @@ public class DiffComputed extends ProcessState {
 
 	private CustomMetrics customMetrics;
 
+	/**
+	 * Instantiates a new diff computed.
+	 *
+	 * @param customMetrics the custom metrics
+	 */
 	public DiffComputed(CustomMetrics customMetrics) {
 		super();
 		this.customMetrics = customMetrics;

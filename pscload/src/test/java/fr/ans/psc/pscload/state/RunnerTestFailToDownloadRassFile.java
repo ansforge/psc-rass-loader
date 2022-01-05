@@ -53,6 +53,11 @@ public class RunnerTestFailToDownloadRassFile {
 					.usingFilesUnderClasspath("wiremock"))
 			.build();
 
+	/**
+	 * Register pg properties.
+	 *
+	 * @param propertiesRegistry the properties registry
+	 */
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url",
@@ -65,6 +70,9 @@ public class RunnerTestFailToDownloadRassFile {
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
 	}
 
+	/**
+	 * Setup.
+	 */
 	@BeforeEach
 	void setup() {
 		registry.clear();
@@ -78,6 +86,11 @@ public class RunnerTestFailToDownloadRassFile {
 		}
 	}
 
+	/**
+	 * Scheduler test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Scheduler Error Download test (bad url)")
 	void schedulerTest() throws Exception {

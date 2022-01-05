@@ -30,6 +30,12 @@ public class MaintenanceController {
     @Value("${files.directory}")
     private String filesDirectory;
 
+    /**
+     * Generate ser file.
+     *
+     * @param restoreFile the restore file
+     * @return the response entity
+     */
     @PostMapping(value = "/maintenance/regen-ser-file")
     public ResponseEntity<Void> generateSerFile(@RequestParam MultipartFile restoreFile) {
 

@@ -7,8 +7,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.visitor.MapsUploaderVisitor;
 import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
@@ -36,6 +36,9 @@ public class UploadingChanges extends ProcessState {
         this.apiBaseUrl = apiBaseUrl;
     }
 
+    /**
+     * Instantiates a new uploading changes.
+     */
     public UploadingChanges() {
 		super();
 	}

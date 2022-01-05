@@ -26,10 +26,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 class ReadyToComputeDiffTest {
 
+	/** The custom metrics. */
 	@Autowired
 	CustomMetrics customMetrics;
 
@@ -50,10 +51,16 @@ class ReadyToComputeDiffTest {
 	@Mock
 	private JavaMailSender javaMailSender;
 
+	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
 
+	/**
+	 * Register pg properties.
+	 *
+	 * @param propertiesRegistry the properties registry
+	 */
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url",
@@ -67,6 +74,11 @@ class ReadyToComputeDiffTest {
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
+	/**
+	 * Sets the up.
+	 *
+	 * @throws Exception the exception
+	 */
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.openMocks(this).close();

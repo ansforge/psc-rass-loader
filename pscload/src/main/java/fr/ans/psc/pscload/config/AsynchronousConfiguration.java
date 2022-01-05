@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.config;
 
 import org.springframework.context.annotation.Bean;
@@ -7,10 +10,18 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class AsynchronousConfiguration.
+ */
 @Configuration
 @Slf4j
 public class AsynchronousConfiguration {
 
+	/**
+	 * Work executor.
+	 *
+	 * @return the task executor
+	 */
 	@Bean(name="processExecutor")
 	public TaskExecutor workExecutor() {
 		ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();

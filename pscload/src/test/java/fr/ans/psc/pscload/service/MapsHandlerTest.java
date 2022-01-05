@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.service;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -20,6 +23,9 @@ import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.model.MapsHandler;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class MapsHandlerTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
@@ -27,10 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 public class MapsHandlerTest {
 
+    /** The http mock server. */
     @RegisterExtension
     static WireMockExtension httpMockServer = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
 
+    /**
+     * Serializer test.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws ClassNotFoundException the class not found exception
+     */
     @Test
     @DisplayName("Serialize and deserialize file")
     public void serializerTest() throws IOException, ClassNotFoundException {

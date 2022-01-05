@@ -23,8 +23,8 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.component.Runner;
+import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.ProcessInfo;
-import fr.ans.psc.pscload.service.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 
 /**

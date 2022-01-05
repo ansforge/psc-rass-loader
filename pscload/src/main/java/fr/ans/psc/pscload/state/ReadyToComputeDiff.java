@@ -23,8 +23,8 @@ import com.google.common.collect.Maps;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.Structure;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;

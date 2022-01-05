@@ -1,7 +1,7 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.service;
+package fr.ans.psc.pscload.model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,9 +17,9 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.UploadMetrics;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.ProcessInfo;
-import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.OperationMapFactory;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.visitor.OperationType;
@@ -48,7 +48,7 @@ public class LoadProcess implements KryoSerializable {
 	private String id;
 
 	private UploadMetrics uploadMetrics = new UploadMetrics();
-
+	
 	/**
 	 * Instantiates a new load process.
 	 */
@@ -71,7 +71,7 @@ public class LoadProcess implements KryoSerializable {
 	private void init() {
 		timestamp = Calendar.getInstance().getTimeInMillis();
 		Arrays.asList(OperationType.values()).forEach(operation -> {
-			maps.add(new OperationMap<String, RassEntity>(operation));
+			maps.add(OperationMapFactory.getOperationMap(operation));
 		});
 	}
 

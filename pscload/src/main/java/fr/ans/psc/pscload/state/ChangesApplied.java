@@ -40,6 +40,12 @@ public class ChangesApplied extends ProcessState {
 
     private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_échec.";
 
+    /**
+     * Instantiates a new changes applied.
+     *
+     * @param customMetrics the custom metrics
+     * @param extractBaseUrl the extract base url
+     */
     public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl) {
         super();
         this.customMetrics = customMetrics;

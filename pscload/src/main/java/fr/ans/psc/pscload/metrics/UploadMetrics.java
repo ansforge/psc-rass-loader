@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.metrics;
 
 import java.io.Externalizable;
@@ -5,6 +8,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+/**
+ * The Class UploadMetrics.
+ */
 public class UploadMetrics  implements Externalizable {
 
 	private int psAdeliUploadSize = 0;
@@ -13,10 +19,22 @@ public class UploadMetrics  implements Externalizable {
 	private int psRppsUploadSize = 0;
 	private int structureUploadSize = 0;
 
+	/**
+	 * Instantiates a new upload metrics.
+	 */
 	public UploadMetrics() {
 
 	}
 
+	/**
+	 * Instantiates a new upload metrics.
+	 *
+	 * @param psAdeliUploadSize the ps adeli upload size
+	 * @param psFinessUploadSize the ps finess upload size
+	 * @param psSiretUploadSize the ps siret upload size
+	 * @param psRppsUploadSize the ps rpps upload size
+	 * @param structureUploadSize the structure upload size
+	 */
 	public UploadMetrics(int psAdeliUploadSize, int psFinessUploadSize, int psSiretUploadSize, int psRppsUploadSize,
 			int structureUploadSize) {
 		this.psAdeliUploadSize = psAdeliUploadSize;
