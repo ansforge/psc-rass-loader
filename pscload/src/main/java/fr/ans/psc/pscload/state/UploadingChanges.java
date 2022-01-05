@@ -45,7 +45,7 @@ public class UploadingChanges extends ProcessState {
     	
 		MapsUploaderVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {
-			visitor.visit(map);
+			map.accept(visitor);
 		}
     }
 

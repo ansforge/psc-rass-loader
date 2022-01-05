@@ -36,7 +36,7 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 					maps.getPsMap().remove(item.getInternalId());
 					break;
 				case PS_UPDATE:
-					maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.get(item.getInternalId()));
+					maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
 					break;
 				case PS_DELETE:
 					maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
@@ -45,7 +45,7 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 					maps.getStructureMap().remove(item.getInternalId());
 					break;
 				case STRUCTURE_UPDATE:
-					maps.getStructureMap().put(item.getInternalId(), (Structure) item);
+					maps.getStructureMap().replace(item.getInternalId(), (Structure) map.getOldValue(item.getInternalId()));
 					break;
 				default:
 					break;
