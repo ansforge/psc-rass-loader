@@ -10,6 +10,10 @@ import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.PsCustomMetric;
 import fr.ans.psc.pscload.metrics.CustomMetrics.StructureCustomMetric;
+import fr.ans.psc.pscload.model.OperationMap;
+import fr.ans.psc.pscload.model.Professionnel;
+import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.visitor.OperationType;
 
 /**
  * The Class DiffComputed.
@@ -37,53 +41,66 @@ public class DiffComputed extends ProcessState {
 	}
 
 	private void publishPsMetrics() {
+		
+//		PsCustomMetric.stream().filter(m -> m.name().contains("ADELI")).forEach(m -> {
+//			customMetrics.getPsSizeGauges().get(m);});
+		OperationMap<String,RassEntity> psToDelete = process.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+		.findFirst().get();
+		OperationMap<String,RassEntity> psToUpdate = process.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+		.findFirst().get();
+		OperationMap<String,RassEntity> psToCreate = process.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+		.findFirst().get();
+
+		
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_ADELI_DELETE_SIZE)
-				.set(Math.toIntExact(process.getPsToDelete().values().stream()
+				.set(Math.toIntExact(psToDelete.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_ADELI_CREATE_SIZE)
-				.set(Math.toIntExact(process.getPsToCreate().values().stream()
+				.set(Math.toIntExact(psToCreate.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_ADELI_UPDATE_SIZE)
-				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.rightValue().getIdType())).count()));
+				.set(Math.toIntExact(psToUpdate.values().stream()
+						.filter(ps -> CustomMetrics.ID_TYPE.ADELI.value.equals(ps.getIdType())).count()));
 
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_FINESS_DELETE_SIZE)
-				.set(Math.toIntExact(process.getPsToDelete().values().stream()
+				.set(Math.toIntExact(psToDelete.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_FINESS_CREATE_SIZE)
-				.set(Math.toIntExact(process.getPsToCreate().values().stream()
+				.set(Math.toIntExact(psToCreate.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_FINESS_UPDATE_SIZE)
-				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.rightValue().getIdType())).count()));
+				.set(Math.toIntExact(psToUpdate.values().stream()
+						.filter(ps -> CustomMetrics.ID_TYPE.FINESS.value.equals(ps.getIdType())).count()));
 
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_SIRET_DELETE_SIZE)
-				.set(Math.toIntExact(process.getPsToDelete().values().stream()
+				.set(Math.toIntExact(psToDelete.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_SIRET_CREATE_SIZE)
-				.set(Math.toIntExact(process.getPsToCreate().values().stream()
+				.set(Math.toIntExact(psToCreate.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_SIRET_UPDATE_SIZE)
-				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.rightValue().getIdType())).count()));
+				.set(Math.toIntExact(psToUpdate.values().stream()
+						.filter(ps -> CustomMetrics.ID_TYPE.SIRET.value.equals(ps.getIdType())).count()));
 
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_RPPS_DELETE_SIZE)
-				.set(Math.toIntExact(process.getPsToDelete().values().stream()
+				.set(Math.toIntExact(psToDelete.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_RPPS_CREATE_SIZE)
-				.set(Math.toIntExact(process.getPsToCreate().values().stream()
+				.set(Math.toIntExact(psToCreate.values().stream()
 						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
 		customMetrics.getPsSizeGauges().get(PsCustomMetric.PS_RPPS_UPDATE_SIZE)
-				.set(Math.toIntExact(process.getPsToUpdate().values().stream()
-						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.rightValue().getIdType())).count()));
+				.set(Math.toIntExact(psToUpdate.values().stream()
+						.filter(ps -> CustomMetrics.ID_TYPE.RPPS.value.equals(ps.getIdType())).count()));
 
 	}
 
 	private void publishStructureMetrics() {
 		customMetrics.getAppStructureSizeGauges().get(StructureCustomMetric.STRUCTURE_CREATE_SIZE)
-				.set(process.getStructureToCreate().size());
+				.set(process.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
+						.findFirst().get().size());
 		customMetrics.getAppStructureSizeGauges().get(StructureCustomMetric.STRUCTURE_UPDATE_SIZE)
-				.set(process.getStructureToUpdate().size());
+				.set(process.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_UPDATE))
+						.findFirst().get().size());
 	}
 
 	private void publishUploadMetrics() {

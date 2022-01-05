@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import fr.ans.psc.pscload.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,12 @@ import org.springframework.test.context.DynamicPropertySource;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.OperationMap;
+import fr.ans.psc.pscload.model.RassEntity;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -97,8 +100,12 @@ class ReadyToComputeDiffTest {
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
-		assertEquals(5, p.getPsToCreate().size());
-		assertEquals(0, p.getPsToDelete().size());
+		OperationMap<String, RassEntity> psToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToDelete = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+				.findFirst().get();
+		assertEquals(5, psToCreate.size());
+		assertEquals(0, psToDelete.size());
 	}
 
 	/**
@@ -128,9 +135,15 @@ class ReadyToComputeDiffTest {
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
 		p2.nextStep();
-		assertEquals(1,p2.getPsToDelete().size());
-		assertEquals(1,p2.getPsToCreate().size());
-		assertEquals(2, p2.getPsToUpdate().size());
+		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToDelete2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+				.findFirst().get();
+		assertEquals(1,psToDelete2.size());
+		assertEquals(1,psToCreate2.size());
+		assertEquals(2, psToUpdate2.size());
 	}
 
 	/**
@@ -151,7 +164,11 @@ class ReadyToComputeDiffTest {
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112140852.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
-		assertEquals(p.getPsToCreate().size(), 99171);
-		assertEquals(p.getStructureToCreate().size(), 37534);
+		OperationMap<String, RassEntity> psToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> structureToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
+				.findFirst().get();
+		assertEquals(psToCreate.size(), 99171);
+		assertEquals(structureToCreate.size(), 37534);
 	}
 }

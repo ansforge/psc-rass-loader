@@ -10,6 +10,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -73,7 +74,7 @@ public class EmailService {
 
             message.setContent(emailContent);
             emailSender.send(message);
-        } catch (MailSendException | MessagingException | IOException mse) {
+        } catch (MailException | MessagingException | IOException mse) {
             log.error("Mail sending error", mse);
         }
     }

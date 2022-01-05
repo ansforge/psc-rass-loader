@@ -6,7 +6,7 @@ package fr.ans.psc.pscload.model;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
-public class Structure extends fr.ans.psc.model.Structure {
+public class Structure extends fr.ans.psc.model.Structure implements RassEntity {
 
 	
 	/**
@@ -62,12 +62,24 @@ public class Structure extends fr.ans.psc.model.Structure {
 	}
 
 
+	@Override
 	public int getReturnStatus() {
 		return returnStatus;
 	}
 
+	@Override
 	public void setReturnStatus(int returnStatus) {
 		this.returnStatus = returnStatus;
+	}
+
+	@Override
+	public String getInternalId() {
+		return getStructureTechnicalId();
+	}
+
+	@Override
+	public String getIdType() {
+		return "ALL";
 	}
 
 }

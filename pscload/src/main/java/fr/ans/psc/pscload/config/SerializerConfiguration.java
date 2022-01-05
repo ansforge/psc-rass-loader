@@ -2,6 +2,7 @@ package fr.ans.psc.pscload.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import com.esotericsoftware.kryo.Kryo;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.OperationMap;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.RefStructure;
 import fr.ans.psc.pscload.model.SavoirFaire;
@@ -56,6 +58,7 @@ public class SerializerConfiguration {
 		kryo.register(ConcurrentHashMap.class, 28);
 		kryo.register(UploadInterrupted.class, 29);
 		kryo.register(SerializationInterrupted.class, 30);
+		kryo.register(OperationMap.class, 31);
 		return kryo;
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import fr.ans.psc.pscload.model.EmailTemplate;
 import org.springframework.context.ApplicationEventPublisher;
@@ -165,8 +166,18 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		PS_SIRET_REFERENCE_SIZE,
 
 		/** The ps rpps reference size. */
-		PS_RPPS_REFERENCE_SIZE,
+		PS_RPPS_REFERENCE_SIZ;
 
+		
+	    /**
+	     * Stream ps metrics.
+	     *
+	     * @return the stream
+	     */
+	    public static Stream<PsCustomMetric> stream() {
+	        return Stream.of(PsCustomMetric.values()); 
+	    }
+	    
 	}
 
 	/**
@@ -184,7 +195,17 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		STRUCTURE_CREATE_SIZE,
 
 		/** The structure update size. */
-		STRUCTURE_UPDATE_SIZE,
+		STRUCTURE_UPDATE_SIZE;
+		
+	    /**
+	     * Stream structure metrics.
+	     *
+	     * @return the stream
+	     */
+	    public static Stream<StructureCustomMetric> stream() {
+	        return Stream.of(StructureCustomMetric.values()); 
+	    }
+		
 	}
 
 	/**
@@ -238,6 +259,7 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		Counter.builder(SER_FILE_TAG).tags(TIMESTAMP_TAG, "").register(meterRegistry);
 	}
 
+    
 	/**
 	 * Reset size metrics.
 	 */
@@ -257,6 +279,14 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		});
 	}
 
+	/**
+	 * Sets the stage metric.
+	 *
+	 * @param state the state
+	 * @param emailTemplate the email template
+	 * @param message the message
+	 * @param attachmentFile the attachment file
+	 */
 	public void setStageMetric(int state, EmailTemplate emailTemplate, String message, File attachmentFile) {
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
 		StateChangeEvent event = new StateChangeEvent(this, appMiscGauges.get(MiscCustomMetric.STAGE).get(),
@@ -264,6 +294,12 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		publisher.publishEvent(event);
 	}
 
+	/**
+	 * Sets the stage metric.
+	 *
+	 * @param state the state
+	 * @param emailTemplate the email template
+	 */
 	public void setStageMetric(int state, EmailTemplate emailTemplate) {
 		setStageMetric(state, emailTemplate, emailTemplate.message, null);
 	}

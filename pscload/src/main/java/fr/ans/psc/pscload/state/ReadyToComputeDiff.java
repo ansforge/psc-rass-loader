@@ -7,56 +7,48 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
-import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.SerializableValueDifference;
 import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The Class FileExtracted.
+ * The Class ReadyToComputeDiff.
  */
 @Slf4j
 public class ReadyToComputeDiff extends ProcessState {
 
-
 	private MapsHandler newMaps = new MapsHandler();
 	private MapsHandler oldMaps = new MapsHandler();
-	
 
 	/**
-	 * Instantiates a new file extracted.
+	 * Instantiates a new ready to compute diff state.
 	 */
 	public ReadyToComputeDiff() {
 		super();
 	}
 
-
 	@Override
 	public void nextStep() throws LoadProcessException {
 		File fileToLoad = new File(process.getExtractedFilename());
-//		cleanup(fileToLoad.getParent());
+		cleanup(fileToLoad.getParent());
 
 		try {
 			newMaps.loadMapsFromFile(fileToLoad);
@@ -73,7 +65,8 @@ public class ReadyToComputeDiff extends ProcessState {
 			}
 			// Launch diff
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
-			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(), newMaps.getStructureMap());
+			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(),
+					newMaps.getStructureMap());
 
 			fillChangesMaps(diffPs, diffStructures);
 
@@ -90,40 +83,47 @@ public class ReadyToComputeDiff extends ProcessState {
 		kryo.writeObject(output, newMaps);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void read(Kryo kryo, Input input) {
 		oldMaps = (MapsHandler) kryo.readObject(input, MapsHandler.class);
 
 	}
 
-	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs, MapDifference<String, Structure> diffStructures) {
-		process.setPsToCreate((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnRight().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-		//Updates
-		Map<String, ValueDifference<Professionnel>> pstmpmap;
-		pstmpmap = (ConcurrentHashMap<String, ValueDifference<Professionnel>>) diffPs.entriesDiffering().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
-		//Convert ValueDifference to PscValueDifference for serialization
-		Map<String, SerializableValueDifference<Professionnel>> pstu = process.getPsToUpdate();
-		pstmpmap.forEach((k, v) -> pstu.put(k, new SerializableValueDifference<>(v.leftValue(), v.rightValue())));
+	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs,
+			MapDifference<String, Structure> diffStructures) {
 
-		process.setPsToDelete((ConcurrentHashMap<String, Professionnel>) diffPs.entriesOnlyOnLeft().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-		//Structures
-
-		process.setStructureToCreate((ConcurrentHashMap<String, Structure>) diffStructures.entriesOnlyOnRight().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
-		// updates
-		Map<String, ValueDifference<Structure>> structtmpmap;
-		structtmpmap = (ConcurrentHashMap<String, ValueDifference<Structure>>) diffStructures.entriesDiffering().entrySet().stream()
-				.collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
-		Map<String, SerializableValueDifference<Structure>> structtu = process.getStructureToUpdate();
-		structtmpmap.forEach((k, v) -> structtu.put(k, new SerializableValueDifference<>(v.leftValue(), v.rightValue())));
-
+		process.getMaps()
+		.stream().forEach(map -> {
+			switch (map.getOperation()) {
+			case PS_UPDATE:
+				diffPs.entriesDiffering().forEach((k, v) -> {
+					map.put((String) k, (Professionnel) v.rightValue());
+					map.saveOldValue(k, (Professionnel) v.leftValue());
+				});
+				break;
+			case PS_DELETE:
+				diffPs.entriesOnlyOnLeft().forEach((k, v) -> map.put(k, v));
+				break;
+			case PS_CREATE:
+				diffPs.entriesOnlyOnRight().forEach((k, v) -> map.put(k, v));
+				break;
+			case STRUCTURE_CREATE:
+				diffStructures.entriesOnlyOnRight().forEach((k, v) -> map.put(k, v));
+				break;
+			case STRUCTURE_UPDATE:
+				diffStructures.entriesDiffering().forEach((k, v) -> {
+					map.put((String) k, (Structure) v.rightValue());
+					map.saveOldValue(k, (Structure) v.leftValue());
+				});
+				break;
+			default:
+				break;
+			}
+		});
 	}
-	
-	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap, Map<String, Structure> structureMap) {
+
+	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap,
+			Map<String, Structure> structureMap) {
 		process.getUploadMetrics().setPsAdeliUploadSize(Math.toIntExact(psMap.values().stream()
 				.filter(professionnel -> ID_TYPE.ADELI.value.equals(professionnel.getIdType())).count()));
 
@@ -159,13 +159,13 @@ public class ReadyToComputeDiff extends ProcessState {
 		listOfSers.sort(this::compare);
 
 		if (listOfZips.size() > 0) {
-			listOfZips.remove(listOfZips.size() -1);
+			listOfZips.remove(listOfZips.size() - 1);
 		}
 		if (listOfExtracts.size() > 0) {
-			listOfExtracts.remove(listOfExtracts.size() -1);
+			listOfExtracts.remove(listOfExtracts.size() - 1);
 		}
 		if (listOfSers.size() > 0) {
-			listOfSers.remove(listOfSers.size() -1);
+			listOfSers.remove(listOfSers.size() - 1);
 		}
 
 		for (File file : listOfZips) {
@@ -207,7 +207,7 @@ public class ReadyToComputeDiff extends ProcessState {
 		try {
 			return getDateFromFileName(f1).compareTo(getDateFromFileName(f2));
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error("Error when parsing filename to check date", e);
 		}
 		return 0;
 	}

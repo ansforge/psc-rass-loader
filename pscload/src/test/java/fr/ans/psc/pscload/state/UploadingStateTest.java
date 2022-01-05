@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import fr.ans.psc.pscload.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,8 +39,12 @@ import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.OperationMap;
+import fr.ans.psc.pscload.model.RassEntity;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -169,9 +172,15 @@ public class UploadingStateTest {
         p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p2.getState().setProcess(p2);
         p2.nextStep();
-        assertEquals(0, p2.getPsToCreate().size());
-        assertEquals(0, p2.getPsToDelete().size());
-        assertEquals(0, p2.getPsToUpdate().size());
+		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToDelete2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+				.findFirst().get();
+        assertEquals(0, psToCreate2.size());
+        assertEquals(0, psToDelete2.size());
+        assertEquals(0, psToUpdate2.size());
 
     }
 
@@ -183,9 +192,9 @@ public class UploadingStateTest {
     @Test
     @DisplayName("Call delete API with return code 404")
     void uploadChangesDeletePS404() throws Exception {
-        httpApiMockServer.stubFor(delete("/ps/810107592544")
+        httpApiMockServer.stubFor(delete("/v2/ps/810107592544")
                 .willReturn(aResponse().withStatus(404)));
-        httpApiMockServer.stubFor(put("/structure")
+        httpApiMockServer.stubFor(put("/v2/structure")
                 .willReturn(aResponse().withStatus(200)));
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         //Test
@@ -215,10 +224,16 @@ public class UploadingStateTest {
         String[] exclusions = {"90"};
         p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p2.nextStep();
-        assertEquals(0, p2.getPsToCreate().size());
-        assertEquals(1, p2.getPsToDelete().size());
-        assertEquals(0, p2.getPsToUpdate().size());
-        assertEquals(HttpStatus.NOT_FOUND.value(), p2.getPsToDelete().get("810107592544").getReturnStatus());
+		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToDelete2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+				.findFirst().get();
+        assertEquals(0, psToCreate2.size());
+        assertEquals(1, psToDelete2.size());
+        assertEquals(0, psToUpdate2.size());
+        assertEquals(HttpStatus.NOT_FOUND.value(), psToDelete2.get("810107592544").getReturnStatus());
 
     }
 }
