@@ -40,10 +40,8 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 		this.report = report;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void visit(PsCreateMap map) {
-
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
@@ -55,7 +53,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsUpdateMap map) {
-		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
@@ -67,7 +64,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsDeleteMap map) {
-		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
@@ -79,7 +75,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureCreateMap map) {
-		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
@@ -92,7 +87,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureUpdateMap map) {
-		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
