@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.model.StructureRef;
 import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.OperationMap;
 import fr.ans.psc.pscload.model.Professionnel;
 import fr.ans.psc.pscload.model.SavoirFaire;
 import fr.ans.psc.pscload.model.SituationExercice;
@@ -30,9 +32,11 @@ import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.Submitted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
 import lombok.extern.slf4j.Slf4j;
 
@@ -97,6 +101,9 @@ class ProcessRegistryTest {
 	        kryo.register(UploadMetrics.class, 26);
 	        kryo.register(String[].class, 27);
 	        kryo.register(ConcurrentHashMap.class, 28);
+			kryo.register(UploadInterrupted.class, 29);
+			kryo.register(SerializationInterrupted.class, 30);
+			kryo.register(OperationMap.class, 31);
 	        
 	        
 		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);

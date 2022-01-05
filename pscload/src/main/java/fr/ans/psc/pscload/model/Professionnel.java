@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
  * @return true, if successful
  */
 @EqualsAndHashCode(callSuper = true)
-public class Professionnel extends Ps {
+public class Professionnel extends Ps implements RassEntity {
 
 	/**
 	 * 
@@ -74,12 +74,24 @@ public class Professionnel extends Ps {
 
 	}
 
+	@Override
 	public int getReturnStatus() {
 		return returnStatus;
 	}
 
+	@Override
 	public void setReturnStatus(int returnStatus) {
 		this.returnStatus = returnStatus;
+	}
+
+	@Override
+	public String getInternalId() {
+		return getNationalId();
+	}
+	
+	@Override
+	public String getIdType() {
+		return super.getIdType();
 	}
 
 }

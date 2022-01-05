@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 
-import fr.ans.psc.pscload.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,8 +38,12 @@ import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.OperationMap;
+import fr.ans.psc.pscload.model.RassEntity;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -139,14 +142,22 @@ public class ChangesAppliedTest {
         p2.getState().setProcess(p2);
         p2.nextStep();
 
+        OperationMap<String, RassEntity> psToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToUpdate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+				.findFirst().get();
+        OperationMap<String, RassEntity> structureToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
+				.findFirst().get();
         // 2xx return status should have been removed from update map
-        assertEquals(1, p2.getPsToCreate().size());
-        assertEquals(1, p2.getPsToDelete().size());
-        assertEquals(0, p2.getPsToUpdate().size());
-        assertEquals(1, p2.getStructureToCreate().size());
-        assertEquals(HttpStatus.CONFLICT.value(), p2.getPsToCreate().get("810100375103").getReturnStatus());
-        assertEquals(HttpStatus.NOT_FOUND.value(), p2.getPsToDelete().get("810107592585").getReturnStatus());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), p2.getStructureToCreate().get("R10100000063415").getReturnStatus());
+        assertEquals(1, psToCreate.size());
+        assertEquals(1, psToDelete.size());
+        assertEquals(0, psToUpdate.size());
+        assertEquals(1, structureToCreate.size());
+        assertEquals(HttpStatus.CONFLICT.value(), psToCreate.get("810100375103").getReturnStatus());
+        assertEquals(HttpStatus.NOT_FOUND.value(), psToDelete.get("810107592585").getReturnStatus());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), structureToCreate.get("R10100000063415").getReturnStatus());
 
         // Apply changes and generate new ser
         p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));

@@ -114,6 +114,8 @@ public class MapsHandler implements KryoSerializable {
 			parser.parse(new BufferedReader(new FileReader(file, detectedCharset)));
 		} catch (IOException e) {
 			throw new IOException("Encoding detection failure", e);
+		} finally {
+			is.close();
 		}
 		log.info("loading complete!");
 	}

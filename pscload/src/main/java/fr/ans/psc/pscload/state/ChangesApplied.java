@@ -11,10 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,11 +23,10 @@ import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.SerializableValueDifference;
-import fr.ans.psc.pscload.model.Structure;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
+import fr.ans.psc.pscload.visitor.MapsCleanerVisitor;
+import fr.ans.psc.pscload.visitor.MapsCleanerVisitorImpl;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -91,18 +88,13 @@ public class ChangesApplied extends ProcessState {
             if (process.isRemainingPsOrStructuresInMaps()) {
                 StringBuilder message = new StringBuilder();
                 List<String> dataLines = new ArrayList<>();
-
-                addOperationHeader(message, process.getPsToCreate(), "Créations PS en échec : ");
-                handlePsCreateFailed(process.getPsToCreate(), newMaps, dataLines);
-                addOperationHeader(message, process.getPsToDelete(), "Suppressions PS en échec : ");
-                handlePsDeleteFailed(process.getPsToDelete(), newMaps, dataLines);
-                addOperationHeader(message, process.getPsToUpdate(), "Modifications PS en échec : ");
-                handlePsUpdateFailed(process.getPsToUpdate(), newMaps, dataLines);
-
-                addOperationHeader(message, process.getStructureToCreate(), "Créations Structure en échec : ");
-                handleStructureCreateFailed(process.getStructureToCreate(), newMaps, dataLines);
-                addOperationHeader(message, process.getStructureToCreate(), "Modifications Structure en échec : ");
-                handleStructureUpdateFailed(process.getStructureToUpdate(), newMaps, dataLines);
+                
+                MapsCleanerVisitor cleaner = new MapsCleanerVisitorImpl(newMaps);
+                // Clean all maps and collect reports infos
+                process.getMaps().stream().forEach(map -> {
+                	message.append(String.format("{} en échec : {}", map.getOperation().toString(), map.size()));
+                	dataLines.addAll(cleaner.visit(map));
+                });
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
@@ -112,7 +104,7 @@ public class ChangesApplied extends ProcessState {
                 String now = df.format(new Date());
                 File csvOutputFile = new File(serFile.getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
                 try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-                    pw.println("Entité;identifiant;opération;Http status");
+                    pw.println("Entité/opération;identifiant;Http status");
                     dataLines.stream().forEach(pw::println);
                 }
                 customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_INCOMPLETE, message.toString(), csvOutputFile);
@@ -134,68 +126,7 @@ public class ChangesApplied extends ProcessState {
 	}
 
 
-    private void handlePsCreateFailed(Map<String, Professionnel> psMap, MapsHandler newMaps, List<String> dataLines) {
-        psMap.values().forEach(ps -> {
-            dataLines.add(appendOperationFailureInfos("PS", ps.getNationalId(), ps.getReturnStatus(), "create"));
-            if (is5xxError(ps.getReturnStatus())) {
-                newMaps.getPsMap().remove(ps.getNationalId());
-            }
-        });
-    }
-
-    private void handlePsUpdateFailed(Map<String, SerializableValueDifference<Professionnel>> psMap, MapsHandler newMaps, List<String> dataLines) {
-        psMap.values().forEach(ps -> {
-            dataLines.add(appendOperationFailureInfos("PS", ps.rightValue().getNationalId(), ps.rightValue().getReturnStatus(), "update"));
-            if (is5xxError(ps.rightValue().getReturnStatus())) {
-                newMaps.getPsMap().replace(ps.rightValue().getNationalId(), ps.leftValue());
-            }
-        });
-    }
-
-    private void handlePsDeleteFailed(Map<String, Professionnel> psMap, MapsHandler newMaps, List<String> dataLines) {
-        psMap.values().forEach(ps -> {
-            dataLines.add(appendOperationFailureInfos("PS", ps.getNationalId(), ps.getReturnStatus(), "delete"));
-            if (is5xxError(ps.getReturnStatus())) {
-                newMaps.getPsMap().put(ps.getNationalId(), ps);
-            }
-        });
-    }
-
-    private void handleStructureCreateFailed(Map<String, Structure> structureMap, MapsHandler newMaps, List<String> dataLines) {
-        structureMap.values().forEach(structure -> {
-            dataLines.add(appendOperationFailureInfos("Structure", structure.getStructureTechnicalId(), structure.getReturnStatus(), "create"));
-            if (is5xxError(structure.getReturnStatus())) {
-                newMaps.getStructureMap().remove(structure.getStructureTechnicalId());
-            }
-
-        });
-    }
-
-    private void handleStructureUpdateFailed(Map<String, SerializableValueDifference<Structure>> structureMap, MapsHandler newMaps, List<String> dataLines) {
-        structureMap.values().forEach(structure -> {
-            dataLines.add(appendOperationFailureInfos("Structure", structure.rightValue().getStructureTechnicalId(),
-                    structure.rightValue().getReturnStatus(), "update"));
-            if (is5xxError(structure.rightValue().getReturnStatus())) {
-                newMaps.getStructureMap().replace(structure.rightValue().getStructureTechnicalId(), structure.leftValue());
-            }
-
-        });
-    }
-
-    private void addOperationHeader(StringBuilder sb, Map map, String header) {
-        sb.append(header).append(map.size()).append(System.lineSeparator());
-    }
-
-    private String appendOperationFailureInfos(String entityKind, String entityKey, int httpStatusCode, String operation) {
-        String[] dataItems = new String[] {entityKind, entityKey, operation, String.valueOf(httpStatusCode)};
-        return String.join(";", dataItems);
-    }
-
-    private boolean is5xxError(int rawReturnStatus) {
-        return HttpStatus.valueOf(rawReturnStatus).is5xxServerError();
-    }
-
-	@Override
+    @Override
 	public void write(Kryo kryo, Output output) {
 		output.writeString(extractBaseUrl);
 	}
