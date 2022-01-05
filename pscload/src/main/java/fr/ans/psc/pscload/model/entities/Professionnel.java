@@ -1,13 +1,20 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.model;
+package fr.ans.psc.pscload.model.entities;
 
 import java.util.Optional;
 
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 import lombok.EqualsAndHashCode;
+
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 
 /**
  * Can equal.

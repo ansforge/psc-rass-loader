@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.visitor;
 
 import java.util.ArrayList;
@@ -7,56 +10,100 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 
 import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.RassEntity;
-import fr.ans.psc.pscload.model.Structure;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.model.operations.StructureCreateMap;
+import fr.ans.psc.pscload.model.operations.StructureUpdateMap;
 
-public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
+/**
+ * The Class MapsCleanerVisitorImpl.
+ */
+public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	private MapsHandler maps;
+	
+	private List<String> report;
 
-	public MapsCleanerVisitorImpl(MapsHandler maps) {
+	/**
+	 * Instantiates a new maps cleaner visitor impl.
+	 *
+	 * @param maps the maps
+	 */
+	public MapsCleanerVisitorImpl(MapsHandler maps, List<String> report) {
 		super();
 		this.maps = maps;
+		this.report = report;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> visit(OperationMap<String, RassEntity> map) {
-		List<String> report = new ArrayList<>();
+	public void visit(PsCreateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
-				String[] dataItems = new String[] { map.getOperation().toString(), item.getInternalId(),
-						String.valueOf(item.getReturnStatus()), };
-				report.add(String.join(";", dataItems));
-				switch (map.getOperation()) {
-				case PS_CREATE:
-					maps.getPsMap().remove(item.getInternalId());
-					break;
-				case PS_UPDATE:
-					maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
-					break;
-				case PS_DELETE:
-					maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
-					break;
-				case STRUCTURE_CREATE:
-					maps.getStructureMap().remove(item.getInternalId());
-					break;
-				case STRUCTURE_UPDATE:
-					maps.getStructureMap().replace(item.getInternalId(), (Structure) map.getOldValue(item.getInternalId()));
-					break;
-				default:
-					break;
-				}
+				generateReportLine(map, report, item);
+				maps.getPsMap().remove(item.getInternalId());
 			}
 		});
-		return report;
+	}
+
+	@Override
+	public void visit(PsUpdateMap map) {
+		Collection<RassEntity> items = map.values();
+		items.forEach(item -> {
+			if (is5xxError(item.getReturnStatus())) {
+				generateReportLine(map, report, item);
+				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
+			}
+		});
+	}
+
+	@Override
+	public void visit(PsDeleteMap map) {
+		Collection<RassEntity> items = map.values();
+		items.forEach(item -> {
+			if (is5xxError(item.getReturnStatus())) {
+				generateReportLine(map, report, item);
+				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
+			}
+		});
+	}
+
+	@Override
+	public void visit(StructureCreateMap map) {
+		Collection<RassEntity> items = map.values();
+		items.forEach(item -> {
+			if (is5xxError(item.getReturnStatus())) {
+				generateReportLine(map, report, item);
+				maps.getStructureMap().remove(item.getInternalId());
+			}
+		});
+
+	}
+
+	@Override
+	public void visit(StructureUpdateMap map) {
+		Collection<RassEntity> items = map.values();
+		items.forEach(item -> {
+			if (is5xxError(item.getReturnStatus())) {
+				generateReportLine(map, report, item);
+				maps.getStructureMap().replace(item.getInternalId(), (Structure) map.getOldValue(item.getInternalId()));
+			}
+		});
 	}
 
 	private boolean is5xxError(int rawReturnStatus) {
 		return HttpStatus.valueOf(rawReturnStatus).is5xxServerError();
+	}
+
+	private void generateReportLine(OperationMap<String, RassEntity> map, List<String> report, RassEntity item) {
+		String[] dataItems = new String[] { map.getOperation().toString(), item.getInternalId(),
+				String.valueOf(item.getReturnStatus()), };
+		report.add(String.join(";", dataItems));
 	}
 
 }

@@ -31,7 +31,7 @@ import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.UploadingChanges;

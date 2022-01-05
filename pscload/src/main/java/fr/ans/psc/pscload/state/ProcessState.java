@@ -5,7 +5,7 @@ package fr.ans.psc.pscload.state;
 
 import com.esotericsoftware.kryo.KryoSerializable;
 
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
 /**

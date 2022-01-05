@@ -1,8 +1,10 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.annotation.Bean;
@@ -12,24 +14,32 @@ import com.esotericsoftware.kryo.Kryo;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.UploadMetrics;
-import fr.ans.psc.pscload.model.ExerciceProfessionnel;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.Professionnel;
-import fr.ans.psc.pscload.model.RefStructure;
-import fr.ans.psc.pscload.model.SavoirFaire;
-import fr.ans.psc.pscload.model.SituationExercice;
-import fr.ans.psc.pscload.model.Structure;
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RefStructure;
+import fr.ans.psc.pscload.model.entities.SavoirFaire;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.model.operations.StructureCreateMap;
+import fr.ans.psc.pscload.model.operations.StructureUpdateMap;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Submitted;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
 import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.Submitted;
 import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
 
+/**
+ * The Class SerializerConfiguration.
+ */
 @Configuration
 public class SerializerConfiguration {
 
@@ -59,6 +69,11 @@ public class SerializerConfiguration {
 		kryo.register(UploadInterrupted.class, 29);
 		kryo.register(SerializationInterrupted.class, 30);
 		kryo.register(OperationMap.class, 31);
+		kryo.register(PsCreateMap.class, 32);
+		kryo.register(PsUpdateMap.class, 33);
+		kryo.register(PsDeleteMap.class, 34);
+		kryo.register(StructureCreateMap.class, 35);
+		kryo.register(StructureUpdateMap.class, 36);
 		return kryo;
 	}
 }

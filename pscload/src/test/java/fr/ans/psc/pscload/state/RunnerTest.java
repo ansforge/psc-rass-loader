@@ -68,6 +68,11 @@ public class RunnerTest {
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
 
+	/**
+	 * Register pg properties.
+	 *
+	 * @param propertiesRegistry the properties registry
+	 */
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url",
@@ -81,6 +86,11 @@ public class RunnerTest {
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
+	/**
+	 * Setup.
+	 *
+	 * @throws Exception the exception
+	 */
 	@BeforeEach
 	void setup() {
 		registry.clear();
@@ -94,6 +104,11 @@ public class RunnerTest {
 		}
 	}
 
+	/**
+	 * Scheduler nominal process test.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	@DisplayName("Scheduler end to end test")
 	void schedulerNominalProcessTest() throws Exception {

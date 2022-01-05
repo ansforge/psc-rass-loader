@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -26,8 +27,8 @@ import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
-import fr.ans.psc.pscload.visitor.MapsCleanerVisitor;
 import fr.ans.psc.pscload.visitor.MapsCleanerVisitorImpl;
+import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,6 +43,12 @@ public class ChangesApplied extends ProcessState {
 
     private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_échec.";
 
+    /**
+     * Instantiates a new changes applied.
+     *
+     * @param customMetrics the custom metrics
+     * @param extractBaseUrl the extract base url
+     */
     public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl, EmailService emailService) {
         super();
         this.customMetrics = customMetrics;
@@ -92,11 +99,11 @@ public class ChangesApplied extends ProcessState {
                 StringBuilder message = new StringBuilder();
                 List<String> dataLines = new ArrayList<>();
                 
-                MapsCleanerVisitor cleaner = new MapsCleanerVisitorImpl(newMaps);
+                MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
                 // Clean all maps and collect reports infos
                 process.getMaps().stream().forEach(map -> {
-                	message.append(String.format("%s en échec : %s \n", map.getOperation().toString(), map.size()));
-                	dataLines.addAll(map.accept(cleaner));
+                	message.append(String.format("%s en échec : %s", map.getOperation().toString(), map.size()));
+                	map.accept(cleaner);
                 });
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")

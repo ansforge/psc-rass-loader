@@ -5,6 +5,7 @@ package fr.ans.psc.pscload.component;
 
 import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.*;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.UploadException;
@@ -15,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;

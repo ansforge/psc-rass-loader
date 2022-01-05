@@ -37,15 +37,18 @@ import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class ChangesAppliedTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
@@ -72,6 +75,11 @@ public class ChangesAppliedTest {
                     .usingFilesUnderClasspath("wiremock/api"))
             .configureStaticDsl(true).build();
 
+    /**
+     * Register pg properties.
+     *
+     * @param propertiesRegistry the properties registry
+     */
     // For use with mockMvc
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
@@ -81,6 +89,11 @@ public class ChangesAppliedTest {
 
     }
 
+    /**
+     * Setup.
+     *
+     * @throws Exception the exception
+     */
     @BeforeEach
     public void setup() {
         File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -95,6 +108,13 @@ public class ChangesAppliedTest {
                 .willReturn(aResponse().withStatus(200)));
     }
 
+    /**
+     * Changes applied.
+     *
+     * @throws DuplicateKeyException the duplicate key exception
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws ClassNotFoundException the class not found exception
+     */
     // CAS 100% PASSANT : pas de message généré, appel à extract
     @Test
     @DisplayName("Changes applied with no errors")

@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CheckController {
 
+	/**
+	 * Instantiates a new check controller.
+	 */
 	public CheckController() {
 		super();
 

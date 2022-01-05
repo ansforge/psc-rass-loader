@@ -1,10 +1,16 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.model;
+package fr.ans.psc.pscload.model.entities;
 
 import lombok.EqualsAndHashCode;
 
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements RassEntity {
 

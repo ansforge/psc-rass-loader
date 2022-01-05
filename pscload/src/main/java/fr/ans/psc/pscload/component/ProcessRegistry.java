@@ -17,7 +17,7 @@ import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.model.LoadProcess;
 
 /**
  * The Class ProcessRegistry.

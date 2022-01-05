@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -6,8 +9,14 @@ import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
+/**
+ * The Class SerializationInterrupted.
+ */
 public class SerializationInterrupted extends ProcessState {
 
+	/**
+	 * Instantiates a new serialization interrupted.
+	 */
 	public SerializationInterrupted() {
 		super();
 	}

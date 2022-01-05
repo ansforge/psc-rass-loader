@@ -35,10 +35,10 @@ import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.OperationMap;
-import fr.ans.psc.pscload.model.RassEntity;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.service.LoadProcess;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +72,11 @@ public class UploadingStateTest {
                     .usingFilesUnderClasspath("wiremock/api"))
             .build();
 
+    /**
+     * Register pg properties.
+     *
+     * @param propertiesRegistry the properties registry
+     */
     // For use with mockMvc
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
@@ -82,6 +87,11 @@ public class UploadingStateTest {
         propertiesRegistry.add("files.directory", ()-> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
     }
 
+	/**
+	 * Setup.
+	 *
+	 * @throws Exception the exception
+	 */
 	@BeforeEach
 	void setup() {
 		registry.clear();
