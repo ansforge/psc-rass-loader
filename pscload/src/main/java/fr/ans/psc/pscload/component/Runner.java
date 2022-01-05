@@ -4,6 +4,7 @@
 package fr.ans.psc.pscload.component;
 
 import fr.ans.psc.pscload.model.EmailTemplate;
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.*;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
@@ -20,9 +21,6 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
 
@@ -38,6 +36,9 @@ public class Runner {
 
     @Autowired
     private CustomMetrics customMetrics;
+
+    @Autowired
+    private EmailService emailService;
 
     @Value("${enable.scheduler:true}")
     private boolean enabled;
@@ -125,9 +126,8 @@ public class Runner {
                     }
                 } catch (LoadProcessException e) {
                     log.error("Error when loading RASS data", e);
-                    customMetrics.setStageMetric(
-                            customMetrics.getStageMetricValue(),
-                            EmailTemplate.INTERRUPTED_PROCESS);
+                    customMetrics.setStageMetric(customMetrics.getStageMetricValue());
+                    emailService.sendMail(EmailTemplate.INTERRUPTED_PROCESS);
                     processRegistry.unregister(id);
                 }
             } else {
@@ -149,7 +149,7 @@ public class Runner {
             customMetrics.resetSizeMetrics();
             customMetrics.setStageMetric(60);
             process.nextStep();
-            process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
+            process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
             // Step 5 : call pscload
             process.nextStep();
             processRegistry.unregister(process.getId());
@@ -159,7 +159,8 @@ public class Runner {
             if (e.getClass().equals(UploadException.class)) {
                 log.error("error when uploading changes", e);
                 process.setState(new UploadInterrupted());
-                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_REST_INTERRUPTION);
+                customMetrics.setStageMetric(70);
+                emailService.sendMail(EmailTemplate.UPLOAD_REST_INTERRUPTION);
             } else {
                 // error during ChangesAppliedState
                 handleChangesAppliedStateExceptions(process, e);
@@ -187,11 +188,13 @@ public class Runner {
         if (e.getClass().equals(SerFileGenerationException.class)) {
             log.warn("Error when (de)serializing");
             process.setState(new SerializationInterrupted());
-            customMetrics.setStageMetric(60, EmailTemplate.SERIALIZATION_FAILURE);
+            customMetrics.setStageMetric(60);
+            emailService.sendMail(EmailTemplate.SERIALIZATION_FAILURE);
             // error when triggering extract
         } else if (e.getClass().equals(ExtractTriggeringException.class)) {
             log.warn("Error when triggering pscextract", e);
-            customMetrics.setStageMetric(70, EmailTemplate.TRIGGER_EXTRACT_FAILED);
+            customMetrics.setStageMetric(70);
+            emailService.sendMail(EmailTemplate.TRIGGER_EXTRACT_FAILED);
             processRegistry.unregister(process.getId());
         }
 

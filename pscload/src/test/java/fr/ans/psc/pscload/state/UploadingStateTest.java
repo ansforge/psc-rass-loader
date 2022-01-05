@@ -18,18 +18,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
@@ -57,13 +53,6 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 public class UploadingStateTest {
 
-
-    /**
-     * The mock mvc.
-     */
-    @Autowired
-    private MockMvc mockMvc;
-
     @Autowired
     private CustomMetrics customMetrics;
 
@@ -72,9 +61,6 @@ public class UploadingStateTest {
 
 	@Autowired
 	private EmailService emailService;
-
-	@Mock
-	private JavaMailSender javaMailSender;
 
     /**
      * The http api mock server.
@@ -107,9 +93,7 @@ public class UploadingStateTest {
 	 * @throws Exception the exception
 	 */
 	@BeforeEach
-	void setup() throws Exception {
-		MockitoAnnotations.openMocks(this).close();
-		emailService.setEmailSender(javaMailSender);
+	void setup() {
 		registry.clear();
 		// clear work directory
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -167,7 +151,7 @@ public class UploadingStateTest {
         p.setExtractedFilename(extractFile1.getPath());
         p.getState().setProcess(p);
         p.nextStep();
-        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl()));
+        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), emailService));
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff (1 delete)
@@ -219,7 +203,7 @@ public class UploadingStateTest {
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
         p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
-        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl()));
+        p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), emailService));
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff (1 delete)

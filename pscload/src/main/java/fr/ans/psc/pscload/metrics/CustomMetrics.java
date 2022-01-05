@@ -23,9 +23,7 @@ import io.micrometer.core.instrument.Tags;
  * The Class CustomMetrics.
  */
 @Component
-public class CustomMetrics implements ApplicationEventPublisherAware {
-	
-	private ApplicationEventPublisher publisher;
+public class CustomMetrics {
 
 	private static final String PS_METRIC_NAME = "ps.metric";
 	private static final String STRUCTURE_METRIC_NAME = "structure.metric";
@@ -279,31 +277,6 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		});
 	}
 
-	/**
-	 * Sets the stage metric.
-	 *
-	 * @param state the state
-	 * @param emailTemplate the email template
-	 * @param message the message
-	 * @param attachmentFile the attachment file
-	 */
-	public void setStageMetric(int state, EmailTemplate emailTemplate, String message, File attachmentFile) {
-		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
-		StateChangeEvent event = new StateChangeEvent(this, appMiscGauges.get(MiscCustomMetric.STAGE).get(),
-				emailTemplate, message, attachmentFile);
-		publisher.publishEvent(event);
-	}
-
-	/**
-	 * Sets the stage metric.
-	 *
-	 * @param state the state
-	 * @param emailTemplate the email template
-	 */
-	public void setStageMetric(int state, EmailTemplate emailTemplate) {
-		setStageMetric(state, emailTemplate, emailTemplate.message, null);
-	}
-	
 	public void setStageMetric(int state) {
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
 	}
@@ -327,11 +300,5 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 
 	public int getStageMetricValue() {
 		return appMiscGauges.get(MiscCustomMetric.STAGE).get();
-	}
-
-	@Override
-	public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
-		this.publisher = publisher;
-		
 	}
 }

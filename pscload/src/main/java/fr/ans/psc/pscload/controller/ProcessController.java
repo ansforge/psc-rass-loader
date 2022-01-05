@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.state.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +52,9 @@ public class ProcessController {
 
     @Autowired
     private CustomMetrics customMetrics;
+
+    @Autowired
+    private EmailService emailService;
 
     private final ProcessRegistry registry;
 
@@ -152,7 +156,7 @@ public class ProcessController {
 
         if (process != null) {
             if (process.getState().getClass().equals(SerializationInterrupted.class)) {
-                process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
+                process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
                 // launch process in a separate thread
                 runner.runEnding(process);
                 response = new ResponseEntity<Void>(HttpStatus.ACCEPTED);

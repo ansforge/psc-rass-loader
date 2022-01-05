@@ -26,13 +26,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -44,8 +41,8 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.component.Runner;
-import fr.ans.psc.pscload.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 /**
  * The Class DiffComputedStateTest.
@@ -65,12 +62,6 @@ public class RunnerTest {
 
 	@Autowired
 	private MockMvc mockmvc;
-
-	@Autowired
-	private EmailService emailService;
-
-	@Mock
-	private JavaMailSender javaMailSender;
 
 	/** The http mock server. */
 	@RegisterExtension
@@ -101,9 +92,7 @@ public class RunnerTest {
 	 * @throws Exception the exception
 	 */
 	@BeforeEach
-	void setup() throws Exception {
-		MockitoAnnotations.openMocks(this).close();
-		emailService.setEmailSender(javaMailSender);
+	void setup() {
 		registry.clear();
 		// clear work directory
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -137,7 +126,7 @@ public class RunnerTest {
 		httpMockServer.stubFor(any(urlMatching("/v2/structure")).willReturn(aResponse().withStatus(200)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
-		mockmvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/process/info")
+		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status()
 				.is2xxSuccessful())
@@ -148,7 +137,7 @@ public class RunnerTest {
 				.andExpect(status().is2xxSuccessful()).andDo(print());
 		ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
 		
-		mockmvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/process/info")
+		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is2xxSuccessful()).andDo(print());
 	}
