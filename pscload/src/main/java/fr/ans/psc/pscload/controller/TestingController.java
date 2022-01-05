@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;

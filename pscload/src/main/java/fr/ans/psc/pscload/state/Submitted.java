@@ -63,7 +63,7 @@ public class Submitted extends ProcessState {
 	private String extractDownloadUrl;
 
 	/**
-	 * Instantiates a new idle.
+	 * Instantiates a new Submitted.
 	 */
 	public Submitted() {
 		super();
@@ -71,7 +71,7 @@ public class Submitted extends ProcessState {
 	}
 
 	/**
-	 * Instantiates a new idle.
+	 * Instantiates a new Submitted.
 	 *
 	 * @param extractDownloadUrl the extract download url
 	 * @param filesDirectory     the files directory
@@ -85,7 +85,7 @@ public class Submitted extends ProcessState {
 	}
 
 	/**
-	 * Instantiates a new idle.
+	 * Instantiates a new Submitted.
 	 *
 	 * @param keyfile            the keyfile
 	 * @param certfile           the certfile

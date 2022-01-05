@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.model;
 
 import java.io.BufferedReader;
@@ -26,13 +29,30 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassItems;
+import fr.ans.psc.pscload.model.entities.RefStructure;
+import fr.ans.psc.pscload.model.entities.SavoirFaire;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class MapsHandler.
+ */
 @Getter
 @Setter
+
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode()
 @Slf4j
 public class MapsHandler implements KryoSerializable {
@@ -57,6 +77,12 @@ public class MapsHandler implements KryoSerializable {
 
 	private Map<String, Structure> structureMap = new HashMap<>();
 
+	/**
+	 * Load maps from file.
+	 *
+	 * @param file the file
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void loadMapsFromFile(File file) throws IOException {
 		log.info("loading {} into list of Ps", file.getName());
 
@@ -120,6 +146,12 @@ public class MapsHandler implements KryoSerializable {
 		log.info("loading complete!");
 	}
 
+	/**
+	 * Serialize maps.
+	 *
+	 * @param filename the filename
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void serializeMaps(String filename) throws IOException {
 		File mapsFile = new File(filename);
 		FileOutputStream fileOutputStream = new FileOutputStream(mapsFile);
@@ -128,6 +160,13 @@ public class MapsHandler implements KryoSerializable {
 		output.close();
 	}
 
+	/**
+	 * Deserialize maps.
+	 *
+	 * @param filename the filename
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws ClassNotFoundException the class not found exception
+	 */
 	public void deserializeMaps(String filename) throws IOException, ClassNotFoundException {
 		FileInputStream fileInputStream = new FileInputStream(filename);
 		Input input = new Input(fileInputStream);
@@ -148,6 +187,9 @@ public class MapsHandler implements KryoSerializable {
 		structureMap = (Map<String, Structure>) kryo.readObject(input, HashMap.class);
 	}
 
+	/**
+	 * Clear maps.
+	 */
 	public void clearMaps() {
 		psMap.clear();
 		structureMap.clear();

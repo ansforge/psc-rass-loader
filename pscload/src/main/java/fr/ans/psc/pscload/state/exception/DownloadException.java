@@ -13,10 +13,18 @@ public class DownloadException extends LoadProcessException {
 	 */
 	private static final long serialVersionUID = 4977818616617588174L;
 
+	/**
+	 * Instantiates a new download exception.
+	 */
 	public DownloadException() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new download exception.
+	 *
+	 * @param message the message
+	 */
 	public DownloadException(String message) {
 		super(message);
 	}

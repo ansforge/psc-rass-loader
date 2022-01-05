@@ -30,7 +30,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
-import fr.ans.psc.pscload.service.LoadProcess;
+import fr.ans.psc.pscload.model.LoadProcess;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -50,6 +50,11 @@ public class SubmittedStateRunTaskTest {
 					.usingFilesUnderClasspath("wiremock"))
 			.configureStaticDsl(true).build();
 
+	/**
+	 * Register pg properties.
+	 *
+	 * @param propertiesRegistry the properties registry
+	 */
 	@DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url", 
