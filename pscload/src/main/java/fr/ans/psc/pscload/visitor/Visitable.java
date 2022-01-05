@@ -10,19 +10,11 @@ import java.util.List;
  */
 public interface Visitable {
 
-	/**
-	 * Accept.
-	 *
-	 * @param visitor the visitor
-	 * @return the list
-	 */
-	public List<String> accept(MapsCleanerVisitor visitor);
-	
-	/**
-	 * Accept.
-	 *
-	 * @param visitor the visitor
-	 */
-	public void accept(MapsUploaderVisitor visitor);
 
+	/**
+	 * Accept.
+	 *
+	 * @param visitor the visitor
+	 */
+	public void accept(MapsVisitor visitor);
 }

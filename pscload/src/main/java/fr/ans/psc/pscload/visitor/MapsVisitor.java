@@ -12,7 +12,7 @@ import fr.ans.psc.pscload.model.operations.StructureUpdateMap;
 /**
  * The Interface MapsUploaderVisitor.
  */
-public interface MapsUploaderVisitor {
+public interface MapsVisitor {
 
 	/**
 	 * Visit.

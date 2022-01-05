@@ -27,6 +27,7 @@ import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.visitor.MapsCleanerVisitor;
 import fr.ans.psc.pscload.visitor.MapsCleanerVisitorImpl;
+import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -95,11 +96,11 @@ public class ChangesApplied extends ProcessState {
                 StringBuilder message = new StringBuilder();
                 List<String> dataLines = new ArrayList<>();
                 
-                MapsCleanerVisitor cleaner = new MapsCleanerVisitorImpl(newMaps);
+                MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
                 // Clean all maps and collect reports infos
                 process.getMaps().stream().forEach(map -> {
                 	message.append(String.format("{} en échec : {}", map.getOperation().toString(), map.size()));
-                	dataLines.addAll(map.accept(cleaner));
+                	map.accept(cleaner);
                 });
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")

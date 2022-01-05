@@ -7,7 +7,7 @@ import java.util.List;
 
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsCleanerVisitor;
-import fr.ans.psc.pscload.visitor.MapsUploaderVisitor;
+import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 
 /**
@@ -34,12 +34,7 @@ public class StructureUpdateMap extends OperationMap<String, RassEntity> {
 	}
 
 	@Override
-	public List<String> accept(MapsCleanerVisitor visitor) {
-		return visitor.visit(this);
-	}
-
-	@Override
-	public void accept(MapsUploaderVisitor visitor) {
+	public void accept(MapsVisitor visitor) {
 		visitor.visit(this);
 		
 	}

@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * The Class MapsUploaderVisitorImpl.
  */
 @Slf4j
-public class MapsUploaderVisitorImpl implements MapsUploaderVisitor {
+public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private String[] excludedProfessions;
 

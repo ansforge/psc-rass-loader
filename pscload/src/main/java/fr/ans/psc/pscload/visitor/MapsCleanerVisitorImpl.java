@@ -23,24 +23,27 @@ import fr.ans.psc.pscload.model.operations.StructureUpdateMap;
 /**
  * The Class MapsCleanerVisitorImpl.
  */
-public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
+public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	private MapsHandler maps;
+	
+	private List<String> report;
 
 	/**
 	 * Instantiates a new maps cleaner visitor impl.
 	 *
 	 * @param maps the maps
 	 */
-	public MapsCleanerVisitorImpl(MapsHandler maps) {
+	public MapsCleanerVisitorImpl(MapsHandler maps, List<String> report) {
 		super();
 		this.maps = maps;
+		this.report = report;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> visit(PsCreateMap map) {
-		List<String> report = new ArrayList<>();
+	public void visit(PsCreateMap map) {
+
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {
@@ -48,11 +51,10 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 				maps.getPsMap().remove(item.getInternalId());
 			}
 		});
-		return report;
 	}
 
 	@Override
-	public List<String> visit(PsUpdateMap map) {
+	public void visit(PsUpdateMap map) {
 		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
@@ -61,11 +63,10 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
 			}
 		});
-		return report;
 	}
 
 	@Override
-	public List<String> visit(PsDeleteMap map) {
+	public void visit(PsDeleteMap map) {
 		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
@@ -74,11 +75,10 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
 			}
 		});
-		return report;
 	}
 
 	@Override
-	public List<String> visit(StructureCreateMap map) {
+	public void visit(StructureCreateMap map) {
 		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
@@ -87,12 +87,11 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 				maps.getStructureMap().remove(item.getInternalId());
 			}
 		});
-		return report;
 
 	}
 
 	@Override
-	public List<String> visit(StructureUpdateMap map) {
+	public void visit(StructureUpdateMap map) {
 		List<String> report = new ArrayList<>();
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
@@ -101,7 +100,6 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 				maps.getStructureMap().replace(item.getInternalId(), (Structure) map.getOldValue(item.getInternalId()));
 			}
 		});
-		return report;
 	}
 
 	private boolean is5xxError(int rawReturnStatus) {
