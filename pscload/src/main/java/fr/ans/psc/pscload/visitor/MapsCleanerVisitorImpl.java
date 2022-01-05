@@ -25,7 +25,6 @@ public class MapsCleanerVisitorImpl implements MapsCleanerVisitor {
 	@Override
 	public List<String> visit(OperationMap<String, RassEntity> map) {
 		List<String> report = new ArrayList<>();
-		report.add(String.format("{} en échec : {}", map.getOperation().toString(), map.size()));
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if (is5xxError(item.getReturnStatus())) {

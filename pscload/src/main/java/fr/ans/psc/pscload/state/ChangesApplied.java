@@ -88,9 +88,13 @@ public class ChangesApplied extends ProcessState {
             if (process.isRemainingPsOrStructuresInMaps()) {
                 StringBuilder message = new StringBuilder();
                 List<String> dataLines = new ArrayList<>();
+                
                 MapsCleanerVisitor cleaner = new MapsCleanerVisitorImpl(newMaps);
                 // Clean all maps and collect reports infos
-                process.getMaps().stream().forEach(map -> dataLines.addAll(cleaner.visit(map)));
+                process.getMaps().stream().forEach(map -> {
+                	message.append(String.format("{} en échec : {}", map.getOperation().toString(), map.size()));
+                	dataLines.addAll(cleaner.visit(map));
+                });
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
