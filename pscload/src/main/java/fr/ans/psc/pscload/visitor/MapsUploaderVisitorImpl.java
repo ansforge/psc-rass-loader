@@ -20,7 +20,7 @@ import fr.ans.psc.pscload.state.exception.UploadException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class UploaderVisitorImpl implements MapsUploaderVisitor {
+public class MapsUploaderVisitorImpl implements MapsUploaderVisitor {
 
 	private String[] excludedProfessions;
 
@@ -28,7 +28,7 @@ public class UploaderVisitorImpl implements MapsUploaderVisitor {
 
 	private PsApi psApi;
 
-	public UploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl) {
+	public MapsUploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl) {
 		super();
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();

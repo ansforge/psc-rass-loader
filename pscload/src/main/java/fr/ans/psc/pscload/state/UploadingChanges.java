@@ -11,7 +11,7 @@ import fr.ans.psc.pscload.model.OperationMap;
 import fr.ans.psc.pscload.model.RassEntity;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.visitor.MapsUploaderVisitor;
-import fr.ans.psc.pscload.visitor.UploaderVisitorImpl;
+import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,7 +43,7 @@ public class UploadingChanges extends ProcessState {
 	@Override
     public void nextStep() throws LoadProcessException {
     	
-		MapsUploaderVisitor visitor = new UploaderVisitorImpl(excludedProfessions, apiBaseUrl);
+		MapsUploaderVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {
 			visitor.visit(map);
 		}
