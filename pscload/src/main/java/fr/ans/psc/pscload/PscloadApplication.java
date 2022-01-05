@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
+import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -53,6 +54,9 @@ public class PscloadApplication {
 	/** The custom metrics. */
 	@Autowired
 	private CustomMetrics customMetrics;
+
+	@Autowired
+	private EmailService emailService;
 	
 	@Autowired
 	private Kryo kryo;
@@ -117,7 +121,7 @@ public class PscloadApplication {
 										// upload changes
 										customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(60);
 										process.nextStep();
-										process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl));
+										process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
 										process.getState().setProcess(process);
 									}
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(70);

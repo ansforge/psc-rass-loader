@@ -15,11 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -47,9 +44,6 @@ class ReadyToComputeDiffTest {
 	@Autowired
 	private EmailService emailService;
 
-	@Mock
-	private JavaMailSender javaMailSender;
-
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
@@ -68,9 +62,7 @@ class ReadyToComputeDiffTest {
 	}
 
 	@BeforeEach
-	void setUp() throws Exception {
-		MockitoAnnotations.openMocks(this).close();
-		emailService.setEmailSender(javaMailSender);
+	void setUp() {
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
 		File[] files = outputfolder.listFiles();
 		if (files != null) { // some JVMs return null for empty dirs
@@ -126,7 +118,7 @@ class ReadyToComputeDiffTest {
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
-		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
+		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));
 		p.getState().setProcess(p);
 		p.nextStep();
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -37,13 +38,15 @@ public class ChangesApplied extends ProcessState {
 
     private CustomMetrics customMetrics;
     private String extractBaseUrl;
+    private EmailService emailService;
 
     private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_échec.";
 
-    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl) {
+    public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl, EmailService emailService) {
         super();
         this.customMetrics = customMetrics;
         this.extractBaseUrl = extractBaseUrl;
+        this.emailService = emailService;
     }
 
     @Override
@@ -92,7 +95,7 @@ public class ChangesApplied extends ProcessState {
                 MapsCleanerVisitor cleaner = new MapsCleanerVisitorImpl(newMaps);
                 // Clean all maps and collect reports infos
                 process.getMaps().stream().forEach(map -> {
-                	message.append(String.format("{} en échec : {}", map.getOperation().toString(), map.size()));
+                	message.append(String.format("%s en échec : %s \n", map.getOperation().toString(), map.size()));
                 	dataLines.addAll(map.accept(cleaner));
                 });
 
@@ -107,10 +110,12 @@ public class ChangesApplied extends ProcessState {
                     pw.println("Entité/opération;identifiant;Http status");
                     dataLines.stream().forEach(pw::println);
                 }
-                customMetrics.setStageMetric(70, EmailTemplate.UPLOAD_INCOMPLETE, message.toString(), csvOutputFile);
+                customMetrics.setStageMetric(70);
+                emailService.sendMail(EmailTemplate.UPLOAD_INCOMPLETE, message.toString(), csvOutputFile);
                 csvOutputFile.delete();
             } else {
-                customMetrics.setStageMetric(70, EmailTemplate.PROCESS_FINISHED,
+                customMetrics.setStageMetric(70);
+                emailService.sendMail(EmailTemplate.PROCESS_FINISHED,
                         "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
                                 " a été correctement traité.", null);
             }

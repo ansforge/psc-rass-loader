@@ -28,7 +28,7 @@ public class StateNotifierService implements ApplicationListener<StateChangeEven
 	public void onApplicationEvent(StateChangeEvent event) {
 		log.info(event.getMessage());
 		if (enableEmailing) {
-			emailService.sendMail(event.getEmailNature().subject, event.getMessage(), event.getAttachmentFile());
+			emailService.sendMail(event.getEmailNature(), event.getMessage(), event.getAttachmentFile());
 		}
 	}
 }

@@ -62,9 +62,6 @@ public class ChangesAppliedTest {
 	@Autowired
 	private EmailService emailService;
 
-	@Mock
-	private JavaMailSender javaMailSender;
-
     /**
      * The http api mock server.
      */
@@ -85,9 +82,7 @@ public class ChangesAppliedTest {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
-		MockitoAnnotations.openMocks(this).close();
-		emailService.setEmailSender(javaMailSender);
+    public void setup() {
         File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
         File[] files = outputfolder.listFiles();
         if (files != null) { // some JVMs return null for empty dirs
@@ -125,7 +120,7 @@ public class ChangesAppliedTest {
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
         p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
-        p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
+        p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService) );
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff
@@ -160,7 +155,7 @@ public class ChangesAppliedTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), structureToCreate.get("R10100000063415").getReturnStatus());
 
         // Apply changes and generate new ser
-        p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl()));
+        p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));
         p2.getState().setProcess(p2);
         p2.nextStep();
 

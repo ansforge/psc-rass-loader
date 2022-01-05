@@ -78,7 +78,7 @@ public class TestingController {
 		try {
 			registry.register(id, process);
 		} catch (DuplicateKeyException e) {
-			return new ResponseEntity<>(String.format("Duplicate Process id {}", id), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(String.format("Duplicate Process id %s", id), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(id, HttpStatus.OK);
 	}

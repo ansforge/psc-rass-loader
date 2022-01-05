@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import fr.ans.psc.pscload.model.EmailTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,9 @@ public class EmailService {
     @Value("${pscload.mail.receiver}")
     private String receiver;
 
+    @Value("${enable.emailing}")
+    private boolean enableEmailing;
+
 
     public void setEmailSender(JavaMailSender emailSender) {
         this.emailSender = emailSender;
@@ -48,35 +52,42 @@ public class EmailService {
     /**
      * Send mail.
      *
-     * @param subject        the email nature
-     * @param body           the body of the mail
+     * @param template        the email template
+     * @param customBody      the custom body of mail if any
      * @param attachmentFile an optional attachment file
      */
-    public void sendMail(String subject, String body, File attachmentFile) {
-        try {
-            MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(sender);
-            String[] allReceivers = receiver.split(",");
-            helper.setTo(allReceivers);
-            helper.setSubject(subject);
+    public void sendMail(EmailTemplate template, String customBody, File attachmentFile) {
+        if (enableEmailing) {
+            try {
+                MimeMessage message = emailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                helper.setFrom(sender);
+                String[] allReceivers = receiver.split(",");
+                helper.setTo(allReceivers);
+                helper.setSubject(template.subject);
 
-            Multipart emailContent = new MimeMultipart();
-            MimeBodyPart textBody = new MimeBodyPart();
-            textBody.setText(body);
-            emailContent.addBodyPart(textBody);
+                Multipart emailContent = new MimeMultipart();
+                MimeBodyPart textBody = new MimeBodyPart();
+                String body = customBody != null ? customBody : template.message;
+                textBody.setText(body);
+                emailContent.addBodyPart(textBody);
 
-            if (attachmentFile != null) {
-                MimeBodyPart attachmentPart = new MimeBodyPart();
-                attachmentPart.attachFile(attachmentFile);
-                emailContent.addBodyPart(attachmentPart);
+                if (attachmentFile != null) {
+                    MimeBodyPart attachmentPart = new MimeBodyPart();
+                    attachmentPart.attachFile(attachmentFile);
+                    emailContent.addBodyPart(attachmentPart);
+                }
+
+                message.setContent(emailContent);
+                emailSender.send(message);
+            } catch (MailException | MessagingException | IOException mse) {
+                log.error("Mail sending error", mse);
             }
-
-            message.setContent(emailContent);
-            emailSender.send(message);
-        } catch (MailException | MessagingException | IOException mse) {
-            log.error("Mail sending error", mse);
         }
+    }
+
+    public void sendMail(EmailTemplate template) {
+        this.sendMail(template, null, null);
     }
 
 }
