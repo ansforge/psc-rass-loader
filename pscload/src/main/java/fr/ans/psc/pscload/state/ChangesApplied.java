@@ -93,7 +93,7 @@ public class ChangesApplied extends ProcessState {
                 // Clean all maps and collect reports infos
                 process.getMaps().stream().forEach(map -> {
                 	message.append(String.format("{} en échec : {}", map.getOperation().toString(), map.size()));
-                	dataLines.addAll(cleaner.visit(map));
+                	dataLines.addAll(map.accept(cleaner));
                 });
 
                 message.append("Si certaines modifications n'ont pas été appliquées, ")

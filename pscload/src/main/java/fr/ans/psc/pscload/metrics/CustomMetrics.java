@@ -166,7 +166,7 @@ public class CustomMetrics implements ApplicationEventPublisherAware {
 		PS_SIRET_REFERENCE_SIZE,
 
 		/** The ps rpps reference size. */
-		PS_RPPS_REFERENCE_SIZ;
+		PS_RPPS_REFERENCE_SIZE;
 
 		
 	    /**

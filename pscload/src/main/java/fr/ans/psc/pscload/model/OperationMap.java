@@ -41,7 +41,7 @@ public class OperationMap<K, V> extends ConcurrentHashMap<String, RassEntity> im
 
 	@Override
 	public void accept(MapsUploaderVisitor visitor) {
-		// TODO Auto-generated method stub
+		visitor.visit((OperationMap<String, RassEntity>) this);
 
 	}
 
