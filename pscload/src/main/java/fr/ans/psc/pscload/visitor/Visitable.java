@@ -3,13 +3,10 @@
  */
 package fr.ans.psc.pscload.visitor;
 
-import java.util.List;
-
 /**
  * The Interface Visitable.
  */
 public interface Visitable {
-
 
 	/**
 	 * Accept.

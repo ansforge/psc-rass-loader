@@ -25,7 +25,6 @@ import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
-import fr.ans.psc.pscload.visitor.MapsCleanerVisitor;
 import fr.ans.psc.pscload.visitor.MapsCleanerVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;

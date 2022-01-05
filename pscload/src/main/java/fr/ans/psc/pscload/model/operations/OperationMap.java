@@ -3,13 +3,10 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import fr.ans.psc.pscload.model.entities.RassEntity;
-import fr.ans.psc.pscload.visitor.MapsCleanerVisitor;
-import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 import fr.ans.psc.pscload.visitor.Visitable;
 import lombok.Getter;
