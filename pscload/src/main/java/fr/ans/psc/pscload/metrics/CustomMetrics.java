@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import fr.ans.psc.pscload.model.EmailTemplate;
+import fr.ans.psc.pscload.model.Stage;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
@@ -272,8 +273,12 @@ public class CustomMetrics {
 		});
 	}
 
-	public void setStageMetric(int state) {
-		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
+	public void setStageMetric(Stage state) {
+		appMiscGauges.get(MiscCustomMetric.STAGE).set(state.value);
+	}
+
+	public void setStageMetric (int value) {
+		appMiscGauges.get(MiscCustomMetric.STAGE).set(value);
 	}
 
 	/**

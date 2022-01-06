@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import fr.ans.psc.pscload.model.Stage;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.http.HttpMethod;
@@ -117,11 +118,11 @@ public class ChangesApplied extends ProcessState {
                     pw.println("Entité/opération;identifiant;Http status");
                     dataLines.stream().forEach(pw::println);
                 }
-                customMetrics.setStageMetric(70);
+                customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
                 emailService.sendMail(EmailTemplate.UPLOAD_INCOMPLETE, message.toString(), csvOutputFile);
                 csvOutputFile.delete();
             } else {
-                customMetrics.setStageMetric(70);
+                customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
                 emailService.sendMail(EmailTemplate.PROCESS_FINISHED,
                         "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
                                 " a été correctement traité.", null);
@@ -129,6 +130,7 @@ public class ChangesApplied extends ProcessState {
             serFile.delete();
             newMaps.serializeMaps(serFileName);
             lockedSerFile.delete();
+            customMetrics.setStageMetric(Stage.CURRENT_MAP_SERIALIZED);
 
 
         } catch (IOException e) {
