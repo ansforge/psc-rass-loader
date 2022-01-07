@@ -14,7 +14,6 @@ import java.util.List;
 
 import fr.ans.psc.pscload.model.Stage;
 import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -43,6 +42,10 @@ public class ChangesApplied extends ProcessState {
     private EmailService emailService;
 
     private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_échec.";
+
+    public ChangesApplied() {
+        super();
+    }
 
     /**
      * Instantiates a new changes applied.

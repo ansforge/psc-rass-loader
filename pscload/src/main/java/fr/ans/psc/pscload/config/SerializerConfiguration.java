@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import com.esotericsoftware.kryo.Kryo;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.entities.Professionnel;
@@ -63,7 +62,6 @@ public class SerializerConfiguration {
 		kryo.register(ReadyToExtract.class, 23);
 		kryo.register(UploadingChanges.class, 24);
 		kryo.register(ChangesApplied.class, 25);
-		kryo.register(UploadMetrics.class, 26);
 		kryo.register(String[].class, 27);
 		kryo.register(ConcurrentHashMap.class, 28);
 		kryo.register(UploadInterrupted.class, 29);

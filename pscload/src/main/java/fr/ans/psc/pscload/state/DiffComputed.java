@@ -8,8 +8,6 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.metrics.CustomMetrics.PsCustomMetric;
-import fr.ans.psc.pscload.metrics.CustomMetrics.StructureCustomMetric;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.visitor.MapsMetricsSetterVisitorImpl;
@@ -32,10 +30,12 @@ public class DiffComputed extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	public DiffComputed() {
+		super();
+	}
+
 	@Override
 	public void nextStep() {
-
-		publishReferenceMetrics();
 
 		MapsVisitor visitor = new MapsMetricsSetterVisitorImpl(customMetrics);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {
@@ -48,19 +48,6 @@ public class DiffComputed extends ProcessState {
 		return true;
 	}
 
-	private void publishReferenceMetrics() {
-
-		customMetrics.setPsMetricSize(PsCustomMetric.PS_ADELI_REFERENCE_SIZE,
-				process.getUploadMetrics().getPsAdeliReferenceSize());
-		customMetrics.setPsMetricSize(PsCustomMetric.PS_FINESS_REFERENCE_SIZE,
-				process.getUploadMetrics().getPsAdeliReferenceSize());
-		customMetrics.setPsMetricSize(PsCustomMetric.PS_SIRET_REFERENCE_SIZE,
-				process.getUploadMetrics().getPsAdeliReferenceSize());
-		customMetrics.setPsMetricSize(PsCustomMetric.PS_RPPS_REFERENCE_SIZE,
-				process.getUploadMetrics().getPsAdeliReferenceSize());
-		customMetrics.setStructureMetricSize(StructureCustomMetric.STRUCTURE_REFERENCE_SIZE,
-				process.getUploadMetrics().getPsAdeliReferenceSize());
-	}
 
 	@Override
 	public void write(Kryo kryo, Output output) {
@@ -68,5 +55,9 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void read(Kryo kryo, Input input) {
+	}
+
+	public CustomMetrics getCustomMetrics() {
+		return customMetrics;
 	}
 }

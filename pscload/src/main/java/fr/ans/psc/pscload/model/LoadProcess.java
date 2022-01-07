@@ -16,7 +16,6 @@ import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.model.operations.OperationMapFactory;
@@ -46,8 +45,6 @@ public class LoadProcess implements KryoSerializable {
 	private ProcessState state;
 
 	private String id;
-
-	private UploadMetrics uploadMetrics = new UploadMetrics();
 	
 	/**
 	 * Instantiates a new load process.
@@ -144,8 +141,6 @@ public class LoadProcess implements KryoSerializable {
 		// never null)
 		kryo.writeClassAndObject(output, state);
 		kryo.writeObjectOrNull(output, maps, ArrayList.class);
-		kryo.writeObjectOrNull(output, uploadMetrics, UploadMetrics.class);
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -157,8 +152,6 @@ public class LoadProcess implements KryoSerializable {
 		extractedFilename = input.readString();
 		state = (ProcessState) kryo.readClassAndObject(input);
 		maps = (List<OperationMap<String, RassEntity>>) kryo.readObjectOrNull(input, ArrayList.class);
-		uploadMetrics = (UploadMetrics) kryo.readObjectOrNull(input, UploadMetrics.class);
-
 	}
 
 }

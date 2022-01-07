@@ -14,7 +14,11 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
  */
 public class UploadInterrupted extends ProcessState {
 
-    @Override
+	public UploadInterrupted() {
+		super();
+	}
+
+	@Override
     public void nextStep() throws LoadProcessException {
     }
   
