@@ -30,6 +30,10 @@ public class DiffComputed extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	public DiffComputed() {
+		super();
+	}
+
 	@Override
 	public void nextStep() {
 

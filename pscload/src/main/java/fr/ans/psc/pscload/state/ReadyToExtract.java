@@ -35,6 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReadyToExtract extends ProcessState {
 
+    public ReadyToExtract() {
+        super();
+    }
 
     @Override
     public void nextStep() throws LoadProcessException {

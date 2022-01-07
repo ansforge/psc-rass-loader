@@ -47,6 +47,10 @@ public class ReadyToComputeDiff extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	public ReadyToComputeDiff() {
+		super();
+	}
+
 	@Override
 	public void nextStep() throws LoadProcessException {
 		File fileToLoad = new File(process.getExtractedFilename());
