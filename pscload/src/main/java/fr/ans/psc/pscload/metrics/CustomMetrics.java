@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import fr.ans.psc.pscload.model.EmailTemplate;
+import fr.ans.psc.pscload.model.Stage;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
@@ -81,7 +82,7 @@ public class CustomMetrics {
 		DELETE,
 
 		/** The upload. */
-		UPLOAD
+		REFERENCE
 	}
 
 	/**
@@ -106,17 +107,17 @@ public class CustomMetrics {
 	 */
 	public enum PsCustomMetric {
 
-		/** The ps adeli upload size. */
-		PS_ADELI_UPLOAD_SIZE,
+		/** The ps adeli reference size. */
+		PS_ADELI_REFERENCE_SIZE,
 
-		/** The ps finess upload size. */
-		PS_FINESS_UPLOAD_SIZE,
+		/** The ps finess reference size. */
+		PS_FINESS_REFERENCE_SIZE,
 
-		/** The ps siret upload size. */
-		PS_SIRET_UPLOAD_SIZE,
+		/** The ps siret reference size. */
+		PS_SIRET_REFERENCE_SIZE,
 
-		/** The ps rpps upload size. */
-		PS_RPPS_UPLOAD_SIZE,
+		/** The ps rpps reference size. */
+		PS_RPPS_REFERENCE_SIZE,
 
 		/** The ps adeli delete size. */
 		PS_ADELI_DELETE_SIZE,
@@ -152,19 +153,7 @@ public class CustomMetrics {
 		PS_SIRET_UPDATE_SIZE,
 
 		/** The ps rpps update size. */
-		PS_RPPS_UPDATE_SIZE,
-
-		/** The ps adeli reference size. */
-		PS_ADELI_REFERENCE_SIZE,
-
-		/** The ps finess reference size. */
-		PS_FINESS_REFERENCE_SIZE,
-
-		/** The ps siret reference size. */
-		PS_SIRET_REFERENCE_SIZE,
-
-		/** The ps rpps reference size. */
-		PS_RPPS_REFERENCE_SIZE;
+		PS_RPPS_UPDATE_SIZE;
 
 		
 	    /**
@@ -183,8 +172,8 @@ public class CustomMetrics {
 	 */
 	public enum StructureCustomMetric {
 
-		/** The structure upload size. */
-		STRUCTURE_UPLOAD_SIZE,
+		/** The structure reference size. */
+		STRUCTURE_REFERENCE_SIZE,
 
 		/** The structure delete size. */
 		STRUCTURE_DELETE_SIZE,
@@ -257,6 +246,13 @@ public class CustomMetrics {
 		Counter.builder(SER_FILE_TAG).tags(TIMESTAMP_TAG, "").register(meterRegistry);
 	}
 
+	public void setPsMetricSize(PsCustomMetric metric, int value) {
+		appPsSizeGauges.get(metric).set(value);
+	}
+
+	public void setStructureMetricSize(StructureCustomMetric metric, int value) {
+		appStructureSizeGauges.get(metric).set(value);
+	}
     
 	/**
 	 * Reset size metrics.
@@ -277,8 +273,12 @@ public class CustomMetrics {
 		});
 	}
 
-	public void setStageMetric(int state) {
-		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
+	public void setStageMetric(Stage state) {
+		appMiscGauges.get(MiscCustomMetric.STAGE).set(state.value);
+	}
+
+	public void setStageMetric (int value) {
+		appMiscGauges.get(MiscCustomMetric.STAGE).set(value);
 	}
 
 	/**

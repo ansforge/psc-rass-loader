@@ -3,7 +3,6 @@
  */
 package fr.ans.psc.pscload.visitor;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 

@@ -61,7 +61,7 @@ public class ReadyToComputeDiff extends ProcessState {
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
 				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
-				setUploadSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
+				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
 			}
 			// Launch diff
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
@@ -122,21 +122,21 @@ public class ReadyToComputeDiff extends ProcessState {
 		});
 	}
 
-	private void setUploadSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap,
-			Map<String, Structure> structureMap) {
-		process.getUploadMetrics().setPsAdeliUploadSize(Math.toIntExact(psMap.values().stream()
+	private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap,
+														   Map<String, Structure> structureMap) {
+		process.getUploadMetrics().setPsAdeliReferenceSize(Math.toIntExact(psMap.values().stream()
 				.filter(professionnel -> ID_TYPE.ADELI.value.equals(professionnel.getIdType())).count()));
 
-		process.getUploadMetrics().setPsFinessUploadSize(Math.toIntExact(psMap.values().stream()
+		process.getUploadMetrics().setPsFinessReferenceSize(Math.toIntExact(psMap.values().stream()
 				.filter(professionnel -> ID_TYPE.FINESS.value.equals(professionnel.getIdType())).count()));
 
-		process.getUploadMetrics().setPsSiretUploadSize(Math.toIntExact(psMap.values().stream()
+		process.getUploadMetrics().setPsSiretReferenceSize(Math.toIntExact(psMap.values().stream()
 				.filter(professionnel -> ID_TYPE.SIRET.value.equals(professionnel.getIdType())).count()));
 
-		process.getUploadMetrics().setPsRppsUploadSize(Math.toIntExact(psMap.values().stream()
+		process.getUploadMetrics().setPsRppsReferenceSize(Math.toIntExact(psMap.values().stream()
 				.filter(professionnel -> ID_TYPE.RPPS.value.equals(professionnel.getIdType())).count()));
 
-		process.getUploadMetrics().setStructureUploadSize(structureMap.values().size());
+		process.getUploadMetrics().setStructureReferenceSize(structureMap.values().size());
 	}
 
 	/**

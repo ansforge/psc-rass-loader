@@ -13,11 +13,11 @@ import java.io.ObjectOutput;
  */
 public class UploadMetrics  implements Externalizable {
 
-	private int psAdeliUploadSize = 0;
-	private int psFinessUploadSize = 0;
-	private int psSiretUploadSize = 0;
-	private int psRppsUploadSize = 0;
-	private int structureUploadSize = 0;
+	private int psAdeliReferenceSize = 0;
+	private int psFinessReferenceSize = 0;
+	private int psSiretReferenceSize = 0;
+	private int psRppsReferenceSize = 0;
+	private int structureReferenceSize = 0;
 
 	/**
 	 * Instantiates a new upload metrics.
@@ -29,78 +29,78 @@ public class UploadMetrics  implements Externalizable {
 	/**
 	 * Instantiates a new upload metrics.
 	 *
-	 * @param psAdeliUploadSize the ps adeli upload size
-	 * @param psFinessUploadSize the ps finess upload size
-	 * @param psSiretUploadSize the ps siret upload size
-	 * @param psRppsUploadSize the ps rpps upload size
-	 * @param structureUploadSize the structure upload size
+	 * @param psAdeliReferenceSize the ps adeli upload size
+	 * @param psFinessReferenceSize the ps finess upload size
+	 * @param psSiretReferenceSize the ps siret upload size
+	 * @param psRppsReferenceSize the ps rpps upload size
+	 * @param structureReferenceSize the structure upload size
 	 */
-	public UploadMetrics(int psAdeliUploadSize, int psFinessUploadSize, int psSiretUploadSize, int psRppsUploadSize,
-			int structureUploadSize) {
-		this.psAdeliUploadSize = psAdeliUploadSize;
-		this.psFinessUploadSize = psFinessUploadSize;
-		this.psSiretUploadSize = psSiretUploadSize;
-		this.psRppsUploadSize = psRppsUploadSize;
-		this.structureUploadSize = structureUploadSize;
+	public UploadMetrics(int psAdeliReferenceSize, int psFinessReferenceSize, int psSiretReferenceSize, int psRppsReferenceSize,
+						 int structureReferenceSize) {
+		this.psAdeliReferenceSize = psAdeliReferenceSize;
+		this.psFinessReferenceSize = psFinessReferenceSize;
+		this.psSiretReferenceSize = psSiretReferenceSize;
+		this.psRppsReferenceSize = psRppsReferenceSize;
+		this.structureReferenceSize = structureReferenceSize;
 	}
 
-	public int getPsAdeliUploadSize() {
-		return psAdeliUploadSize;
+	public int getPsAdeliReferenceSize() {
+		return psAdeliReferenceSize;
 	}
 
-	public void setPsAdeliUploadSize(int psAdeliUploadSize) {
-		this.psAdeliUploadSize = psAdeliUploadSize;
+	public void setPsAdeliReferenceSize(int psAdeliReferenceSize) {
+		this.psAdeliReferenceSize = psAdeliReferenceSize;
 	}
 
-	public int getPsFinessUploadSize() {
-		return psFinessUploadSize;
+	public int getPsFinessReferenceSize() {
+		return psFinessReferenceSize;
 	}
 
-	public void setPsFinessUploadSize(int psFinessUploadSize) {
-		this.psFinessUploadSize = psFinessUploadSize;
+	public void setPsFinessReferenceSize(int psFinessReferenceSize) {
+		this.psFinessReferenceSize = psFinessReferenceSize;
 	}
 
-	public int getPsSiretUploadSize() {
-		return psSiretUploadSize;
+	public int getPsSiretReferenceSize() {
+		return psSiretReferenceSize;
 	}
 
-	public void setPsSiretUploadSize(int psSiretUploadSize) {
-		this.psSiretUploadSize = psSiretUploadSize;
+	public void setPsSiretReferenceSize(int psSiretReferenceSize) {
+		this.psSiretReferenceSize = psSiretReferenceSize;
 	}
 
-	public int getPsRppsUploadSize() {
-		return psRppsUploadSize;
+	public int getPsRppsReferenceSize() {
+		return psRppsReferenceSize;
 	}
 
-	public void setPsRppsUploadSize(int psRppsUploadSize) {
-		this.psRppsUploadSize = psRppsUploadSize;
+	public void setPsRppsReferenceSize(int psRppsReferenceSize) {
+		this.psRppsReferenceSize = psRppsReferenceSize;
 	}
 
-	public int getStructureUploadSize() {
-		return structureUploadSize;
+	public int getStructureReferenceSize() {
+		return structureReferenceSize;
 	}
 
-	public void setStructureUploadSize(int structureUploadSize) {
-		this.structureUploadSize = structureUploadSize;
+	public void setStructureReferenceSize(int structureReferenceSize) {
+		this.structureReferenceSize = structureReferenceSize;
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(psAdeliUploadSize);
-		out.writeInt(psFinessUploadSize);
-		out.writeInt(psRppsUploadSize);
-		out.writeInt(psSiretUploadSize);
-		out.writeInt(structureUploadSize);
+		out.writeInt(psAdeliReferenceSize);
+		out.writeInt(psFinessReferenceSize);
+		out.writeInt(psRppsReferenceSize);
+		out.writeInt(psSiretReferenceSize);
+		out.writeInt(structureReferenceSize);
 		
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		psAdeliUploadSize = in.readInt();
-		psFinessUploadSize = in.readInt();
-		psRppsUploadSize = in.readInt();
-		psSiretUploadSize = in.readInt();
-		structureUploadSize = in.readInt();
+		psAdeliReferenceSize = in.readInt();
+		psFinessReferenceSize = in.readInt();
+		psRppsReferenceSize = in.readInt();
+		psSiretReferenceSize = in.readInt();
+		structureReferenceSize = in.readInt();
 		
 	}
 
