@@ -68,13 +68,13 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms1g -Xmx8g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts}"
+JAVA_TOOL_OPTIONS="-Xms1g -Xmx6g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts}"
 EOH
       }
       template {
         data = <<EOF
 server.servlet.context-path=/pscload/v2
-api.base.url=http://{{ range service "psc-api-maj-v2" }}{{ .Address }}:{{ .Port }}{{ end }}/psc-api-maj/api
+api.base.url=http://$\u007BNOMAD_IP_http\u007D:9999/psc-api-maj/api
 pscextract.base.url=http://{{ range service "pscextract" }}{{ .Address }}:{{ .Port }}{{ end }}/pscextract/v1
 files.directory=/app/files-repo
 cert.path=/secrets/certificate.pem
@@ -106,7 +106,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 9216
+        memory = 7168
       }
       service {
         name = "$\u007BNOMAD_JOB_NAME\u007D"
