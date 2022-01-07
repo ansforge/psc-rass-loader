@@ -3,6 +3,8 @@
  */
 package fr.ans.psc.pscload.visitor;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -88,7 +90,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 				});
 				if (deletable.get()) {
-					psApi.deletePsById(item.getInternalId());
+					psApi.deletePsById(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
 					// remove PS from map if status 2xx
 					map.remove(item.getInternalId());
 				}

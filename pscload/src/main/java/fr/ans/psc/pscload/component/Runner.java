@@ -4,6 +4,7 @@
 package fr.ans.psc.pscload.component;
 
 import fr.ans.psc.pscload.model.EmailTemplate;
+import fr.ans.psc.pscload.model.Stage;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.*;
@@ -103,17 +104,17 @@ public class Runner {
                     // Step 1 : Download
                     process.nextStep();
                     process.setState(new ReadyToExtract());
-                    customMetrics.setStageMetric(10);
+                    customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                     // Step 2 : Extract
                     process.nextStep();
-                    process.setState(new ReadyToComputeDiff());
-                    customMetrics.setStageMetric(30);
+                    process.setState(new ReadyToComputeDiff(customMetrics));
+                    customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
                     // Step 4 : Load maps and compute diff
                     process.nextStep();
                     // check if differences exists
                     if (process.isRemainingPsOrStructuresInMaps()) {
                         process.setState(new DiffComputed(customMetrics));
-                        customMetrics.setStageMetric(50);
+                        customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
                         // Step 3 : publish metrics
                         process.nextStep();
                         // End of scheduled steps
@@ -147,19 +148,19 @@ public class Runner {
             log.info("Received request to process in Runner.runContinue()");
             process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
             customMetrics.resetSizeMetrics();
-            customMetrics.setStageMetric(60);
+            customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             process.nextStep();
             process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
             // Step 5 : call pscload
             process.nextStep();
             processRegistry.unregister(process.getId());
-            customMetrics.setStageMetric(0);
+            customMetrics.setStageMetric(Stage.FINISHED);
         } catch (LoadProcessException e) {
             // error during uploading
             if (e.getClass().equals(UploadException.class)) {
                 log.error("error when uploading changes", e);
                 process.setState(new UploadInterrupted());
-                customMetrics.setStageMetric(70);
+                customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
                 emailService.sendMail(EmailTemplate.UPLOAD_REST_INTERRUPTION);
             } else {
                 // error during ChangesAppliedState
@@ -176,7 +177,7 @@ public class Runner {
         try {
             process.nextStep();
             processRegistry.unregister(process.getId());
-            customMetrics.setStageMetric(0);
+            customMetrics.setStageMetric(Stage.FINISHED);
         } catch (LoadProcessException e) {
             // error during serialization/deserialization
             handleChangesAppliedStateExceptions(process, e);
@@ -188,12 +189,12 @@ public class Runner {
         if (e.getClass().equals(SerFileGenerationException.class)) {
             log.warn("Error when (de)serializing");
             process.setState(new SerializationInterrupted());
-            customMetrics.setStageMetric(60);
+            customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             emailService.sendMail(EmailTemplate.SERIALIZATION_FAILURE);
             // error when triggering extract
         } else if (e.getClass().equals(ExtractTriggeringException.class)) {
             log.warn("Error when triggering pscextract", e);
-            customMetrics.setStageMetric(70);
+            customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
             emailService.sendMail(EmailTemplate.TRIGGER_EXTRACT_FAILED);
             processRegistry.unregister(process.getId());
         }

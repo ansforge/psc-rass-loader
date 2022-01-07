@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.univocity.parsers.common.DataProcessingException;
 import org.apache.any23.encoding.TikaEncodingDetector;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -83,7 +84,7 @@ public class MapsHandler implements KryoSerializable {
 	 * @param file the file
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public void loadMapsFromFile(File file) throws IOException {
+	public void loadMapsFromFile(File file) throws IOException, IllegalArgumentException, DataProcessingException {
 		log.info("loading {} into list of Ps", file.getName());
 
 		// ObjectRowProcessor converts the parsed values and gives you the resulting

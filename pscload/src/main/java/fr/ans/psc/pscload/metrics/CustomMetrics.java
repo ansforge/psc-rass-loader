@@ -3,16 +3,13 @@
  */
 package fr.ans.psc.pscload.metrics;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import fr.ans.psc.pscload.model.EmailTemplate;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
+import fr.ans.psc.pscload.model.Stage;
 import org.springframework.stereotype.Component;
 
 import io.micrometer.core.instrument.Counter;
@@ -25,6 +22,7 @@ import io.micrometer.core.instrument.Tags;
 @Component
 public class CustomMetrics {
 
+	private MeterRegistry meterRegistry;
 	private static final String PS_METRIC_NAME = "ps.metric";
 	private static final String STRUCTURE_METRIC_NAME = "structure.metric";
 	private static final String ID_TYPE_TAG = "idType";
@@ -81,7 +79,7 @@ public class CustomMetrics {
 		DELETE,
 
 		/** The upload. */
-		UPLOAD
+		REFERENCE
 	}
 
 	/**
@@ -96,95 +94,64 @@ public class CustomMetrics {
 		STRUCTURE
 	}
 
-	private final Map<PsCustomMetric, AtomicInteger> appPsSizeGauges = new EnumMap<>(PsCustomMetric.class);
-	private final Map<StructureCustomMetric, AtomicInteger> appStructureSizeGauges = new EnumMap<>(
-			StructureCustomMetric.class);
+	private final Map<SizeMetric, AtomicInteger> appSizeGauges = new EnumMap<>(SizeMetric.class);
 	private final Map<MiscCustomMetric, AtomicInteger> appMiscGauges = new EnumMap<>(MiscCustomMetric.class);
 
 	/**
 	 * The Enum PsCustomMetric.
 	 */
-	public enum PsCustomMetric {
-
-		/** The ps adeli upload size. */
-		PS_ADELI_UPLOAD_SIZE,
-
-		/** The ps finess upload size. */
-		PS_FINESS_UPLOAD_SIZE,
-
-		/** The ps siret upload size. */
-		PS_SIRET_UPLOAD_SIZE,
-
-		/** The ps rpps upload size. */
-		PS_RPPS_UPLOAD_SIZE,
-
-		/** The ps adeli delete size. */
-		PS_ADELI_DELETE_SIZE,
-
-		/** The ps finess delete size. */
-		PS_FINESS_DELETE_SIZE,
-
-		/** The ps siret delete size. */
-		PS_SIRET_DELETE_SIZE,
-
-		/** The ps rpps delete size. */
-		PS_RPPS_DELETE_SIZE,
-
-		/** The ps adeli create size. */
-		PS_ADELI_CREATE_SIZE,
-
-		/** The ps finess create size. */
-		PS_FINESS_CREATE_SIZE,
-
-		/** The ps siret create size. */
-		PS_SIRET_CREATE_SIZE,
-
-		/** The ps rpps create size. */
-		PS_RPPS_CREATE_SIZE,
-
-		/** The ps adeli update size. */
-		PS_ADELI_UPDATE_SIZE,
-
-		/** The ps finess update size. */
-		PS_FINESS_UPDATE_SIZE,
-
-		/** The ps siret update size. */
-		PS_SIRET_UPDATE_SIZE,
-
-		/** The ps rpps update size. */
-		PS_RPPS_UPDATE_SIZE,
+	public enum SizeMetric {
 
 		/** The ps adeli reference size. */
-		PS_ADELI_REFERENCE_SIZE,
+		PS_REFERENCE_ADELI_SIZE,
 
 		/** The ps finess reference size. */
-		PS_FINESS_REFERENCE_SIZE,
+		PS_REFERENCE_FINESS_SIZE,
 
 		/** The ps siret reference size. */
-		PS_SIRET_REFERENCE_SIZE,
+		PS_REFERENCE_SIRET_SIZE,
 
 		/** The ps rpps reference size. */
-		PS_RPPS_REFERENCE_SIZE;
+		PS_REFERENCE_RPPS_SIZE,
 
-		
-	    /**
-	     * Stream ps metrics.
-	     *
-	     * @return the stream
-	     */
-	    public static Stream<PsCustomMetric> stream() {
-	        return Stream.of(PsCustomMetric.values()); 
-	    }
-	    
-	}
+		/** The ps adeli delete size. */
+		PS_DELETE_ADELI_SIZE,
 
-	/**
-	 * The Enum StructureCustomMetric.
-	 */
-	public enum StructureCustomMetric {
+		/** The ps finess delete size. */
+		PS_DELETE_FINESS_SIZE,
 
-		/** The structure upload size. */
-		STRUCTURE_UPLOAD_SIZE,
+		/** The ps siret delete size. */
+		PS_DELETE_SIRET_SIZE,
+
+		/** The ps rpps delete size. */
+		PS_DELETE_RPPS_SIZE,
+
+		/** The ps adeli create size. */
+		PS_CREATE_ADELI_SIZE,
+
+		/** The ps finess create size. */
+		PS_CREATE_FINESS_SIZE,
+
+		/** The ps siret create size. */
+		PS_CREATE_SIRET_SIZE,
+
+		/** The ps rpps create size. */
+		PS_CREATE_RPPS_SIZE,
+
+		/** The ps adeli update size. */
+		PS_UPDATE_ADELI_SIZE,
+
+		/** The ps finess update size. */
+		PS_UPDATE_FINESS_SIZE,
+
+		/** The ps siret update size. */
+		PS_UPDATE_SIRET_SIZE,
+
+		/** The ps rpps update size. */
+		PS_UPDATE_RPPS_SIZE,
+
+		/** The structure reference size. */
+		STRUCTURE_REFERENCE_SIZE,
 
 		/** The structure delete size. */
 		STRUCTURE_DELETE_SIZE,
@@ -194,16 +161,17 @@ public class CustomMetrics {
 
 		/** The structure update size. */
 		STRUCTURE_UPDATE_SIZE;
+
 		
 	    /**
-	     * Stream structure metrics.
+	     * Stream ps metrics.
 	     *
 	     * @return the stream
 	     */
-	    public static Stream<StructureCustomMetric> stream() {
-	        return Stream.of(StructureCustomMetric.values()); 
+	    public static Stream<SizeMetric> stream() {
+	        return Stream.of(SizeMetric.values());
 	    }
-		
+	    
 	}
 
 	/**
@@ -221,6 +189,7 @@ public class CustomMetrics {
 	 * @param meterRegistry the meter registry
 	 */
 	public CustomMetrics(MeterRegistry meterRegistry) {
+		this.meterRegistry = meterRegistry;
 		appMiscGauges.put(MiscCustomMetric.STAGE, meterRegistry.gauge("pscload.stage", new AtomicInteger(0)));
 
 		// Initialization of metrics
@@ -228,8 +197,8 @@ public class CustomMetrics {
 		// PS size metrics :
 		// initialize metric for each type and operation for a PS
 		Arrays.stream(ID_TYPE.values()).forEach(id_type -> Arrays.stream(OPERATION.values()).forEach(operation -> {
-			String metricKey = String.join("_", ENTITY_TYPE.PS.name(), id_type.name(), operation.name(), "SIZE");
-			appPsSizeGauges.put(PsCustomMetric.valueOf(metricKey),
+			String metricKey = String.join("_", ENTITY_TYPE.PS.name(), operation.name(), id_type.name(), "SIZE");
+			appSizeGauges.put(SizeMetric.valueOf(metricKey),
 					meterRegistry.gauge(PS_METRIC_NAME,
 							Tags.of(ID_TYPE_TAG, id_type.toString(), OPERATION_TAG, operation.name().toLowerCase()),
 							// set to -1 to discriminate no changes on this operation & entity (-> 0) and
@@ -244,7 +213,7 @@ public class CustomMetrics {
 		// initialize metric for each operation for a Structure
 		Arrays.stream(OPERATION.values()).forEach(operation -> {
 			String metricKey = String.join("_", ENTITY_TYPE.STRUCTURE.name(), operation.name(), "SIZE");
-			appStructureSizeGauges.put(StructureCustomMetric.valueOf(metricKey),
+			appSizeGauges.put(SizeMetric.valueOf(metricKey),
 					meterRegistry.gauge(STRUCTURE_METRIC_NAME, Tags.of(OPERATION_TAG, operation.name().toLowerCase()),
 							// set to -1 to discriminate no changes on this operation & entity (-> 0) and
 							// not the correct stage (-> -1)
@@ -257,6 +226,9 @@ public class CustomMetrics {
 		Counter.builder(SER_FILE_TAG).tags(TIMESTAMP_TAG, "").register(meterRegistry);
 	}
 
+	public void setPsMetricSize(SizeMetric metric, int value) {
+		appSizeGauges.get(metric).set(value);
+	}
     
 	/**
 	 * Reset size metrics.
@@ -267,31 +239,22 @@ public class CustomMetrics {
 			Arrays.stream(CustomMetrics.OPERATION.values()).forEach(operation -> {
 				String metricKey = String.join("_", CustomMetrics.ENTITY_TYPE.PS.name(), id_type.name(),
 						operation.name(), "SIZE");
-				appPsSizeGauges.get(CustomMetrics.PsCustomMetric.valueOf(metricKey)).set(-1);
+				appSizeGauges.get(SizeMetric.valueOf(metricKey)).set(-1);
 			});
 		});
 		// reset all StructureSizeMetrics
 		Arrays.stream(CustomMetrics.OPERATION.values()).forEach(operation -> {
 			String metricKey = String.join("_", CustomMetrics.ENTITY_TYPE.STRUCTURE.name(), operation.name(), "SIZE");
-			appStructureSizeGauges.get(CustomMetrics.StructureCustomMetric.valueOf(metricKey)).set(-1);
+			appSizeGauges.get(CustomMetrics.SizeMetric.valueOf(metricKey)).set(-1);
 		});
 	}
 
-	public void setStageMetric(int state) {
-		appMiscGauges.get(MiscCustomMetric.STAGE).set(state);
+	public void setStageMetric(Stage state) {
+		appMiscGauges.get(MiscCustomMetric.STAGE).set(state.value);
 	}
 
-	/**
-	 * Gets app gauges.
-	 *
-	 * @return the app gauges
-	 */
-	public Map<PsCustomMetric, AtomicInteger> getPsSizeGauges() {
-		return appPsSizeGauges;
-	}
-
-	public Map<StructureCustomMetric, AtomicInteger> getAppStructureSizeGauges() {
-		return appStructureSizeGauges;
+	public void setStageMetric (int value) {
+		appMiscGauges.get(MiscCustomMetric.STAGE).set(value);
 	}
 
 	public Map<MiscCustomMetric, AtomicInteger> getAppMiscGauges() {
@@ -301,4 +264,6 @@ public class CustomMetrics {
 	public int getStageMetricValue() {
 		return appMiscGauges.get(MiscCustomMetric.STAGE).get();
 	}
+
+	public Map<SizeMetric, AtomicInteger> getAppSizeGauges() { return appSizeGauges;}
 }
