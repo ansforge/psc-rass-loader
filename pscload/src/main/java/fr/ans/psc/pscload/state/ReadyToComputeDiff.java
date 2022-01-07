@@ -7,11 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +17,8 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.entities.Professionnel;
@@ -38,11 +36,14 @@ public class ReadyToComputeDiff extends ProcessState {
 	private MapsHandler newMaps = new MapsHandler();
 	private MapsHandler oldMaps = new MapsHandler();
 
+	private CustomMetrics customMetrics;
+
 	/**
 	 * Instantiates a new ready to compute diff state.
 	 */
-	public ReadyToComputeDiff() {
+	public ReadyToComputeDiff(CustomMetrics customMetrics) {
 		super();
+		this.customMetrics = customMetrics;
 	}
 
 	@Override
@@ -97,8 +98,8 @@ public class ReadyToComputeDiff extends ProcessState {
 			switch (map.getOperation()) {
 			case PS_UPDATE:
 				diffPs.entriesDiffering().forEach((k, v) -> {
-					map.put((String) k, (Professionnel) v.rightValue());
-					map.saveOldValue(k, (Professionnel) v.leftValue());
+					map.put(k, v.rightValue());
+					map.saveOldValue(k, v.leftValue());
 				});
 				break;
 			case PS_DELETE:
@@ -112,8 +113,8 @@ public class ReadyToComputeDiff extends ProcessState {
 				break;
 			case STRUCTURE_UPDATE:
 				diffStructures.entriesDiffering().forEach((k, v) -> {
-					map.put((String) k, (Structure) v.rightValue());
-					map.saveOldValue(k, (Structure) v.leftValue());
+					map.put(k, v.rightValue());
+					map.saveOldValue(k, v.leftValue());
 				});
 				break;
 			default:
@@ -124,19 +125,15 @@ public class ReadyToComputeDiff extends ProcessState {
 
 	private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap,
 														   Map<String, Structure> structureMap) {
-		process.getUploadMetrics().setPsAdeliReferenceSize(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.ADELI.value.equals(professionnel.getIdType())).count()));
+		Arrays.stream(ID_TYPE.values()).forEach(id_type -> {
+			String metricKey = String.join("_", "PS_REFERENCE", id_type.name(), "SIZE");
+			SizeMetric metric = SizeMetric.valueOf(metricKey);
 
-		process.getUploadMetrics().setPsFinessReferenceSize(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.FINESS.value.equals(professionnel.getIdType())).count()));
+			customMetrics.setPsMetricSize(metric, Math.toIntExact(psMap.values().stream().filter(
+					professionnel -> id_type.value.equals(professionnel.getIdType())).count()));
+		});
 
-		process.getUploadMetrics().setPsSiretReferenceSize(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.SIRET.value.equals(professionnel.getIdType())).count()));
-
-		process.getUploadMetrics().setPsRppsReferenceSize(Math.toIntExact(psMap.values().stream()
-				.filter(professionnel -> ID_TYPE.RPPS.value.equals(professionnel.getIdType())).count()));
-
-		process.getUploadMetrics().setStructureReferenceSize(structureMap.values().size());
+		customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_REFERENCE_SIZE, structureMap.size());
 	}
 
 	/**
@@ -222,5 +219,9 @@ public class ReadyToComputeDiff extends ProcessState {
 			return dateFormatter.parse(m.group(1));
 		}
 		return new Date(0);
+	}
+
+	public CustomMetrics getCustomMetrics() {
+		return customMetrics;
 	}
 }

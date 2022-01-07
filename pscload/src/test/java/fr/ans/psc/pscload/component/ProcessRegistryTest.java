@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +19,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import fr.ans.psc.model.StructureRef;
-import fr.ans.psc.pscload.metrics.UploadMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.entities.Professionnel;
@@ -109,7 +106,6 @@ class ProcessRegistryTest {
 		kryo.register(ReadyToExtract.class, 23);
 		kryo.register(UploadingChanges.class, 24);
 		kryo.register(ChangesApplied.class, 25);
-		kryo.register(UploadMetrics.class, 26);
 		kryo.register(String[].class, 27);
 		kryo.register(ConcurrentHashMap.class, 28);
 		kryo.register(UploadInterrupted.class, 29);

@@ -136,7 +136,7 @@ public class ChangesAppliedTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new ReadyToComputeDiff());
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
         p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
@@ -144,7 +144,7 @@ public class ChangesAppliedTest {
         p.getState().setProcess(p);
         p.nextStep();
         // Day 2 : Compute diff
-        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff());
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
         registry.register(Integer.toString(registry.nextId()), p2);
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
         p2.setExtractedFilename(extractFile2.getPath());
