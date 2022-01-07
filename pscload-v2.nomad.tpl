@@ -38,6 +38,7 @@ job "pscload" {
       kill_signal = "SIGTERM"
       driver = "docker"
       config {
+        extra_hosts = [ "psc-api-maj.internal:$\u007BNOMAD_IP_http\u007D" ]
         image = "${artifact.image}:${artifact.tag}"
         volumes = [
           "name=pscload-data,io_priority=high,size=10,repl=3:/app/files-repo"
@@ -74,7 +75,7 @@ EOH
       template {
         data = <<EOF
 server.servlet.context-path=/pscload/v2
-api.base.url=http://${NOMAD_IP_http}:9999/psc-api-maj/api
+api.base.url=http://psc-api-maj.internal:9999/psc-api-maj/api
 pscextract.base.url=http://{{ range service "pscextract" }}{{ .Address }}:{{ .Port }}{{ end }}/pscextract/v1
 files.directory=/app/files-repo
 cert.path=/secrets/certificate.pem
