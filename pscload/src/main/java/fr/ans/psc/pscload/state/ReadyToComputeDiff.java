@@ -17,6 +17,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 
+import com.univocity.parsers.common.DataProcessingException;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
@@ -75,6 +76,8 @@ public class ReadyToComputeDiff extends ProcessState {
 			throw new DiffException("I/O Error when deserializing file", e);
 		} catch (ClassNotFoundException e) {
 			throw new DiffException(".ser file not compatible with model", e);
+		} catch (RuntimeException e) {
+			throw new DiffException("RunTimeException has occurred", e);
 		}
 
 	}
