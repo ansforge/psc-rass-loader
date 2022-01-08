@@ -44,7 +44,7 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
 
     private void setPsMetricFromPsMap(OperationMap<String, RassEntity> map) {
         Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
-            String metricKey = String.join("_", CustomMetrics.ENTITY_TYPE.PS.name(), map.getOperation().name(), id_type.name(), "SIZE");
+            String metricKey = String.join("_", map.getOperation().name(), id_type.name(), "SIZE");
             SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
 
             customMetrics.setPsMetricSize(
