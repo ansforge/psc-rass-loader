@@ -237,14 +237,15 @@ public class CustomMetrics {
 		// reset all PsSizeMetrics
 		Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
 			Arrays.stream(CustomMetrics.OPERATION.values()).forEach(operation -> {
-				String metricKey = String.join("_", CustomMetrics.ENTITY_TYPE.PS.name(), id_type.name(),
-						operation.name(), "SIZE");
+				String metricKey = String.join("_",
+						CustomMetrics.ENTITY_TYPE.PS.name(), operation.name(), id_type.name(), "SIZE");
 				appSizeGauges.get(SizeMetric.valueOf(metricKey)).set(-1);
 			});
 		});
 		// reset all StructureSizeMetrics
 		Arrays.stream(CustomMetrics.OPERATION.values()).forEach(operation -> {
-			String metricKey = String.join("_", CustomMetrics.ENTITY_TYPE.STRUCTURE.name(), operation.name(), "SIZE");
+			String metricKey = String.join("_",
+					CustomMetrics.ENTITY_TYPE.STRUCTURE.name(), operation.name(), "SIZE");
 			appSizeGauges.get(CustomMetrics.SizeMetric.valueOf(metricKey)).set(-1);
 		});
 	}
