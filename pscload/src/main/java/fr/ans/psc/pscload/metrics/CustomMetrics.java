@@ -162,16 +162,15 @@ public class CustomMetrics {
 		/** The structure update size. */
 		STRUCTURE_UPDATE_SIZE;
 
-		
-	    /**
-	     * Stream ps metrics.
-	     *
-	     * @return the stream
-	     */
-	    public static Stream<SizeMetric> stream() {
-	        return Stream.of(SizeMetric.values());
-	    }
-	    
+		/**
+		 * Stream ps metrics.
+		 *
+		 * @return the stream
+		 */
+		public static Stream<SizeMetric> stream() {
+			return Stream.of(SizeMetric.values());
+		}
+
 	}
 
 	/**
@@ -229,7 +228,7 @@ public class CustomMetrics {
 	public void setPsMetricSize(SizeMetric metric, int value) {
 		appSizeGauges.get(metric).set(value);
 	}
-    
+
 	/**
 	 * Reset size metrics.
 	 */
@@ -254,7 +253,7 @@ public class CustomMetrics {
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(state.value);
 	}
 
-	public void setStageMetric (int value) {
+	public void setStageMetric(int value) {
 		appMiscGauges.get(MiscCustomMetric.STAGE).set(value);
 	}
 
@@ -266,5 +265,7 @@ public class CustomMetrics {
 		return appMiscGauges.get(MiscCustomMetric.STAGE).get();
 	}
 
-	public Map<SizeMetric, AtomicInteger> getAppSizeGauges() { return appSizeGauges;}
+	public Map<SizeMetric, AtomicInteger> getAppSizeGauges() {
+		return appSizeGauges;
+	}
 }
