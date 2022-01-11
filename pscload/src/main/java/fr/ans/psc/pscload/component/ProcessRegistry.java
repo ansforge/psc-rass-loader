@@ -90,7 +90,6 @@ public class ProcessRegistry implements  KryoSerializable  {
 	 * @param id the id
 	 */
 	public void unregister(String id) {
-		log.info("Unregistering process #{}", id);
 		registry.remove(id);
 	}
 	

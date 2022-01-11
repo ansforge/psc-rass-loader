@@ -123,6 +123,7 @@ public class Runner {
                     	txtfile.delete();
                     	File lockfile = new File(process.getTmpMapsPath());
                     	lockfile.delete();
+                    	log.info("No differences with previous upload, unregistering process...");
                         processRegistry.unregister(id);
                     }
                 } catch (LoadProcessException e) {
