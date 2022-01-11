@@ -86,7 +86,7 @@ test.download.url={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.test_do
 use.x509.auth=true
 keystore.password={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.keystore_password }}{{ end }}
 enable.scheduler={{ with secret "psc-ecosystem/pscload" }}{{ .Data.data.enable_scheduler }}{{ end }}
-schedule.cron.expression = 0 */10 * * * ?
+schedule.cron.expression = 0 0 12,15,18,21 * * ?
 schedule.cron.timeZone = Europe/Paris
 process.expiration.delay=12
 management.endpoints.web.exposure.include=health,info,prometheus,metric
@@ -100,7 +100,7 @@ spring.mail.password={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.spr
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 pscload.mail.receiver={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.mail_receiver }}{{ end }}
-enable.emailing=false
+enable.emailing=true
 EOF
         destination = "secrets/application.properties"
         change_mode = "restart"
