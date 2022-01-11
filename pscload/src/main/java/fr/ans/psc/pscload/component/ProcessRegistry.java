@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ import fr.ans.psc.pscload.model.LoadProcess;
  * The Class ProcessRegistry.
  */
 @Component
+@Slf4j
 public class ProcessRegistry implements  KryoSerializable  {
 	
 
@@ -88,6 +90,7 @@ public class ProcessRegistry implements  KryoSerializable  {
 	 * @param id the id
 	 */
 	public void unregister(String id) {
+		log.info("Unregistering process #{}", id);
 		registry.remove(id);
 	}
 	
