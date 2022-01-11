@@ -6,6 +6,9 @@ package fr.ans.psc.pscload.controller;
 import java.io.File;
 import java.util.Optional;
 
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.state.DiffComputed;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +37,9 @@ public class TestingController {
 	@Value("${files.directory}")
 	private String filesDirectory;
 
+	@Autowired
+	private CustomMetrics customMetrics;
+
 	/** The registry. */
 	private final ProcessRegistry registry;
 
@@ -42,7 +48,8 @@ public class TestingController {
 	 */
 	private enum States {
 		READY_TO_EXTRACT("ReadyToExtract", ReadyToExtract.class),
-		READY_TO_COMPUTE_DIFF("ReadyToComputeDiff", ReadyToComputeDiff.class);
+		READY_TO_COMPUTE_DIFF("ReadyToComputeDiff", ReadyToComputeDiff.class),
+		DIFF_COMPUTED("DiffComputed", DiffComputed.class);
 
 		private Class<? extends ProcessState> clazz;
 		private String classname;
@@ -104,16 +111,16 @@ public class TestingController {
 		ProcessState processState = null;
 		try {
 			if (States.READY_TO_EXTRACT.classname.equals(state)) {
-
-				processState = States.READY_TO_EXTRACT.clazz.getDeclaredConstructor().newInstance();
-
-			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)){
-				processState = States.READY_TO_COMPUTE_DIFF.clazz.getDeclaredConstructor().newInstance();
-			}else {
+				processState = new ReadyToExtract();
+			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)) {
+				processState = new ReadyToComputeDiff(customMetrics);
+			} else if (States.DIFF_COMPUTED.classname.equals(state)){
+				processState = new DiffComputed(customMetrics);
+			} else {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception e) {
-			// normaly not reachable
+			// normally not reachable
 			log.error("error when instantiate class",e);
 		}
 		registry.getProcessById(id).setState(processState);
