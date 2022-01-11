@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Optional;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,9 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.state.ProcessState;
-import fr.ans.psc.pscload.state.ReadyToComputeDiff;
-import fr.ans.psc.pscload.state.ReadyToExtract;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -37,6 +34,9 @@ public class TestingController {
 	@Value("${files.directory}")
 	private String filesDirectory;
 
+	@Value("${extract.download.url}")
+	private String extractDownloadUrl;
+
 	@Autowired
 	private CustomMetrics customMetrics;
 
@@ -47,6 +47,7 @@ public class TestingController {
 	 * The Enum States.
 	 */
 	private enum States {
+		SUBMITTED("Submitted", Submitted.class),
 		READY_TO_EXTRACT("ReadyToExtract", ReadyToExtract.class),
 		READY_TO_COMPUTE_DIFF("ReadyToComputeDiff", ReadyToComputeDiff.class),
 		DIFF_COMPUTED("DiffComputed", DiffComputed.class);
@@ -110,7 +111,9 @@ public class TestingController {
 	public ResponseEntity<Void> setState(@RequestParam String id, @RequestParam String state) {
 		ProcessState processState = null;
 		try {
-			if (States.READY_TO_EXTRACT.classname.equals(state)) {
+			if (States.SUBMITTED.classname.equals(state)) {
+				processState = new Submitted(extractDownloadUrl, filesDirectory);
+			} else if (States.READY_TO_EXTRACT.classname.equals(state)) {
 				processState = new ReadyToExtract();
 			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)) {
 				processState = new ReadyToComputeDiff(customMetrics);
