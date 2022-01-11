@@ -51,6 +51,7 @@ public class LoadProcess implements KryoSerializable {
 	 */
 	public LoadProcess() {
 		super();
+		init();
 	}
 
 	/**
