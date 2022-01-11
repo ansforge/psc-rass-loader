@@ -86,8 +86,10 @@ public class ProcessController {
                 return result;
             }
             // Conflict if process is not in the expected state.
+            log.warn("can't continue: process is not at DiffComputed state");
             result = new ResponseEntity<>(HttpStatus.CONFLICT);
         } else {
+            log.warn("can't continue: no process is regsitered");
             result = new ResponseEntity<>(HttpStatus.TOO_EARLY);
         }
         return result;
