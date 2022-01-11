@@ -67,6 +67,7 @@ public class ChangesApplied extends ProcessState {
 
     @Override
     public void nextStep() {
+        log.info("ChangesApplied : nextStep()");
     	//First step
     	processRemainingPS();
     	// after this memory is cleared

@@ -12,10 +12,12 @@ import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.visitor.MapsMetricsSetterVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class DiffComputed.
  */
+@Slf4j
 public class DiffComputed extends ProcessState {
 
 	private CustomMetrics customMetrics;
@@ -36,6 +38,7 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void nextStep() {
+		log.info("DiffComputed: nextStep()");
 
 		MapsVisitor visitor = new MapsMetricsSetterVisitorImpl(customMetrics);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {

@@ -100,6 +100,8 @@ public class ReadyToComputeDiff extends ProcessState {
 	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs,
 			MapDifference<String, Structure> diffStructures) {
 
+		log.info("filling changes maps");
+
 		process.getMaps()
 		.stream().forEach(map -> {
 			switch (map.getOperation()) {
