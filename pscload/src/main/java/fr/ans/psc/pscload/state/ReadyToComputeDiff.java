@@ -154,44 +154,13 @@ public class ReadyToComputeDiff extends ProcessState {
 		log.info("Cleaning files repository, removing all but latest files");
 		Map<String, List<File>> filesMap = zipsTextsNSers(new File(filesDirectory).listFiles());
 
-		List<File> listOfZips = filesMap.get("zips");
-		List<File> listOfExtracts = filesMap.get("txts");
-		List<File> listOfSers = filesMap.get("sers");
-		List<File> listOfLocks = filesMap.get("locks");
-
-		// Order files lists from oldest to newest by comparing parsed dates,
-		// but honestly same result if we had used file name String to compare
-		listOfZips.sort(this::compare);
-		listOfExtracts.sort(this::compare);
-		listOfSers.sort(this::compare);
-
-		if (listOfZips.size() > 0) {
-			listOfZips.remove(listOfZips.size() - 1);
-		}
-		if (listOfExtracts.size() > 0) {
-			listOfExtracts.remove(listOfExtracts.size() - 1);
-		}
-		if (listOfSers.size() > 0) {
-			listOfSers.remove(listOfSers.size() - 1);
-		}
-
-		if (listOfLocks.size() > 0) {
-			listOfLocks.remove(listOfLocks.size() - 1);
-		}
-
-		for (File file : listOfZips) {
-			file.delete();
-		}
-		for (File file : listOfExtracts) {
-			file.delete();
-		}
-		for (File file : listOfSers) {
-			file.delete();
-		}
-
-		for (File file : listOfLocks) {
-			file.delete();
-		}
+		filesMap.values().forEach(filesList -> {
+			filesList.sort(this::compare);
+			if (filesList.size() > 0) {
+				filesList.remove(filesList.size() - 1);
+				filesList.forEach(file -> file.delete());
+			}
+		});
 	}
 
 	/**
