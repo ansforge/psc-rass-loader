@@ -157,6 +157,7 @@ public class ReadyToComputeDiff extends ProcessState {
 		List<File> listOfZips = filesMap.get("zips");
 		List<File> listOfExtracts = filesMap.get("txts");
 		List<File> listOfSers = filesMap.get("sers");
+		List<File> listOfLocks = filesMap.get("locks");
 
 		// Order files lists from oldest to newest by comparing parsed dates,
 		// but honestly same result if we had used file name String to compare
@@ -174,6 +175,10 @@ public class ReadyToComputeDiff extends ProcessState {
 			listOfSers.remove(listOfSers.size() - 1);
 		}
 
+		if (listOfLocks.size() > 0) {
+			listOfLocks.remove(listOfLocks.size() - 1);
+		}
+
 		for (File file : listOfZips) {
 			file.delete();
 		}
@@ -181,6 +186,10 @@ public class ReadyToComputeDiff extends ProcessState {
 			file.delete();
 		}
 		for (File file : listOfSers) {
+			file.delete();
+		}
+
+		for (File file : listOfLocks) {
 			file.delete();
 		}
 	}
@@ -196,14 +205,17 @@ public class ReadyToComputeDiff extends ProcessState {
 		filesMap.put("zips", new ArrayList<>());
 		filesMap.put("txts", new ArrayList<>());
 		filesMap.put("sers", new ArrayList<>());
+		filesMap.put("locks", new ArrayList<>());
 
 		for (File file : listOfFiles != null ? listOfFiles : new File[0]) {
-			if (file.getName().endsWith(".ser") || file.getName().endsWith(".lock")) {
+			if (file.getName().endsWith(".ser")) {
 				filesMap.get("sers").add(file);
 			} else if (file.getName().endsWith(".zip")) {
 				filesMap.get("zips").add(file);
 			} else if (file.getName().endsWith(".txt")) {
 				filesMap.get("txts").add(file);
+			} else if (file.getName().endsWith(".lock")) {
+				filesMap.get("locks").add(file);
 			}
 		}
 		return filesMap;
