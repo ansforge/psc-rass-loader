@@ -107,7 +107,7 @@ public class ChangesApplied extends ProcessState {
                 MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
                 // Clean all maps and collect reports infos
                 process.getMaps().stream().forEach(map -> {
-                	message.append(String.format("%s en échec : %s", map.getOperation().toString(), map.size()));
+                	message.append(String.format("%s en échec : %s\n", map.getOperation().toString(), map.size()));
                 	map.accept(cleaner);
                 });
 
