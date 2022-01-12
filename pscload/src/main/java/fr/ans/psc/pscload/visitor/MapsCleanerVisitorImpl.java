@@ -88,8 +88,8 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(StructureUpdateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				generateReportLine(map, report, item);
 				maps.getStructureMap().replace(item.getInternalId(), (Structure) map.getOldValue(item.getInternalId()));
 			}
 		});
