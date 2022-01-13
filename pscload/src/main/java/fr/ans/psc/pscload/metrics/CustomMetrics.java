@@ -3,18 +3,17 @@
  */
 package fr.ans.psc.pscload.metrics;
 
+import fr.ans.psc.pscload.model.Stage;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
-
-import fr.ans.psc.pscload.model.Stage;
-import org.springframework.stereotype.Component;
-
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 
 /**
  * The Class CustomMetrics.

@@ -3,6 +3,21 @@
  */
 package fr.ans.psc.pscload.state;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
+import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
+import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.state.exception.DiffException;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -10,23 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
-
-import com.univocity.parsers.common.DataProcessingException;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
-import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
-import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.entities.Professionnel;
-import fr.ans.psc.pscload.model.entities.Structure;
-import fr.ans.psc.pscload.state.exception.DiffException;
-import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ReadyToComputeDiff.
