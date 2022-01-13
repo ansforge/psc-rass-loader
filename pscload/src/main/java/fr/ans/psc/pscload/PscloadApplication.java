@@ -67,8 +67,8 @@ public class PscloadApplication {
 	@Value("${pscextract.base.url}")
 	private String pscextractBaseUrl;
 
-	@Value("${debug:false}")
-	private boolean debug;
+	@Value("${custom.debug:false}")
+	private boolean customDebug;
 
 	@Value("${deactivation.excluded.profession.codes}")
 	private String[] excludedProfessions;
@@ -183,7 +183,7 @@ public class PscloadApplication {
 					registry.write(kryo, output);
 					output.close();
 
-					if (debug) {
+					if (customDebug) {
 						Writer writer = new FileWriter(filesDirectory + File.separator + "registry.json");
 						Gson gson = new GsonBuilder().setPrettyPrinting().create();
 						gson.toJson(registry, writer);

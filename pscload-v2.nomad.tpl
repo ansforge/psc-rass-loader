@@ -101,7 +101,7 @@ spring.mail.properties.mail.smtp.auth={{ with secret "psc-ecosystem/emailing" }}
 spring.mail.properties.mail.smtp.starttls.enable={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.spring_mail_smtp_starttls_enable }}{{ end }}
 pscload.mail.receiver={{ with secret "psc-ecosystem/emailing" }}{{ .Data.data.mail_receiver }}{{ end }}
 enable.emailing=true
-{{ with secret "psc-ecosystem/pscload" }}debug={{ .Data.data.debug }}{{ end }}
+{{ with secret "psc-ecosystem/pscload" }}custom.debug={{ .Data.data.debug }}{{ end }}
 EOF
         destination = "secrets/application.properties"
         change_mode = "restart"
