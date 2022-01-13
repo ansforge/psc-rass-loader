@@ -66,6 +66,9 @@ public class PscloadApplication {
 	@Value("${pscextract.base.url}")
 	private String pscextractBaseUrl;
 
+	@Value("${debug:false}")
+	private boolean debug;
+
 	/**
 	 * The main method.
 	 *
@@ -169,11 +172,13 @@ public class PscloadApplication {
 					registry.write(kryo, output);
 					output.close();
 
-					Writer writer = new FileWriter(filesDirectory + File.separator + "registry.json");
-					Gson gson = new GsonBuilder().setPrettyPrinting().create();
-					gson.toJson(registry, writer);
-					writer.flush();
-					writer.close();
+					if (debug) {
+						Writer writer = new FileWriter(filesDirectory + File.separator + "registry.json");
+						Gson gson = new GsonBuilder().setPrettyPrinting().create();
+						gson.toJson(registry, writer);
+						writer.flush();
+						writer.close();
+					}
 				} catch (IOException e) {
 					log.error("Unable to save registry", e);
 				} 
