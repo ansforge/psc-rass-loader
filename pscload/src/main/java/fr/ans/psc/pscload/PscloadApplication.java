@@ -3,13 +3,12 @@
  */
 package fr.ans.psc.pscload;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -169,6 +168,12 @@ public class PscloadApplication {
 					Output output = new Output(fileOutputStream);
 					registry.write(kryo, output);
 					output.close();
+
+					Writer writer = new FileWriter(filesDirectory + File.separator + "registry.json");
+					Gson gson = new GsonBuilder().setPrettyPrinting().create();
+					gson.toJson(registry, writer);
+					writer.flush();
+					writer.close();
 				} catch (IOException e) {
 					log.error("Unable to save registry", e);
 				} 
