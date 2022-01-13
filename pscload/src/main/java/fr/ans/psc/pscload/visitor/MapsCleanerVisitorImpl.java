@@ -43,8 +43,8 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(PsCreateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				generateReportLine(map, report, item);
 				maps.getPsMap().remove(item.getInternalId());
 			}
 		});
@@ -54,8 +54,8 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(PsUpdateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				generateReportLine(map, report, item);
 				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
 			}
 		});
@@ -65,8 +65,8 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(PsDeleteMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				generateReportLine(map, report, item);
 				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
 			}
 		});
@@ -76,8 +76,8 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(StructureCreateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				generateReportLine(map, report, item);
 				maps.getStructureMap().remove(item.getInternalId());
 			}
 		});
