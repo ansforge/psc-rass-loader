@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.ans.psc.pscload.model.Stage;
 import fr.ans.psc.pscload.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,6 +70,12 @@ public class PscloadApplication {
 	@Value("${debug:false}")
 	private boolean debug;
 
+	@Value("${deactivation.excluded.profession.codes}")
+	private String[] excludedProfessions;
+
+	@Value("${api.base.url}")
+	private String apiBaseUrl;
+
 	/**
 	 * The main method.
 	 *
@@ -106,6 +113,7 @@ public class PscloadApplication {
 					registry.read(kryo, input);
 					input.close();
 					registryFile.delete();
+					log.info("Registry restored");
 				} catch (IOException | KryoException e) {
 					log.warn("Unable to restore registry, start with an empty registry", e);
 					registryFile.delete();
@@ -121,13 +129,16 @@ public class PscloadApplication {
 								try {
 									if (stateClass.equals(UploadingChanges.class)) {
 										// upload changes
-										customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(60);
+										customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE)
+												.set(Stage.UPLOAD_CHANGES_STARTED.value);
+
+										process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 										process.nextStep();
-										process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
-										process.getState().setProcess(process);
+
 									}
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(70);
 									// Step 5 : call pscload
+									process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
 									process.nextStep();
 									registry.unregister(process.getId());
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE).set(0);
