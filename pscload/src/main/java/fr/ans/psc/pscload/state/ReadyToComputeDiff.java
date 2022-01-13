@@ -173,13 +173,10 @@ public class ReadyToComputeDiff extends ProcessState {
 		Map<String, List<File>> filesMap = new HashMap<>();
 		filesMap.put("zips", new ArrayList<>());
 		filesMap.put("txts", new ArrayList<>());
-		filesMap.put("sers", new ArrayList<>());
 		filesMap.put("locks", new ArrayList<>());
 
 		for (File file : listOfFiles != null ? listOfFiles : new File[0]) {
-			if (file.getName().endsWith(".ser")) {
-				filesMap.get("sers").add(file);
-			} else if (file.getName().endsWith(".zip")) {
+			if (file.getName().endsWith(".zip")) {
 				filesMap.get("zips").add(file);
 			} else if (file.getName().endsWith(".txt")) {
 				filesMap.get("txts").add(file);
