@@ -70,7 +70,7 @@ public class MapsHandler implements KryoSerializable {
 		kryo.register(SituationExercice.class, 14);
 		kryo.register(RefStructure.class, 15);
 		kryo.register(Structure.class, 16);
-		}
+	}
 
 	private static final int ROW_LENGTH = 50;
 

@@ -91,9 +91,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				});
 				if (deletable.get()) {
 					psApi.deletePsById(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
-					// remove PS from map if status 2xx
-					map.remove(item.getInternalId());
 				}
+				// remove anyway : extract Ps from maps either successful or ignored
+				map.remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
