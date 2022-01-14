@@ -113,9 +113,9 @@ public class Runner {
                     // check if differences exists
                     if (process.isRemainingPsOrStructuresInMaps()) {
                         process.setState(new DiffComputed(customMetrics));
-                        customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
                         // Step 3 : publish metrics
                         process.nextStep();
+                        customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
                         // End of scheduled steps
                     } else {
                     	File txtfile = new File(process.getExtractedFilename());
