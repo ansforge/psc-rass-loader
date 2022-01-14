@@ -54,7 +54,7 @@ public class MapsHandler implements KryoSerializable {
 		kryo.register(Structure.class, 16);
 	}
 
-	private static final int ROW_LENGTH = 50;
+	private static final int ROW_LENGTH = RassItems.values().length + 1;
 
 	private Map<String, Professionnel> psMap = new HashMap<>();
 
