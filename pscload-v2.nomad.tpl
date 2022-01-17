@@ -41,7 +41,7 @@ job "pscload" {
         extra_hosts = [ "psc-api-maj.internal:$\u007BNOMAD_IP_http\u007D" ]
         image = "${artifact.image}:${artifact.tag}"
         volumes = [
-          "name=pscload-data,io_priority=high,size=10,repl=3:/app/files-repo"
+          "name=pscload-data,io_priority=high,size=10,repl=2:/app/files-repo"
         ]
         volume_driver = "pxd"
         ports = ["http"]
