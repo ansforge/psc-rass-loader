@@ -40,7 +40,7 @@ public class ChangesApplied extends ProcessState {
     private String extractBaseUrl;
     private EmailService emailService;
 
-    private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_echec.";
+    private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_echec";
 
     public ChangesApplied() {
         super();
