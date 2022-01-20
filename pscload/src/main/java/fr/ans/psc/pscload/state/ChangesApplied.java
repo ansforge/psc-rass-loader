@@ -110,6 +110,12 @@ public class ChangesApplied extends ProcessState {
                 	map.accept(cleaner);
                 });
 
+                message.append("\nLes réponses possibles sont les suivantes : \n" +
+                        "- 200 : traité avec succès\n" +
+                        "- 409 : le Ps / la structure existe déjà en base, n'a pas été ajouté/modifié(e)\n" +
+                        "- 410 : le Ps / la structure est déjà absente en base, n'a pas été supprimé(e)\n" +
+                        "- 500 : Erreur côté serveur, le traitement sera rejoué au prochain différentiel.\n\n");
+
                 message.append("Si certaines modifications n'ont pas été appliquées, ")
                         .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
                                 " \"resume\"");
