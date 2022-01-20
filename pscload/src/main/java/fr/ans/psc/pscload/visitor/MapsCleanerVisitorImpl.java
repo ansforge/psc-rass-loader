@@ -90,10 +90,14 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	}
 
 	private boolean isInconsistentWithDatabase(int rawReturnStatus) {
+		// CONFLICT and GONE mean that the db is already in the state we want
 		HttpStatus status = HttpStatus.valueOf(rawReturnStatus);
 
-		// CONFLICT and GONE mean that the db is already in the state we want
-		return !status.equals(HttpStatus.CONFLICT) && !status.equals(HttpStatus.GONE);
+		if (status.equals(HttpStatus.CONFLICT)) {
+			return true;
+		} else {
+			return status.equals(HttpStatus.GONE);
+		}
 	}
 
 	private void generateReportLine(OperationMap<String, RassEntity> map, List<String> report, RassEntity item) {
