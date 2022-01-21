@@ -181,7 +181,7 @@ public class ChangesAppliedTest {
         p2.getState().setProcess(p2);
         p2.nextStep();
 
-        // check ser file : 4xx create should be in, 4xx delete should not, 5xx are in the previous state
+        // check ser file : 409 create should be in, 410 delete should not, 5xx are in the previous state
         MapsHandler serializedMaps = new MapsHandler();
         serializedMaps.deserializeMaps(mapser.getAbsolutePath());
         assert serializedMaps.getPsMap().get("810100375103") != null;
