@@ -100,7 +100,8 @@ public class MapsHandler implements KryoSerializable {
 					}
 				}
 				// get structure in map by its reference from row
-				if (structureMap.get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
+				if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isEmpty()
+						&& structureMap.get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
 					Structure newStructure = new Structure(items);
 					structureMap.put(newStructure.getStructureTechnicalId(), newStructure);
 				}
