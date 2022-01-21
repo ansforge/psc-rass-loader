@@ -168,6 +168,6 @@ class ReadyToComputeDiffTest {
         OperationMap<String, RassEntity> structureToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
 				.findFirst().get();
 		assertEquals(psToCreate.size(), 99171);
-		assertEquals(structureToCreate.size(), 37534);
+		assertEquals(structureToCreate.size(), 37533);
 	}
 }

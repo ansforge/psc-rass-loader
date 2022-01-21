@@ -94,9 +94,9 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 		HttpStatus status = HttpStatus.valueOf(rawReturnStatus);
 
 		if (status.equals(HttpStatus.CONFLICT)) {
-			return true;
+			return false;
 		} else {
-			return status.equals(HttpStatus.GONE);
+			return !status.equals(HttpStatus.GONE);
 		}
 	}
 
