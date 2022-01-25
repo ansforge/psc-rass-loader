@@ -14,10 +14,6 @@ import lombok.EqualsAndHashCode;
  */
 
 /**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
  */
 @EqualsAndHashCode(callSuper = true)
 public class ExerciceProfessionnel extends Profession {
@@ -45,7 +41,10 @@ public class ExerciceProfessionnel extends Profession {
 		setLastName(items[RassItems.EX_PRO_LAST_NAME.column]);
 		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
 		addExpertisesItem(new SavoirFaire(items));
-		addWorkSituationsItem(new SituationExercice(items));
+		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
+			addWorkSituationsItem(new SituationExercice(items));
+		}
+
 	}
 
 }
