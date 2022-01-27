@@ -52,6 +52,7 @@ public class SerializerConfiguration {
 		kryo.register(PsDeleteMap.class, 34);
 		kryo.register(StructureCreateMap.class, 35);
 		kryo.register(StructureUpdateMap.class, 36);
+		kryo.register(StructureDeleteMap.class, 37);
 		return kryo;
 	}
 }
