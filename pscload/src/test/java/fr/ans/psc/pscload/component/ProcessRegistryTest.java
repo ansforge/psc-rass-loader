@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fr.ans.psc.pscload.model.operations.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,12 +27,6 @@ import fr.ans.psc.pscload.model.entities.RefStructure;
 import fr.ans.psc.pscload.model.entities.SavoirFaire;
 import fr.ans.psc.pscload.model.entities.SituationExercice;
 import fr.ans.psc.pscload.model.entities.Structure;
-import fr.ans.psc.pscload.model.operations.OperationMap;
-import fr.ans.psc.pscload.model.operations.PsCreateMap;
-import fr.ans.psc.pscload.model.operations.PsDeleteMap;
-import fr.ans.psc.pscload.model.operations.PsUpdateMap;
-import fr.ans.psc.pscload.model.operations.StructureCreateMap;
-import fr.ans.psc.pscload.model.operations.StructureUpdateMap;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.Submitted;
@@ -116,6 +111,7 @@ class ProcessRegistryTest {
 		kryo.register(PsDeleteMap.class, 34);
 		kryo.register(StructureCreateMap.class, 35);
 		kryo.register(StructureUpdateMap.class, 36);
+		kryo.register(StructureDeleteMap.class, 37);
 	        
 	        
 		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);

@@ -42,6 +42,11 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
         customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_UPDATE_SIZE, map.values().size());
     }
 
+    @Override
+    public void visit(StructureDeleteMap map) {
+        customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_DELETE_SIZE, map.values().size());
+    }
+
     private void setPsMetricFromPsMap(OperationMap<String, RassEntity> map) {
         Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
             String metricKey = String.join("_", map.getOperation().name(), id_type.name(), "SIZE");

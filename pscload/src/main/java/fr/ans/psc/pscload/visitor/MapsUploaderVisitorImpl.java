@@ -163,4 +163,23 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	}
 
+	@Override
+	public void visit(StructureDeleteMap map) {
+		Collection<RassEntity> items = map.values();
+		items.parallelStream().forEach(item -> {
+			try {
+				structureApi.deleteStructureByStructureId(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
+				map.remove(item.getInternalId());
+			} catch (RestClientResponseException e) {
+				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
+						e.getLocalizedMessage());
+				item.setReturnStatus(e.getRawStatusCode());
+			} catch (RestClientException e) {
+				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
+						item.getInternalId(), e.getLocalizedMessage());
+				throw new UploadException(e);
+			}
+		});
+	}
+
 }
