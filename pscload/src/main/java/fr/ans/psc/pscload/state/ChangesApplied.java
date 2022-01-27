@@ -42,6 +42,15 @@ public class ChangesApplied extends ProcessState {
 
     private final String FAILURE_REPORT_FILENAME = "PSCLOAD_changements_en_echec";
 
+    private final String reportMailBody = "\nLes réponses possibles sont les suivantes : \n" +
+            "- 200 : traité avec succès\n" +
+            "- 409 : le Ps / la structure existe déjà en base, n'a pas été ajouté/modifié(e)\n" +
+            "- 410 : le Ps / la structure est déjà absente en base, n'a pas été supprimé(e)\n" +
+            "- 500 : Erreur côté serveur, le traitement sera rejoué au prochain différentiel.\n\n" +
+            "Si certaines modifications n'ont pas été appliquées,\n" +
+            "vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
+            " \"resume\"";
+
     public ChangesApplied() {
         super();
     }
@@ -49,7 +58,7 @@ public class ChangesApplied extends ProcessState {
     /**
      * Instantiates a new changes applied.
      *
-     * @param customMetrics the custom metrics
+     * @param customMetrics  the custom metrics
      * @param extractBaseUrl the extract base url
      */
     public ChangesApplied(CustomMetrics customMetrics, String extractBaseUrl, EmailService emailService) {
@@ -67,31 +76,31 @@ public class ChangesApplied extends ProcessState {
     @Override
     public void nextStep() {
         log.info("ChangesApplied : nextStep()");
-    	//First step
-    	processRemainingPS();
-    	// after this memory is cleared
+        //First step
+        processRemainingPS();
+        // after this memory is cleared
         callPscExtract();
     }
 
-	private void callPscExtract() throws ExtractTriggeringException{
-		RestTemplate restTemplate = new RestTemplate();
-		try {
-			restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
-		} catch (RestClientException e) {
-			log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
-	        throw new ExtractTriggeringException(e);
-		}
-	}
+    private void callPscExtract() throws ExtractTriggeringException {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+        } catch (RestClientException e) {
+            log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
+            throw new ExtractTriggeringException(e);
+        }
+    }
 
-	private void processRemainingPS() throws SerFileGenerationException {
-		MapsHandler newMaps = new MapsHandler();
+    private void processRemainingPS() throws SerFileGenerationException {
+        MapsHandler newMaps = new MapsHandler();
         String lockedFilePath = process.getTmpMapsPath();
         String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
         File lockedSerFile = new File(lockedFilePath);
         File serFile = new File(serFileName);
 
         try {
-        	newMaps.deserializeMaps(lockedFilePath);
+            newMaps.deserializeMaps(lockedFilePath);
         } catch (IOException | ClassNotFoundException e) {
             String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
             log.error(msgLogged, e.getLocalizedMessage());
@@ -99,55 +108,42 @@ public class ChangesApplied extends ProcessState {
         }
 
         try {
-            if (process.isRemainingPsOrStructuresInMaps()) {
-                StringBuilder message = new StringBuilder();
-                List<String> dataLines = new ArrayList<>();
-                
-                MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
-                // Clean all maps and collect reports infos
-                process.getMaps().stream().forEach(map -> {
-                	message.append(String.format("%s en échec : %s\n", map.getOperation().toString(), map.size()));
-                	map.accept(cleaner);
-                });
+            StringBuilder message = new StringBuilder();
+            List<String> dataLines = new ArrayList<>();
 
-                message.append("\nLes réponses possibles sont les suivantes : \n" +
-                        "- 200 : traité avec succès\n" +
-                        "- 409 : le Ps / la structure existe déjà en base, n'a pas été ajouté/modifié(e)\n" +
-                        "- 410 : le Ps / la structure est déjà absente en base, n'a pas été supprimé(e)\n" +
-                        "- 500 : Erreur côté serveur, le traitement sera rejoué au prochain différentiel.\n\n");
+            message.append("Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
+                    " a été traité.");
 
-                message.append("Si certaines modifications n'ont pas été appliquées, ")
-                        .append("vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
-                                " \"resume\"");
+            MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
+            // Clean all maps and collect reports infos
+            process.getMaps().stream().forEach(map -> {
+                message.append(String.format("%s en échec : %s\n", map.getOperation().toString(), map.size()));
+                map.accept(cleaner);
+            });
 
-                DateFormat df = new SimpleDateFormat("yyyMMddhhmm");
-                String now = df.format(new Date());
-                File csvOutputFile = new File(serFile.getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
-                File zipFile = generateReport(csvOutputFile, dataLines);
+            message.append(reportMailBody);
+            DateFormat df = new SimpleDateFormat("yyyMMddhhmm");
+            String now = df.format(new Date());
+            File csvOutputFile = new File(serFile.getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
+            File zipFile = generateReport(csvOutputFile, dataLines);
 
-                customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
-                emailService.sendMail(EmailTemplate.UPLOAD_INCOMPLETE, message.toString(), zipFile);
-                csvOutputFile.delete();
-                zipFile.delete();
+            customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
+            emailService.sendMail(EmailTemplate.UPLOAD_FINISHED, message.toString(), zipFile);
 
-            } else {
-                customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
-                emailService.sendMail(EmailTemplate.PROCESS_FINISHED,
-                        "Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
-                                " a été correctement traité.", null);
-            }
+            csvOutputFile.delete();
+            zipFile.delete();
+
             serFile.delete();
             newMaps.serializeMaps(serFileName);
             boolean deleted = lockedSerFile.delete();
             log.info("Lock file deleted ? {}", deleted);
             customMetrics.setStageMetric(Stage.CURRENT_MAP_SERIALIZED);
 
-
         } catch (IOException e) {
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
         }
-	}
+    }
 
     private File generateReport(File csvOutputFile, List<String> dataLines) throws FileNotFoundException {
         String folderPath = csvOutputFile.getParent();
@@ -178,12 +174,12 @@ public class ChangesApplied extends ProcessState {
 
 
     @Override
-	public void write(Kryo kryo, Output output) {
-		output.writeString(extractBaseUrl);
-	}
+    public void write(Kryo kryo, Output output) {
+        output.writeString(extractBaseUrl);
+    }
 
-	@Override
-	public void read(Kryo kryo, Input input) {
+    @Override
+    public void read(Kryo kryo, Input input) {
         extractBaseUrl = input.readString();
     }
 }
