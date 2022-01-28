@@ -44,7 +44,7 @@ public class UploadingChanges extends ProcessState {
 
 	@Override
     public void nextStep() throws LoadProcessException {
-        log.info("UploadingChanges: nextStep()");
+        log.info("calling API...");
     	
 		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {
