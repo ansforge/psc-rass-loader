@@ -41,10 +41,7 @@ public class ExerciceProfessionnel extends Profession {
 		setLastName(items[RassItems.EX_PRO_LAST_NAME.column]);
 		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
 		addExpertisesItem(new SavoirFaire(items));
-		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
-			addWorkSituationsItem(new SituationExercice(items));
-		}
-
+		addWorkSituationsItem(new SituationExercice(items));
 	}
 
 }
