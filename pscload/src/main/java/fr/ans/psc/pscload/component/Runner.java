@@ -85,58 +85,66 @@ public class Runner {
     @Scheduled(cron = "${schedule.cron.expression}", zone = "${schedule.cron.timeZone}")
     public void runScheduler() throws DuplicateKeyException {
         if (enabled) {
-            if (processRegistry.isEmpty() || isProcessExpired()) {
-                // clear registry if latest is expired
-                processRegistry.clear();
-
-                // register new process with Idle state
-                String id = Integer.toString(processRegistry.nextId());
-                ProcessState idle;
-                if (useX509Auth) {
-                    idle = new Submitted(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
-                } else {
-                    idle = new Submitted(extractDownloadUrl, filesDirectory);
-                }
-                LoadProcess process = new LoadProcess(idle);
-                processRegistry.register(id, process);
-                try {
-                    // Step 1 : Download
-                    process.nextStep();
-                    process.setState(new ReadyToExtract());
-                    customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
-                    // Step 2 : Extract
-                    process.nextStep();
-                    process.setState(new ReadyToComputeDiff(customMetrics));
-                    customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
-                    // Step 4 : Load maps and compute diff
-                    process.nextStep();
-                    // check if differences exists
-                    if (process.isRemainingPsOrStructuresInMaps()) {
-                        process.setState(new DiffComputed(customMetrics));
-                        // Step 3 : publish metrics
-                        process.nextStep();
-                        customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
-                        // End of scheduled steps
-                    } else {
-                    	File txtfile = new File(process.getExtractedFilename());
-                    	txtfile.delete();
-                    	File lockfile = new File(process.getTmpMapsPath());
-                    	lockfile.delete();
-                    	log.info("No differences with previous upload, unregistering process...");
-                        processRegistry.unregister(id);
-                    }
-                } catch (LoadProcessException e) {
-                    log.error("Error when loading RASS data", e);
-                    customMetrics.setStageMetric(customMetrics.getStageMetricValue());
-                    emailService.sendMail(EmailTemplate.INTERRUPTED_PROCESS);
-                    processRegistry.unregister(id);
-                }
-            } else {
-                log.warn("A process is already running !");
-            }
+            runProcess();
         }
     }
 
+    public void runProcess() throws DuplicateKeyException {
+        if (processRegistry.isEmpty() || isProcessExpired()) {
+            // clear registry if latest is expired
+            processRegistry.clear();
+
+            // register new process with Idle state
+            String id = Integer.toString(processRegistry.nextId());
+            ProcessState idle;
+            if (useX509Auth) {
+                idle = new Submitted(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
+            } else {
+                idle = new Submitted(extractDownloadUrl, filesDirectory);
+            }
+            LoadProcess process = new LoadProcess(idle);
+            processRegistry.register(id, process);
+            try {
+                // Step 1 : Download
+                process.nextStep();
+                process.setState(new ReadyToExtract());
+                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
+                // Step 2 : Extract
+                process.nextStep();
+                process.setState(new ReadyToComputeDiff(customMetrics));
+                customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
+                // Step 4 : Load maps and compute diff
+                process.nextStep();
+                // check if differences exists
+                if (process.isRemainingPsOrStructuresInMaps()) {
+                    process.setState(new DiffComputed(customMetrics));
+                    // Step 3 : publish metrics
+                    process.nextStep();
+                    customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
+                    // End of scheduled steps
+                } else {
+                    File txtfile = new File(process.getExtractedFilename());
+                    txtfile.delete();
+                    File lockfile = new File(process.getTmpMapsPath());
+                    lockfile.delete();
+                    log.info("No differences with previous upload, unregistering process...");
+                    processRegistry.unregister(id);
+                }
+            } catch (LoadProcessException e) {
+                log.error("Error when loading RASS data", e);
+                customMetrics.setStageMetric(customMetrics.getStageMetricValue());
+                emailService.sendMail(EmailTemplate.INTERRUPTED_PROCESS);
+                processRegistry.unregister(id);
+            }
+        } else {
+            log.warn("A process is already running !");
+        }
+    }
+
+    @Async("processExecutor")
+    public void runFullProcess() throws DuplicateKeyException {
+        runProcess();
+    }
 
     /**
      * Run continue.

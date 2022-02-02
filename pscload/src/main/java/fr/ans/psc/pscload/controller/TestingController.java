@@ -5,6 +5,7 @@ package fr.ans.psc.pscload.controller;
 
 import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.component.Runner;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.state.*;
@@ -24,6 +25,9 @@ import java.util.Optional;
 @Slf4j
 @RestController
 public class TestingController {
+
+	@Autowired
+	private Runner runner;
 
 	/** The files directory. */
 	@Value("${files.directory}")
@@ -144,6 +148,16 @@ public class TestingController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping(value = "test/process/full-run")
+	public ResponseEntity<Void> runFullProcess(){
+		try {
+			runner.runProcess();
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (DuplicateKeyException e) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 	}
 
 }
