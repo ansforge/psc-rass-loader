@@ -49,6 +49,5 @@ public class SituationExercice extends WorkSituation {
 		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
 			addStructuresItem(new RefStructure(items[28])); // structureTechnicalId
 		}
-
 	}
 }
