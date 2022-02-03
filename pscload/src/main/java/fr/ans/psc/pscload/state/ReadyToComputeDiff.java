@@ -128,6 +128,8 @@ public class ReadyToComputeDiff extends ProcessState {
 				break;
 			}
 		});
+
+		log.info("operation maps filled.");
 	}
 
 	private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap,

@@ -66,7 +66,6 @@ public class ChangesApplied extends ProcessState {
 
     @Override
     public void nextStep() {
-        log.info("ChangesApplied : nextStep()");
     	//First step
     	processRemainingPS();
     	// after this memory is cleared
@@ -74,9 +73,11 @@ public class ChangesApplied extends ProcessState {
     }
 
 	private void callPscExtract() throws ExtractTriggeringException{
+        log.info("calling Pscextract...");
 		RestTemplate restTemplate = new RestTemplate();
 		try {
 			restTemplate.execute(extractBaseUrl + "/generate-extract", HttpMethod.POST, null, null);
+			log.info("process finished pscload-side");
 		} catch (RestClientException e) {
 			log.info("error when trying to generate extract, return message : {}", e.getLocalizedMessage());
 	        throw new ExtractTriggeringException(e);
@@ -84,6 +85,7 @@ public class ChangesApplied extends ProcessState {
 	}
 
 	private void processRemainingPS() throws SerFileGenerationException {
+        log.info("processing remaining Ps after changes loading...");
 		MapsHandler newMaps = new MapsHandler();
         String lockedFilePath = process.getTmpMapsPath();
         String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
