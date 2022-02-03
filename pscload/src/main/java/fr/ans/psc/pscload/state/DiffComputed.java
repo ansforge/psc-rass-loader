@@ -37,7 +37,7 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void nextStep() {
-		log.info("DiffComputed: nextStep()");
+		log.info("publishing metrics...");
 
 		MapsVisitor visitor = new MapsMetricsSetterVisitorImpl(customMetrics);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {

@@ -50,6 +50,7 @@ public class UploadingChanges extends ProcessState {
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {
 			map.accept(visitor);
 		}
+		log.info("API operations done.");
     }
 
     @Override
