@@ -21,5 +21,8 @@ public enum OperationType {
 	STRUCTURE_CREATE,
 	
 	/** The structure update. */
-	STRUCTURE_UPDATE
+	STRUCTURE_UPDATE,
+
+	/** The structure delete. */
+	STRUCTURE_DELETE
 }
