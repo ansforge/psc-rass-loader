@@ -9,11 +9,6 @@ package fr.ans.psc.pscload.model;
 public enum EmailTemplate {
 
     /**
-     * The process has finished successfully.
-     */
-    PROCESS_FINISHED("PSCLOAD - Fin de process", "Le process pscload s'est terminé correctement."),
-
-    /**
      * The process has been interrupting while uploading changes
      */
     UPLOAD_REST_INTERRUPTION("PSCLOAD - Interruption du chargement des modifications",
@@ -22,10 +17,9 @@ public enum EmailTemplate {
                     "En l'absence d'action de votre part il sera abandonné à l'issue du délai de reprise paramétré."),
 
     /**
-     * The process has finished with incomplete changes uploading.
+     * The process has finished.
      */
-    UPLOAD_INCOMPLETE("PSCLOAD - Chargement incomplet des modifications",
-            "Les modifications du RASS ont été partiellement traitées."),
+    UPLOAD_FINISHED("PSCLOAD - Fin de process", "Les modifications du RASS ont été partiellement traitées."),
 
     /**
      * The process has been interrupted

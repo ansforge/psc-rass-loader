@@ -75,7 +75,7 @@ public class TestingController {
 	 *
 	 * @return the response entity with the new process id.
 	 */
-	@PostMapping(value = "/test/process/new")
+	@PostMapping(value = "/process/new")
 	public ResponseEntity<String> createProcess(@RequestParam Optional<String> downloadedfilename,
 			@RequestParam Optional<String> extractedfilename) {
 		String id = Integer.toString(registry.nextId());
@@ -95,7 +95,7 @@ public class TestingController {
 	 *
 	 * @return OK if success.
 	 */
-	@GetMapping(value = "/test/process/unregister")
+	@GetMapping(value = "/process/unregister")
 	public ResponseEntity<Void> unregisterProcess(@RequestParam String id) {
 		registry.unregister(id);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -106,7 +106,7 @@ public class TestingController {
 	 *
 	 * @return OK if success or 404 if state is not found.
 	 */
-	@PutMapping(value = "/test/process/setstate")
+	@PutMapping(value = "/process/setstate")
 	public ResponseEntity<Void> setState(@RequestParam String id, @RequestParam String state) {
 		ProcessState processState = null;
 		try {
@@ -134,7 +134,7 @@ public class TestingController {
 	 *
 	 * @return OK if success or 500 if state or process is null.
 	 */
-	@PutMapping(value = "/test/process/runtask")
+	@PutMapping(value = "/process/runtask")
 	public ResponseEntity<Void> runtask(@RequestParam String id) {
 		LoadProcess process = registry.getProcessById(id);
 		if (process != null) {
