@@ -100,9 +100,6 @@ public class Structure implements Serializable{
   @JsonProperty("oldStructureId")
   private String oldStructureId = null;
 
-  @JsonProperty("registrationAuthority")
-  private String registrationAuthority = null;
-
   public Structure siteSIRET(String siteSIRET) {
     this.siteSIRET = siteSIRET;
     return this;
@@ -536,24 +533,6 @@ public class Structure implements Serializable{
     this.oldStructureId = oldStructureId;
   }
 
-  public Structure registrationAuthority(String registrationAuthority) {
-    this.registrationAuthority = registrationAuthority;
-    return this;
-  }
-
-   /**
-   * Get registrationAuthority
-   * @return registrationAuthority
-  **/
-  @Schema(description = "")
-  public String getRegistrationAuthority() {
-    return registrationAuthority;
-  }
-
-  public void setRegistrationAuthority(String registrationAuthority) {
-    this.registrationAuthority = registrationAuthority;
-  }
-
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -587,13 +566,12 @@ public class Structure implements Serializable{
         Objects.equals(this.fax, structure.fax) &&
         Objects.equals(this.email, structure.email) &&
         Objects.equals(this.departmentCode, structure.departmentCode) &&
-        Objects.equals(this.oldStructureId, structure.oldStructureId) &&
-        Objects.equals(this.registrationAuthority, structure.registrationAuthority);
+        Objects.equals(this.oldStructureId, structure.oldStructureId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(siteSIRET, siteSIREN, siteFINESS, legalEstablishmentFINESS, structureTechnicalId, legalCommercialName, publicCommercialName, recipientAdditionalInfo, geoLocationAdditionalInfo, streetNumber, streetNumberRepetitionIndex, streetCategoryCode, streetLabel, distributionMention, cedexOffice, postalCode, communeCode, countryCode, phone, phone2, fax, email, departmentCode, oldStructureId, registrationAuthority);
+    return Objects.hash(siteSIRET, siteSIREN, siteFINESS, legalEstablishmentFINESS, structureTechnicalId, legalCommercialName, publicCommercialName, recipientAdditionalInfo, geoLocationAdditionalInfo, streetNumber, streetNumberRepetitionIndex, streetCategoryCode, streetLabel, distributionMention, cedexOffice, postalCode, communeCode, countryCode, phone, phone2, fax, email, departmentCode, oldStructureId);
   }
 
 
@@ -626,7 +604,6 @@ public class Structure implements Serializable{
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    departmentCode: ").append(toIndentedString(departmentCode)).append("\n");
     sb.append("    oldStructureId: ").append(toIndentedString(oldStructureId)).append("\n");
-    sb.append("    registrationAuthority: ").append(toIndentedString(registrationAuthority)).append("\n");
     sb.append("}");
     return sb.toString();
   }
