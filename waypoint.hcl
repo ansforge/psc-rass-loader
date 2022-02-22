@@ -43,6 +43,7 @@ app "prosanteconnect/pscload-v2" {
         proxy_port = var.proxy_port
         proxy_host = var.proxy_host
         non_proxy_hosts = var.non_proxy_hosts
+        log_level = var.log_level
         registry_path = var.registry_path
       })
     }
@@ -87,4 +88,9 @@ variable "dockerfile_path" {
 variable "registry_path" {
   type = string
   default = "registry.repo.proxy-dev-forge.asip.hst.fluxus.net/prosanteconnect"
+}
+
+variable "log_level" {
+  type = string
+  default = "INFO"
 }
