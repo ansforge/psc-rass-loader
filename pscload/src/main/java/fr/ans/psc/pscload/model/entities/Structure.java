@@ -5,12 +5,6 @@ package fr.ans.psc.pscload.model.entities;
 
 import lombok.EqualsAndHashCode;
 
-/**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
- */
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements RassEntity {
 
@@ -64,7 +58,6 @@ public class Structure extends fr.ans.psc.model.Structure implements RassEntity 
 		setEmail(items[RassItems.STRUCTURE_EMAIL.column]);
 		setDepartmentCode(items[RassItems.DEPARTMENT_CODE.column]);
 		setOldStructureId(items[RassItems.OLD_STRUCTURE_ID.column]);
-		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 	}
 
 
