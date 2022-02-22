@@ -35,11 +35,19 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
     @Override
     public void visit(StructureCreateMap map) {
         customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_CREATE_SIZE, map.values().size());
+        log.info("{} --- {}", map.getOperation().name(), map.size());
     }
 
     @Override
     public void visit(StructureUpdateMap map) {
         customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_UPDATE_SIZE, map.values().size());
+        log.info("{} --- {}", map.getOperation().name(), map.size());
+    }
+
+    @Override
+    public void visit(StructureDeleteMap map) {
+        customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_DELETE_SIZE, map.values().size());
+        log.info("{} --- {}", map.getOperation().name(), map.size());
     }
 
     private void setPsMetricFromPsMap(OperationMap<String, RassEntity> map) {
@@ -49,7 +57,9 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
 
             customMetrics.setPsMetricSize(
                     metric,
-                    Math.toIntExact(map.values().stream().filter(item -> item.getIdType().equals(id_type.value)).count()));
+                    Math.toIntExact(map.values().stream().filter(item -> item.getIdType().equals(id_type.value)).count())
+            );
+            log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());
         });
     }
 }

@@ -44,5 +44,6 @@ public interface MapsVisitor {
 	 * @param map the map
 	 */
 	void visit(StructureUpdateMap map);
-	
+
+	void visit(StructureDeleteMap structureDeleteMap);
 }

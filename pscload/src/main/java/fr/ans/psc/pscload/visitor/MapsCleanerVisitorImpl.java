@@ -89,6 +89,17 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 		});
 	}
 
+	@Override
+	public void visit(StructureDeleteMap map) {
+		Collection<RassEntity> items = map.values();
+		items.forEach(item -> {
+			generateReportLine(map, report, item);
+			if (isInconsistentWithDatabase(item.getReturnStatus())) {
+				maps.getStructureMap().put(item.getInternalId(), (Structure) item);
+			}
+		});
+	}
+
 	private boolean isInconsistentWithDatabase(int rawReturnStatus) {
 		// CONFLICT and GONE mean that the db is already in the state we want
 		HttpStatus status = HttpStatus.valueOf(rawReturnStatus);

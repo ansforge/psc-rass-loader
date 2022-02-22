@@ -13,6 +13,8 @@ import fr.ans.psc.pscload.visitor.MapsMetricsSetterVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
+
 /**
  * The Class DiffComputed.
  */
@@ -37,12 +39,22 @@ public class DiffComputed extends ProcessState {
 
 	@Override
 	public void nextStep() {
-		log.info("DiffComputed: nextStep()");
+		log.info("publishing metrics...");
+		logReferenceMetrics();
 
 		MapsVisitor visitor = new MapsMetricsSetterVisitorImpl(customMetrics);
 		for (OperationMap<String, RassEntity> map : process.getMaps()) {
 			map.accept(visitor);
 		}
+	}
+
+	private void logReferenceMetrics() {
+		Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
+			String metricKey = String.join("_", "PS_REFERENCE", id_type.name(), "SIZE");
+			CustomMetrics.SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
+
+			log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());
+		});
 	}
 
 	@Override
