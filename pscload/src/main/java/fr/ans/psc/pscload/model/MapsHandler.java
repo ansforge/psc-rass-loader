@@ -12,17 +12,25 @@ import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.ObjectRowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.model.Ps;
+import fr.ans.psc.model.WorkSituation;
 import fr.ans.psc.pscload.model.entities.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.any23.encoding.TikaEncodingDetector;
+import org.apache.poi.util.ArrayUtil;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * The Class MapsHandler.
@@ -121,6 +129,7 @@ public class MapsHandler implements KryoSerializable {
 		InputStream is = new FileInputStream(file);
 		try {
 			Charset detectedCharset = Charset.forName(new TikaEncodingDetector().guessEncoding(is));
+			log.debug("detected charset is : " + detectedCharset.displayName());
 			parser.parse(new BufferedReader(new FileReader(file, detectedCharset)));
 		} catch (IOException e) {
 			throw new IOException("Encoding detection failure", e);
@@ -156,6 +165,71 @@ public class MapsHandler implements KryoSerializable {
 		Input input = new Input(fileInputStream);
 		read(kryo, input);
 		input.close();
+	}
+
+	public File generateTxtFile(String fileName) throws IOException {
+		File txtFile = new File(fileName);
+		Writer writer = new FileWriter(txtFile, StandardCharsets.UTF_8);
+
+		String header = "Type d'identifiant PP|Identifiant PP|Identification nationale PP|Nom de famille|Prénoms|" +
+				"Date de naissance|Code commune de naissance|Code pays de naissance|Lieu de naissance|Code sexe|" +
+				"Téléphone (coord. correspondance)|Adresse e-mail (coord. correspondance)|Code civilité|Code profession|" +
+				"Code catégorie professionnelle|Code civilité d'exercice|Nom d'exercice|Prénom d'exercice|" +
+				"Code type savoir-faire|Code savoir-faire|Code mode exercice|Code secteur d'activité|" +
+				"Code section tableau pharmaciens|Code rôle|Numéro SIRET site|Numéro SIREN site|Numéro FINESS site|" +
+				"Numéro FINESS établissement juridique|Identifiant technique de la structure|Raison sociale site|" +
+				"Enseigne commerciale site|Complément destinataire (coord. structure)|" +
+				"Complément point géographique (coord. structure)|Numéro Voie (coord. structure)|" +
+				"Indice répétition voie (coord. structure)|Code type de voie (coord. structure)|" +
+				"Libellé Voie (coord. structure)|Mention distribution (coord. structure)|" +
+				"Bureau cedex (coord. structure)|Code postal (coord. structure)|Code commune (coord. structure)|" +
+				"Code pays (coord. structure)|Téléphone (coord. structure)|Téléphone 2 (coord. structure)|" +
+				"Télécopie (coord. structure)|Adresse e-mail (coord. structure)|Code département (coord. structure)|" +
+				"Ancien identifiant de la structure|Autorité d'enregistrement|\n";
+
+		writer.write(header);
+
+		for (Professionnel professionnel : psMap.values()) {
+			for (ExerciceProfessionnel exerciceProfessionnel : professionnel.getExercicesProfessionels()) {
+				for (SituationExercice situationExercice : exerciceProfessionnel.getSituationsExercice()) {
+					Structure structure = null;
+					if (situationExercice.getStructures() != null) {
+						structure = structureMap.get(situationExercice
+								.getStructures()
+								.get(0)
+								.getStructureId());
+					}
+					writer.write(generateLine(professionnel, exerciceProfessionnel, situationExercice, structure));
+				}
+			}
+		}
+		writer.flush();
+		writer.close();
+		return txtFile;
+	}
+
+	public String generateLine (Professionnel professionnel, ExerciceProfessionnel exerciceProfessionnel,
+								SituationExercice situationExercice, Structure structure) {
+
+		StringBuilder sb = new StringBuilder();
+		String[] items = new String[RassItems.values().length];
+
+		for (SavoirFaire savoirFaire : exerciceProfessionnel.getSavoirFaire()) {
+			professionnel.setProfessionnelItems(items);
+			exerciceProfessionnel.setExerciceProfessionnelItems(items);
+			savoirFaire.setSavoirFaireItems(items);
+			situationExercice.setSituationExerciceItems(items);
+			if (structure != null) {
+				structure.setStructureItems(items);
+			} else {
+				IntStream.range(RassItems.SITE_SIRET.column, RassItems.values().length).forEach(i -> items[i] = "");
+			}
+			sb.append(String.join("|", items))
+					.append("|")
+					.append("\n");
+		}
+		return sb.toString();
+
 	}
 
 	@Override

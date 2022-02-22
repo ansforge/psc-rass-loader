@@ -6,19 +6,6 @@ package fr.ans.psc.pscload.model.entities;
 import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
 
-/**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
- */
-
-/**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
- */
 @EqualsAndHashCode(callSuper = true)
 public class SituationExercice extends WorkSituation {
 
@@ -49,5 +36,12 @@ public class SituationExercice extends WorkSituation {
 		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
 			addStructuresItem(new RefStructure(items[28])); // structureTechnicalId
 		}
+	}
+
+	public void setSituationExerciceItems(String[] items) {
+		items[RassItems.SITUATION_MODE_CODE.column] = getModeCode();
+		items[RassItems.ACTIVITY_SECTOR_CODE.column] = getActivitySectorCode();
+		items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column] = getPharmacistTableSectionCode();
+		items[RassItems.SITUATION_ROLE_CODE.column] = getRoleCode();
 	}
 }

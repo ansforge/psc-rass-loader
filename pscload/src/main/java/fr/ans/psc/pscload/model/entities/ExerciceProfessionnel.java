@@ -3,8 +3,13 @@
  */
 package fr.ans.psc.pscload.model.entities;
 
+import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Can equal.
@@ -42,6 +47,28 @@ public class ExerciceProfessionnel extends Profession {
 		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
 		addExpertisesItem(new SavoirFaire(items));
 		addWorkSituationsItem(new SituationExercice(items));
+	}
+
+	public void setExerciceProfessionnelItems(String[] items) {
+		items[RassItems.EX_PRO_CODE.column] = getCode();
+		items[RassItems.CATEGORY_CODE.column] = getCategoryCode();
+		items[RassItems.EX_PRO_SALUTATION_CODE.column] = getSalutationCode();
+		items[RassItems.EX_PRO_LAST_NAME.column] = getLastName();
+		items[RassItems.EX_PRO_FIRST_NAME.column] = getFirstName();
+	}
+
+	public List<SavoirFaire> getSavoirFaire() {
+		List<Expertise> expertises = getExpertises();
+		List<SavoirFaire> savoirFaireList = new ArrayList<>();
+		expertises.forEach(expertise -> savoirFaireList.add((SavoirFaire) expertise));
+		return savoirFaireList;
+	}
+
+	public List<SituationExercice> getSituationsExercice() {
+		List<WorkSituation> workSituations = getWorkSituations();
+		List<SituationExercice> situationsExercice = new ArrayList<>();
+		workSituations.forEach(workSituation -> situationsExercice.add((SituationExercice) workSituation));
+		return situationsExercice;
 	}
 
 }

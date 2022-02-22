@@ -7,6 +7,8 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = true)
@@ -55,6 +57,22 @@ public class Professionnel extends Ps implements RassEntity {
 		}
 	}
 
+	public void setProfessionnelItems(String[] items) {
+		items[RassItems.ID_TYPE.column] = getIdType();
+		items[RassItems.ID.column] = getId();
+		items[RassItems.NATIONAL_ID.column] = getNationalId();
+		items[RassItems.LAST_NAME.column] = getLastName();
+		items[RassItems.FIRST_NAME.column] = getFirstName();
+		items[RassItems.DOB.column] = getDateOfBirth();
+		items[RassItems.BIRTH_ADDRESS_CODE.column] = getBirthAddressCode();
+		items[RassItems.BIRTH_COUNTRY_CODE.column] = getBirthCountryCode();
+		items[RassItems.BIRTH_ADDRESS.column] = getBirthAddress();
+		items[RassItems.GENDER_CODE.column] = getGenderCode();
+		items[RassItems.PHONE.column] = getPhone();
+		items[RassItems.EMAIL.column] = getEmail();
+		items[RassItems.SALUTATION_CODE.column] = getSalutationCode();
+	}
+
 	/**
 	 * Gets the profession by code and category.
 	 *
@@ -86,6 +104,13 @@ public class Professionnel extends Ps implements RassEntity {
 	@Override
 	public String getIdType() {
 		return super.getIdType();
+	}
+
+	public List<ExerciceProfessionnel> getExercicesProfessionels() {
+		List<Profession> professions = getProfessions();
+		List<ExerciceProfessionnel> exercicesProfessionnels = new ArrayList<>();
+		professions.forEach(profession -> exercicesProfessionnels.add((ExerciceProfessionnel) profession));
+		return exercicesProfessionnels;
 	}
 
 }
