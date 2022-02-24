@@ -36,4 +36,10 @@ public class SerializationInterrupted extends ProcessState {
 	public boolean isAlreadyComputed() {
 		return true;
 	}
+
+
+	@Override
+	public boolean isExpirable() {
+		return false;
+	}
 }

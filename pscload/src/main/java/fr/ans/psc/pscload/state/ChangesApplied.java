@@ -184,4 +184,9 @@ public class ChangesApplied extends ProcessState {
     public void read(Kryo kryo, Input input) {
         extractBaseUrl = input.readString();
     }
+
+    @Override
+    public boolean isExpirable() {
+        return false;
+    }
 }

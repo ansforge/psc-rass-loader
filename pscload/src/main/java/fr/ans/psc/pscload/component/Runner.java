@@ -90,7 +90,7 @@ public class Runner {
     }
 
     public void runProcess() throws DuplicateKeyException {
-        if (processRegistry.isEmpty() || isProcessExpired()) {
+        if (isProcessExpired()) {
             // clear registry if latest is expired
             processRegistry.clear();
 
@@ -206,13 +206,19 @@ public class Runner {
             emailService.sendMail(EmailTemplate.TRIGGER_EXTRACT_FAILED);
             processRegistry.unregister(process.getId());
         }
-
-
     }
+
 
     private boolean isProcessExpired() {
         if (processRegistry.isEmpty()) {
             return true;
+        }
+
+        // states that have successfully passed external control (through prometheus alerts
+        // and which are still running, for a reason or an other, should NOT be unregistered
+        // They must be handled manually
+        if (!processRegistry.getCurrentProcess().getState().isExpirable()) {
+            return false;
         }
         Date lastProcessDate = new Date(processRegistry.getCurrentProcess().getTimestamp());
         Date now = new Date();
