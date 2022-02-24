@@ -112,6 +112,8 @@ public class LoadProcess implements KryoSerializable {
 		processInfo.setExtractFileName(extractedFilename);
 		processInfo.setLockedSerializedFileName(tmpMapsPath);
 		if (state.isAlreadyComputed()) {
+			System.out.println("maps holder has size ? " + maps.size());
+			maps.stream().forEach(map -> System.out.println("this map is " + map.getOperation().name()));
 			processInfo.setPsToCreate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
 					.findFirst().get().size());
 			processInfo.setPsToUpdate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
