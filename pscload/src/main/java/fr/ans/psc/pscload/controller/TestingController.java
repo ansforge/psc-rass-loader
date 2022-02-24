@@ -36,6 +36,18 @@ public class TestingController {
 	@Value("${extract.download.url}")
 	private String extractDownloadUrl;
 
+	@Value("${cert.path}")
+	private String certfile;
+
+	@Value("${key.path}")
+	private String keyfile;
+
+	@Value("${ca.path}")
+	private String cafile;
+
+	@Value("${keystore.password:mysecret}")
+	private String kspwd;
+
 	@Autowired
 	private CustomMetrics customMetrics;
 
@@ -111,7 +123,7 @@ public class TestingController {
 		ProcessState processState = null;
 		try {
 			if (States.SUBMITTED.classname.equals(state)) {
-				processState = new Submitted(extractDownloadUrl, filesDirectory);
+				processState = new Submitted(keyfile, certfile, cafile, kspwd, extractDownloadUrl, filesDirectory);
 			} else if (States.READY_TO_EXTRACT.classname.equals(state)) {
 				processState = new ReadyToExtract();
 			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)) {
