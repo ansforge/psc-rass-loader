@@ -114,7 +114,7 @@ public class ChangesApplied extends ProcessState {
             List<String> dataLines = new ArrayList<>();
 
             message.append("Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
-                    " a été traité.");
+                    " a été traité.\n\n");
 
             MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
             // Clean all maps and collect reports infos
@@ -123,7 +123,7 @@ public class ChangesApplied extends ProcessState {
                 map.accept(cleaner);
             });
 
-            message.append(reportMailBody);
+            message.append("\n\n" + reportMailBody);
             DateFormat df = new SimpleDateFormat("yyyMMddhhmm");
             String now = df.format(new Date());
             File csvOutputFile = new File(serFile.getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
