@@ -19,6 +19,10 @@ public abstract class ProcessState implements KryoSerializable {
 		return false;
 	}
 
+	public boolean isExpirable() {
+		return true;
+	}
+
 	/**
 	 * Instantiates a new process state.
 	 */
