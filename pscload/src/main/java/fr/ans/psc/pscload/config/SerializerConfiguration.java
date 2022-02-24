@@ -4,6 +4,7 @@
 package fr.ans.psc.pscload.config;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.EnumNameSerializer;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.*;
@@ -26,6 +27,7 @@ public class SerializerConfiguration {
 	@Bean
 	public Kryo getKryo() {
 		Kryo kryo = new Kryo();
+		kryo.addDefaultSerializer(OperationType.class, EnumNameSerializer.class);
 		kryo.register(HashMap.class, 9);
 		kryo.register(ArrayList.class, 10);
 		kryo.register(Professionnel.class, 11);
