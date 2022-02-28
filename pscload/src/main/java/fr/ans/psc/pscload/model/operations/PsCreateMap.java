@@ -31,6 +31,11 @@ public class PsCreateMap extends OperationMap<String, RassEntity> {
 	}
 
 	@Override
+	public OperationType getOperation() {
+		return OperationType.PS_CREATE;
+	}
+
+	@Override
 	public void accept(MapsVisitor visitor) {
 		visitor.visit(this);
 		

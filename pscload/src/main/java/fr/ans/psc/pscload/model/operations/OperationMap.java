@@ -44,6 +44,8 @@ public abstract class OperationMap<K, V> extends ConcurrentHashMap<String, RassE
 		this.operation = operation;
 	}
 
+	public abstract OperationType getOperation();
+
 	/**
 	 * Save old value.
 	 *

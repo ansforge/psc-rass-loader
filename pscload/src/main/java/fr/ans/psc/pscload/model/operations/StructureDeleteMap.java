@@ -14,6 +14,11 @@ public class StructureDeleteMap extends OperationMap<String, RassEntity> {
     }
 
     @Override
+    public OperationType getOperation() {
+        return OperationType.STRUCTURE_DELETE;
+    }
+
+    @Override
     public void accept(MapsVisitor visitor) {
         visitor.visit(this);
     }

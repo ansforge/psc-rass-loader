@@ -30,6 +30,11 @@ public class PsUpdateMap extends OperationMap<String, RassEntity> {
 
 	}
 
+	@Override
+	public OperationType getOperation() {
+		return OperationType.PS_UPDATE;
+	}
+
 
 	@Override
 	public void accept(MapsVisitor visitor) {

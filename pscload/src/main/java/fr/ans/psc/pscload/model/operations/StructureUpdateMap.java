@@ -31,6 +31,11 @@ public class StructureUpdateMap extends OperationMap<String, RassEntity> {
 	}
 
 	@Override
+	public OperationType getOperation() {
+		return OperationType.STRUCTURE_UPDATE;
+	}
+
+	@Override
 	public void accept(MapsVisitor visitor) {
 		visitor.visit(this);
 		
