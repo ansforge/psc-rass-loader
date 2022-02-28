@@ -112,7 +112,6 @@ public class LoadProcess implements KryoSerializable {
 		processInfo.setExtractFileName(extractedFilename);
 		processInfo.setLockedSerializedFileName(tmpMapsPath);
 		if (state.isAlreadyComputed()) {
-			maps.stream().forEach(map -> System.out.println("map.getOperation() returns : " + map.getOperation()));
 			processInfo.setPsToCreate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
 					.findFirst().get().size());
 			processInfo.setPsToUpdate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
@@ -134,6 +133,7 @@ public class LoadProcess implements KryoSerializable {
 		output.writeLong(timestamp);
 		output.writeString(downloadedFilename);
 		output.writeString(extractedFilename);
+		output.writeString(tmpMapsPath);
 		// We need to write the class also because state is an abstract class (hope
 		// never null)
 		kryo.writeClassAndObject(output, state);
@@ -147,6 +147,7 @@ public class LoadProcess implements KryoSerializable {
 		timestamp = input.readLong();
 		downloadedFilename = input.readString();
 		extractedFilename = input.readString();
+		tmpMapsPath = input.readString();
 		state = (ProcessState) kryo.readClassAndObject(input);
 		maps = (List<OperationMap<String, RassEntity>>) kryo.readObjectOrNull(input, ArrayList.class);
 	}
