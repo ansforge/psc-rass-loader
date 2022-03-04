@@ -192,8 +192,8 @@ public class PscloadApplication {
 
         @Override
         public void onApplicationEvent(ContextClosedEvent event) {
-            // Wait for upload finished
-            ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS);
+            // Interrupt the worker thread.
+            ForkJoinPool.commonPool().shutdownNow();
             // Save the registry if not empty
             if (!registry.isEmpty()) {
                 log.info("Try to save registry");
