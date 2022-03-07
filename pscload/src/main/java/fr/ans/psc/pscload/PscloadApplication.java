@@ -211,6 +211,7 @@ public class PscloadApplication {
                         writer.flush();
                         writer.close();
                     }
+                    log.info("Registry saved successfully !");    
                 } catch (IOException e) {
                     log.error("Unable to save registry", e);
                 }
