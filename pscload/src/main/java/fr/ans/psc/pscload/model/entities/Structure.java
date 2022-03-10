@@ -58,7 +58,6 @@ public class Structure extends fr.ans.psc.model.Structure implements RassEntity 
 		setEmail(items[RassItems.STRUCTURE_EMAIL.column]);
 		setDepartmentCode(items[RassItems.DEPARTMENT_CODE.column]);
 		setOldStructureId(items[RassItems.OLD_STRUCTURE_ID.column]);
-		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 	}
 
 	public void setStructureItems(String[] items) {

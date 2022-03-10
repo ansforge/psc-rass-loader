@@ -33,8 +33,9 @@ public class SituationExercice extends WorkSituation {
 		setActivitySectorCode(items[RassItems.ACTIVITY_SECTOR_CODE.column]);
 		setPharmacistTableSectionCode(items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column]);
 		setRoleCode(items[RassItems.SITUATION_ROLE_CODE.column]);
+		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
-			addStructuresItem(new RefStructure(items[28])); // structureTechnicalId
+			addStructuresItem(new RefStructure(items[RassItems.STRUCTURE_TECHNICAL_ID.column])); // structureTechnicalId
 		}
 	}
 

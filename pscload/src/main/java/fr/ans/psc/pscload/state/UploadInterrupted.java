@@ -34,4 +34,6 @@ public class UploadInterrupted extends ProcessState {
 		return true;
 	}
 
+	@Override
+	public boolean isExpirable() { return false;}
 }

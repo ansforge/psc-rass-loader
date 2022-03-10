@@ -13,8 +13,15 @@ public enum EmailTemplate {
      */
     UPLOAD_REST_INTERRUPTION("PSCLOAD - Interruption du chargement des modifications",
             "Le chargement des modifications de pscload a été interrompu avant son terme.\n" +
-                    "Vous pouvez l'annuler ou forcer sa reprise manuellement.\n" +
-                    "En l'absence d'action de votre part il sera abandonné à l'issue du délai de reprise paramétré."),
+                    "Vous pouvez l'annuler ou forcer sa reprise manuellement.\n"),
+
+    /**
+     * The application is restarting with a process at upload interrupted state
+     */
+    UPLOAD_INTERRUPTED_RESTART("PSCLOAD - redémarrage avec modifications en attente",
+            "L'application pscload vient de redémarrer alors que le précédent chargement des modifications avait" +
+                    "été interrompu avant son terme.\n" +
+                    "Vous pouvez l'annuler ou forcer sa reprise manuellement."),
 
     /**
      * The process has finished.
