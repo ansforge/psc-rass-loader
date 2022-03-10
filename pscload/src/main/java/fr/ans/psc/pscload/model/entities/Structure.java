@@ -85,7 +85,6 @@ public class Structure extends fr.ans.psc.model.Structure implements RassEntity 
 		items[RassItems.STRUCTURE_EMAIL.column] = getEmail();
 		items[RassItems.DEPARTMENT_CODE.column] = getDepartmentCode();
 		items[RassItems.OLD_STRUCTURE_ID.column] = getOldStructureId();
-		items[RassItems.REGISTRATION_AUTHORITY.column] = getRegistrationAuthority();
 	}
 
 

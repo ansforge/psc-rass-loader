@@ -44,5 +44,6 @@ public class SituationExercice extends WorkSituation {
 		items[RassItems.ACTIVITY_SECTOR_CODE.column] = getActivitySectorCode();
 		items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column] = getPharmacistTableSectionCode();
 		items[RassItems.SITUATION_ROLE_CODE.column] = getRoleCode();
+		items[RassItems.REGISTRATION_AUTHORITY.column] = getRegistrationAuthority();
 	}
 }

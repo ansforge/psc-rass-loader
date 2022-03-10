@@ -222,7 +222,14 @@ public class MapsHandler implements KryoSerializable {
 			if (structure != null) {
 				structure.setStructureItems(items);
 			} else {
-				IntStream.range(RassItems.SITE_SIRET.column, RassItems.values().length).forEach(i -> items[i] = "");
+				// because registration column comes AFTER structure columns in csv, it may have a value
+				// we don't want to erase it in loop
+				// therefore the null check
+				IntStream.range(RassItems.SITE_SIRET.column, RassItems.values().length).forEach(i -> {
+					if (items[i] == null) {
+						items[i] = "";
+					}
+				});
 			}
 			sb.append(String.join("|", items))
 					.append("|")
