@@ -71,7 +71,7 @@ public class PscloadApplication {
     @Value("${pscextract.base.url}")
     private String pscextractBaseUrl;
 
-    @Value("${debug:false}")
+    @Value("${snitch:false}")
     private boolean debug;
 
     @Value("${deactivation.excluded.profession.codes}")
