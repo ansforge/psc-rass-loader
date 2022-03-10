@@ -141,7 +141,7 @@ public class PscloadApplication {
                             log.info("Stage is UploadInterrupted, will not be automatically resumed.");
                             customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE)
                                     .set(Stage.UPLOAD_CHANGES_STARTED.value);
-                            emailService.sendMail(EmailTemplate.UPLOAD_INTERRUPTED_RESTART);
+                            emailService.sendMail(EmailTemplate.UPLOAD_REST_INTERRUPTION);
                             return;
                         }
 
