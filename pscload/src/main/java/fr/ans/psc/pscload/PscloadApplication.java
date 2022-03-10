@@ -172,6 +172,8 @@ public class PscloadApplication {
                         registry.clear();
                     }
                 }
+            } else {
+                log.info("no registry file has been found.");
             }
         }
     }
