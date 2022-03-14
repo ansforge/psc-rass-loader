@@ -20,16 +20,6 @@ public class StructureCreateMap extends OperationMap<String, RassEntity> {
 
 	}
 
-	/**
-	 * Instantiates a new structure create map.
-	 *
-	 * @param operation the operation
-	 */
-	public StructureCreateMap(OperationType operation) {
-		super(operation);
-
-	}
-
 	@Override
 	public OperationType getOperation() {
 		return OperationType.STRUCTURE_CREATE;

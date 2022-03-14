@@ -21,22 +21,22 @@ public class OperationMapFactory {
         OperationMap<String, RassEntity> map;
         switch (operation) {
             case PS_CREATE:
-                map = new PsCreateMap(OperationType.PS_CREATE);
+                map = new PsCreateMap();
                 break;
             case PS_DELETE:
-                map = new PsDeleteMap(OperationType.PS_DELETE);
+                map = new PsDeleteMap();
                 break;
             case PS_UPDATE:
-                map = new PsUpdateMap(OperationType.PS_UPDATE);
+                map = new PsUpdateMap();
                 break;
             case STRUCTURE_CREATE:
-                map = new StructureCreateMap(OperationType.STRUCTURE_CREATE);
+                map = new StructureCreateMap();
                 break;
             case STRUCTURE_UPDATE:
-                map = new StructureUpdateMap(OperationType.STRUCTURE_UPDATE);
+                map = new StructureUpdateMap();
                 break;
             case STRUCTURE_DELETE:
-                map = new StructureDeleteMap(OperationType.STRUCTURE_DELETE);
+                map = new StructureDeleteMap();
                 break;
             default:
                 map = null;

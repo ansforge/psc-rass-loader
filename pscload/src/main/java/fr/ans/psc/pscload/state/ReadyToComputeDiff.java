@@ -104,26 +104,28 @@ public class ReadyToComputeDiff extends ProcessState {
 			switch (map.getOperation()) {
 			case PS_UPDATE:
 				diffPs.entriesDiffering().forEach((k, v) -> {
-					map.put(k, v.rightValue());
+					map.getNewValues().put(k, v.rightValue());
 					map.saveOldValue(k, v.leftValue());
 				});
 				break;
 			case PS_DELETE:
-				diffPs.entriesOnlyOnLeft().forEach(map::put);
+				diffPs.entriesOnlyOnLeft().forEach(map::saveNewValue);
 				break;
 			case PS_CREATE:
-				diffPs.entriesOnlyOnRight().forEach(map::put);
+				diffPs.entriesOnlyOnRight().forEach(map::saveNewValue);
 				break;
 			case STRUCTURE_CREATE:
-				diffStructures.entriesOnlyOnRight().forEach(map::put);
+				diffStructures.entriesOnlyOnRight().forEach(map::saveNewValue);
 				break;
 			case STRUCTURE_UPDATE:
 				diffStructures.entriesDiffering().forEach((k, v) -> {
-					map.put(k, v.rightValue());
+					map.getNewValues().put(k, v.rightValue());
 					map.saveOldValue(k, v.leftValue());
 					log.debug("OLD STRUCTURE {} : {}", v.leftValue().getInternalId(), v.leftValue().toString());
 				});
 				break;
+				case STRUCTURE_DELETE:
+					diffStructures.entriesOnlyOnLeft().forEach(map::saveNewValue);
 			default:
 				break;
 			}

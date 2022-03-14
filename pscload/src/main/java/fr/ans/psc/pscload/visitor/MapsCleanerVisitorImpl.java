@@ -35,7 +35,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsCreateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.forEach(item -> {
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
@@ -46,7 +46,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsUpdateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.forEach(item -> {
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
@@ -57,7 +57,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsDeleteMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.forEach(item -> {
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
@@ -68,7 +68,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureCreateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.forEach(item -> {
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
@@ -80,7 +80,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureUpdateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.forEach(item -> {
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
@@ -91,7 +91,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureDeleteMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.forEach(item -> {
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {

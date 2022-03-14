@@ -9,10 +9,6 @@ public class StructureDeleteMap extends OperationMap<String, RassEntity> {
     public StructureDeleteMap() {
     }
 
-    public StructureDeleteMap(OperationType operation) {
-        super(operation);
-    }
-
     @Override
     public OperationType getOperation() {
         return OperationType.STRUCTURE_DELETE;

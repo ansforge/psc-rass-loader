@@ -20,16 +20,6 @@ public class PsDeleteMap extends OperationMap<String, RassEntity> {
 
 	}
 
-	/**
-	 * Instantiates a new ps delete map.
-	 *
-	 * @param operation the operation
-	 */
-	public PsDeleteMap(OperationType operation) {
-		super(operation);
-
-	}
-
 	@Override
 	public OperationType getOperation() {
 		return OperationType.PS_DELETE;

@@ -173,9 +173,9 @@ public class UploadingStateTest {
 				.findFirst().get();
         OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
 				.findFirst().get();
-        assertEquals(0, psToCreate2.size());
-        assertEquals(0, psToDelete2.size());
-        assertEquals(0, psToUpdate2.size());
+        assertEquals(0, psToCreate2.getNewValues().size());
+        assertEquals(0, psToDelete2.getNewValues().size());
+        assertEquals(0, psToUpdate2.getNewValues().size());
 
     }
 
@@ -232,10 +232,10 @@ public class UploadingStateTest {
 				.findFirst().get();
         OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
 				.findFirst().get();
-        assertEquals(0, psToCreate2.size());
-        assertEquals(1, psToDelete2.size());
-        assertEquals(0, psToUpdate2.size());
-        assertEquals(HttpStatus.GONE.value(), psToDelete2.get("810107592544").getReturnStatus());
+        assertEquals(0, psToCreate2.getNewValues().size());
+        assertEquals(1, psToDelete2.getNewValues().size());
+        assertEquals(0, psToUpdate2.getNewValues().size());
+        assertEquals(HttpStatus.GONE.value(), psToDelete2.getNewValues().get("810107592544").getReturnStatus());
 
     }
 }

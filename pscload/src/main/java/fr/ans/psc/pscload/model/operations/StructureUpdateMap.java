@@ -20,16 +20,6 @@ public class StructureUpdateMap extends OperationMap<String, RassEntity> {
 
 	}
 
-	/**
-	 * Instantiates a new structure update map.
-	 *
-	 * @param operation the operation
-	 */
-	public StructureUpdateMap(OperationType operation) {
-		super(operation);
-
-	}
-
 	@Override
 	public OperationType getOperation() {
 		return OperationType.STRUCTURE_UPDATE;

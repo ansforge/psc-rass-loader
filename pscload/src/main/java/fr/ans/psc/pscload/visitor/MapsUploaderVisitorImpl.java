@@ -52,11 +52,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsCreateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.parallelStream().forEach(item -> {
 			try {
 				psApi.createNewPs((Professionnel) item);
-				map.remove(item.getInternalId());
+				map.getNewValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -72,7 +72,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsDeleteMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.parallelStream().forEach(item -> {
 			try {
 				Professionnel prof = (Professionnel) item;
@@ -88,7 +88,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					psApi.deletePsById(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
-				map.remove(item.getInternalId());
+				map.getNewValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -104,11 +104,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsUpdateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.parallelStream().forEach(item -> {
 			try {
 				psApi.updatePs((Professionnel) item);
-				map.remove(item.getInternalId());
+				map.getNewValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -124,12 +124,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureCreateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.parallelStream().forEach(item -> {
 			try {
 				structureApi.createNewStructure((Structure) item);
 				// Remove structure from map if return code is 201
-				map.remove(item.getInternalId());
+				map.getNewValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -145,11 +145,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureUpdateMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.parallelStream().forEach(item -> {
 			try {
 				structureApi.updateStructure((Structure) item);
-				map.remove(item.getInternalId());
+				map.getNewValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -165,11 +165,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(StructureDeleteMap map) {
-		Collection<RassEntity> items = map.values();
+		Collection<RassEntity> items = map.getNewValues().values();
 		items.parallelStream().forEach(item -> {
 			try {
 				structureApi.deleteStructureByStructureId(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
-				map.remove(item.getInternalId());
+				map.getNewValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());

@@ -20,16 +20,6 @@ public class PsCreateMap extends OperationMap<String, RassEntity> {
 
 	}
 
-	/**
-	 * Instantiates a new ps create map.
-	 *
-	 * @param operation the operation
-	 */
-	public PsCreateMap(OperationType operation) {
-		super(operation);
-
-	}
-
 	@Override
 	public OperationType getOperation() {
 		return OperationType.PS_CREATE;

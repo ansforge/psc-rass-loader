@@ -3,6 +3,9 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
@@ -20,16 +23,6 @@ public class PsUpdateMap extends OperationMap<String, RassEntity> {
 
 	}
 
-	/**
-	 * Instantiates a new ps update map.
-	 *
-	 * @param operation the operation
-	 */
-	public PsUpdateMap(OperationType operation) {
-		super(operation);
-
-	}
-
 	@Override
 	public OperationType getOperation() {
 		return OperationType.PS_UPDATE;
@@ -41,5 +34,4 @@ public class PsUpdateMap extends OperationMap<String, RassEntity> {
 		visitor.visit(this);
 		
 	}
-
 }
