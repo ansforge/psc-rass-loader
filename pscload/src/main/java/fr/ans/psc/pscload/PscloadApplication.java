@@ -210,13 +210,6 @@ public class PscloadApplication {
                     registry.write(kryo, output);
                     output.close();
 
-                    if (debug) {
-                        Writer writer = new FileWriter(filesDirectory + File.separator + "registry.json");
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        gson.toJson(registry, writer);
-                        writer.flush();
-                        writer.close();
-                    }
                     log.info("Registry saved successfully !");
                 } catch (Exception e) {
                     log.error("Unable to save registry", e);
