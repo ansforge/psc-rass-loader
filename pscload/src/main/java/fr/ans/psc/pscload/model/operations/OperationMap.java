@@ -37,9 +37,7 @@ public abstract class OperationMap<K, V> implements Visitable
 	/**
 	 * Instantiates a new operation map.
 	 */
-	public OperationMap() {
-		super();
-	}
+	public OperationMap() { }
 
 	public abstract OperationType getOperation();
 
