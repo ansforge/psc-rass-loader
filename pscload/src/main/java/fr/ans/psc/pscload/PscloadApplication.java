@@ -216,6 +216,8 @@ public class PscloadApplication {
                     log.info("Registry saved successfully !");
                 } catch (IOException e) {
                     log.error("Unable to save registry", e);
+                } catch (KryoException e) {
+                    log.error("Unable to save registry : error when kryo serialization", e);
                 }
             }
         }
