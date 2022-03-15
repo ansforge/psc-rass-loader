@@ -116,11 +116,15 @@ public class PscloadApplication {
                     Input input = new Input(fileInputStream);
                     registry.read(kryo, input);
                     input.close();
-                    registryFile.delete();
+                    if (!debug) {
+                        registryFile.delete();
+                    }
                     log.info("Registry restored");
                 } catch (IOException | KryoException e) {
                     log.warn("Unable to restore registry, start with an empty registry", e);
-                    registryFile.delete();
+                    if (!debug) {
+                        registryFile.delete();
+                    }
                     registry.clear();
                 }
 

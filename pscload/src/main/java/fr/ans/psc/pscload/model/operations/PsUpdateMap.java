@@ -3,9 +3,6 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
