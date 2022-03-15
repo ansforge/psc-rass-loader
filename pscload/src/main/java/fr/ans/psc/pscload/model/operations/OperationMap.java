@@ -24,22 +24,10 @@ import java.util.concurrent.ConcurrentMap;
  * @param <K> the key type
  * @param <V> the value type
  */
-@Getter
-@Setter
-public abstract class OperationMap<K, V> implements Visitable
-//		, KryoSerializable
-{
 
-	private ConcurrentHashMap<String , RassEntity> newValues;
-	private ConcurrentHashMap<String, RassEntity> oldValues;
+public interface OperationMap<K, V> extends Visitable {
 
-	
-	/**
-	 * Instantiates a new operation map.
-	 */
-	public OperationMap() { }
-
-	public abstract OperationType getOperation();
+	 OperationType getOperation();
 
 	/**
 	 * Save old value.
@@ -47,11 +35,23 @@ public abstract class OperationMap<K, V> implements Visitable
 	 * @param key the key
 	 * @param value the value
 	 */
-	public void saveNewValue(String key, RassEntity value) {
-		if (newValues == null) {
-			newValues = new ConcurrentHashMap<>();
-		}
-		newValues.put(key, value);
+	 void saveNewValue(String key, RassEntity value);
+
+	/**
+	 * Gets the old value.
+	 *
+	 * @param key the key
+	 * @return the old value
+	 */
+	RassEntity getNewValue(String key);
+	/**
+	 * Save old value.
+	 *
+	 * @param key the key
+	 * @param value the value
+	 */
+	default void saveOldValue(String key, RassEntity value) {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -60,54 +60,13 @@ public abstract class OperationMap<K, V> implements Visitable
 	 * @param key the key
 	 * @return the old value
 	 */
-	public RassEntity getNewValue(String key) {
-		if (newValues == null) {
-			newValues = new ConcurrentHashMap<>();
-		}
-		return newValues.get(key);
-	}
-	/**
-	 * Save old value.
-	 *
-	 * @param key the key
-	 * @param value the value
-	 */
-	public void saveOldValue(String key, RassEntity value) {
-		if (oldValues == null) {
-			oldValues = new ConcurrentHashMap<>();
-		}
-		oldValues.put(key, value);
+	default RassEntity getOldValue(String key) {
+		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * Gets the old value.
-	 *
-	 * @param key the key
-	 * @return the old value
-	 */
-	public RassEntity getOldValue(String key) {
-		if (oldValues == null) {
-			oldValues = new ConcurrentHashMap<>();
-		}
-		return oldValues.get(key);
+	ConcurrentHashMap<String, RassEntity> getNewValues();
+
+	default ConcurrentHashMap<String, RassEntity> getOldValues() {
+		throw new UnsupportedOperationException();
 	}
-
-	public ConcurrentHashMap<String, RassEntity> getNewValues() {
-		if (newValues == null) {
-			newValues = new ConcurrentHashMap<>();
-		}
-		return newValues;
-	}
-
-//	@Override
-//	public void write(Kryo kryo, Output output) {
-//		kryo.writeObjectOrNull(output, oldValues, ConcurrentHashMap.class);
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public void read(Kryo kryo, Input input) {
-//		oldValues = (ConcurrentMap<String, RassEntity>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
-//	}
-
 }

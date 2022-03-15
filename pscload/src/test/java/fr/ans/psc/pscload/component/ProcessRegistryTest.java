@@ -285,7 +285,6 @@ class ProcessRegistryTest {
 		kryo.register(ConcurrentHashMap.class, 28);
 		kryo.register(UploadInterrupted.class, 29);
 		kryo.register(SerializationInterrupted.class, 30);
-		kryo.register(OperationMap.class, 31);
 		kryo.register(PsCreateMap.class, 32);
 		kryo.register(PsUpdateMap.class, 33);
 		kryo.register(PsDeleteMap.class, 34);

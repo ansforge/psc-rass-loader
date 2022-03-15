@@ -4,7 +4,11 @@ import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 
-public class StructureDeleteMap extends OperationMap<String, RassEntity> {
+import java.util.concurrent.ConcurrentHashMap;
+
+public class StructureDeleteMap implements OperationMap<String, RassEntity> {
+
+    private ConcurrentHashMap<String , RassEntity> newValues;
 
     public StructureDeleteMap() {
     }
@@ -17,5 +21,29 @@ public class StructureDeleteMap extends OperationMap<String, RassEntity> {
     @Override
     public void accept(MapsVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public void saveNewValue(String key, RassEntity value) {
+        if (newValues == null) {
+            newValues = new ConcurrentHashMap<>();
+        }
+        newValues.put(key, value);
+    }
+
+    @Override
+    public RassEntity getNewValue(String key) {
+        if (newValues == null) {
+            newValues = new ConcurrentHashMap<>();
+        }
+        return newValues.get(key);
+    }
+
+    @Override
+    public ConcurrentHashMap<String, RassEntity> getNewValues() {
+        if (newValues == null) {
+            newValues = new ConcurrentHashMap<>();
+        }
+        return newValues;
     }
 }

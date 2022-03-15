@@ -7,17 +7,19 @@ import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The Class StructureCreateMap.
  */
-public class StructureCreateMap extends OperationMap<String, RassEntity> {
+public class StructureCreateMap implements OperationMap<String, RassEntity> {
+
+	private ConcurrentHashMap<String , RassEntity> newValues;
 
 	/**
 	 * Instantiates a new structure create map.
 	 */
 	public StructureCreateMap() {
-		super();
-
 	}
 
 	@Override
@@ -29,6 +31,30 @@ public class StructureCreateMap extends OperationMap<String, RassEntity> {
 	public void accept(MapsVisitor visitor) {
 		visitor.visit(this);
 		
+	}
+
+	@Override
+	public void saveNewValue(String key, RassEntity value) {
+		if (newValues == null) {
+			newValues = new ConcurrentHashMap<>();
+		}
+		newValues.put(key, value);
+	}
+
+	@Override
+	public RassEntity getNewValue(String key) {
+		if (newValues == null) {
+			newValues = new ConcurrentHashMap<>();
+		}
+		return newValues.get(key);
+	}
+
+	@Override
+	public ConcurrentHashMap<String, RassEntity> getNewValues() {
+		if (newValues == null) {
+			newValues = new ConcurrentHashMap<>();
+		}
+		return newValues;
 	}
 
 }
