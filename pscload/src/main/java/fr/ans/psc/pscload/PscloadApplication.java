@@ -116,11 +116,15 @@ public class PscloadApplication {
                     Input input = new Input(fileInputStream);
                     registry.read(kryo, input);
                     input.close();
-                    registryFile.delete();
+                    if (debug) {
+                        registryFile.delete();
+                    }
                     log.info("Registry restored");
                 } catch (IOException | KryoException e) {
                     log.warn("Unable to restore registry, start with an empty registry", e);
-                    registryFile.delete();
+                    if (debug) {
+                        registryFile.delete();
+                    }
                     registry.clear();
                 }
 
@@ -206,13 +210,6 @@ public class PscloadApplication {
                     registry.write(kryo, output);
                     output.close();
 
-                    if (debug) {
-                        Writer writer = new FileWriter(filesDirectory + File.separator + "registry.json");
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        gson.toJson(registry, writer);
-                        writer.flush();
-                        writer.close();
-                    }
                     log.info("Registry saved successfully !");
                 } catch (IOException e) {
                     log.error("Unable to save registry", e);
