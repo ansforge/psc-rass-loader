@@ -26,6 +26,7 @@ public class SerializerConfiguration {
 	@Bean
 	public Kryo getKryo() {
 		Kryo kryo = new Kryo();
+		OperationMapSerializer operationMapSerializer = new OperationMapSerializer();
 		kryo.register(HashMap.class, 9);
 		kryo.register(ArrayList.class, 10);
 		kryo.register(Professionnel.class, 11);
@@ -47,12 +48,12 @@ public class SerializerConfiguration {
 		kryo.register(ConcurrentHashMap.class, 28);
 		kryo.register(UploadInterrupted.class, 29);
 		kryo.register(SerializationInterrupted.class, 30);
-		kryo.register(OperationMap.class, 31);
+		kryo.register(OperationMap.class, operationMapSerializer, 31);
 		kryo.register(PsCreateMap.class, 32);
-		kryo.register(PsUpdateMap.class, 33);
+		kryo.register(PsUpdateMap.class, operationMapSerializer, 33);
 		kryo.register(PsDeleteMap.class, 34);
 		kryo.register(StructureCreateMap.class, 35);
-		kryo.register(StructureUpdateMap.class, 36);
+		kryo.register(StructureUpdateMap.class, operationMapSerializer, 36);
 		kryo.register(StructureDeleteMap.class, 37);
 		return kryo;
 	}

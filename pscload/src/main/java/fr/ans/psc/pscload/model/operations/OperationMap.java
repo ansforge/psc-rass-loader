@@ -24,7 +24,7 @@ public abstract class OperationMap<K, V> extends ConcurrentHashMap<String, RassE
 
 	private OperationType operation;
 
-	private ConcurrentMap<String, RassEntity> oldValues = new ConcurrentHashMap<>();
+	private ConcurrentMap<String, RassEntity> oldValues;
 
 	
 	/**
@@ -53,6 +53,9 @@ public abstract class OperationMap<K, V> extends ConcurrentHashMap<String, RassE
 	 * @param value the value
 	 */
 	public void saveOldValue(String key, RassEntity value) {
+		if (oldValues == null) {
+			oldValues = new ConcurrentHashMap<>();
+		}
 		oldValues.put(key, value);
 	}
 
@@ -63,6 +66,9 @@ public abstract class OperationMap<K, V> extends ConcurrentHashMap<String, RassE
 	 * @return the old value
 	 */
 	public RassEntity getOldValue(String key) {
+		if (oldValues == null) {
+			oldValues = new ConcurrentHashMap<>();
+		}
 		return oldValues.get(key);
 	}
 
