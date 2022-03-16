@@ -210,6 +210,12 @@ public class PscloadApplication {
                     registry.write(kryo, output);
                     output.close();
 
+                    registry.clear();
+                    FileInputStream fileInputStream = new FileInputStream(registryFile);
+                    Input input = new Input(fileInputStream);
+                    registry.read(kryo, input);
+                    input.close();
+
                     log.info("Registry saved successfully !");
                 } catch (IOException e) {
                     log.error("Unable to save registry", e);

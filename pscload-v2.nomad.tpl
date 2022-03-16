@@ -34,7 +34,7 @@ job "pscload" {
     }
 
     task "pscload" {
-      kill_timeout = "30s"
+      kill_timeout = "90s"
       kill_signal = "SIGTERM"
       driver = "docker"
       config {

@@ -230,26 +230,29 @@ class ProcessRegistryTest {
 	}
 
 	private LoadProcess generateDiff() throws IOException {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
-		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
-		p.setExtractedFilename(extractFile.getPath());
-		p.nextStep();
-		String[] exclusions = {"90"};
-		p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
-		p.getState().setProcess(p);
-		p.nextStep();
-		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));
-		p.getState().setProcess(p);
-		p.nextStep();
+//		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+//		String rootpath = cl.getResource("work").getPath();
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
+//		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+//		// Extraction_ProSanteConnect_Personne_activite_202112120512.txt
+//		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202203160917.txt");
+//		p.setExtractedFilename(extractFile.getPath());
+//		p.nextStep();
+//		String[] exclusions = {"90"};
+//		p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
+//		p.getState().setProcess(p);
+//		p.nextStep();
+//		p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));
+//		p.getState().setProcess(p);
+//		p.nextStep();
 
 		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
-		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+		// Extraction_ProSanteConnect_Personne_activite_202112120515.txt
+		FileUtils.copyFileToWorkspace("maps.ser");
+		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202203160917.txt.trunc");
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
 		p2.nextStep();
