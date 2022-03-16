@@ -8,13 +8,14 @@ import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The Class PsDeleteMap.
  */
 public class PsDeleteMap implements OperationMap<String, RassEntity> {
 
-	private ConcurrentHashMap<String , RassEntity> newValues;
+	private ConcurrentMap<String , RassEntity> newValues;
 
 	/**
 	 * Instantiates a new ps delete map.
@@ -50,7 +51,7 @@ public class PsDeleteMap implements OperationMap<String, RassEntity> {
 	}
 
 	@Override
-	public ConcurrentHashMap<String, RassEntity> getNewValues() {
+	public ConcurrentMap<String, RassEntity> getNewValues() {
 		if (newValues == null) {
 			newValues = new ConcurrentHashMap<>();
 		}

@@ -4,6 +4,7 @@
 package fr.ans.psc.pscload.config;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.MapSerializer;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.*;
@@ -44,7 +45,7 @@ public class SerializerConfiguration {
 		kryo.register(UploadingChanges.class, 24);
 		kryo.register(ChangesApplied.class, 25);
 		kryo.register(String[].class, 27);
-		kryo.register(ConcurrentHashMap.class, 28);
+		kryo.register(ConcurrentHashMap.class, new MapSerializer<ConcurrentHashMap<String, RassEntity>>(), 28);
 		kryo.register(UploadInterrupted.class, 29);
 		kryo.register(SerializationInterrupted.class, 30);
 		kryo.register(PsCreateMap.class, 32);

@@ -64,9 +64,9 @@ public interface OperationMap<K, V> extends Visitable {
 		throw new UnsupportedOperationException();
 	}
 
-	ConcurrentHashMap<String, RassEntity> getNewValues();
+	ConcurrentMap<String, RassEntity> getNewValues();
 
-	default ConcurrentHashMap<String, RassEntity> getOldValues() {
+	default ConcurrentMap<String, RassEntity> getOldValues() {
 		throw new UnsupportedOperationException();
 	}
 }

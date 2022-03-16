@@ -8,14 +8,15 @@ import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The Class StructureUpdateMap.
  */
 public class StructureUpdateMap implements OperationMap<String, RassEntity> {
 
-	private ConcurrentHashMap<String , RassEntity> newValues;
-	private ConcurrentHashMap<String, RassEntity> oldValues;
+	private ConcurrentMap<String , RassEntity> newValues;
+	private ConcurrentMap<String, RassEntity> oldValues;
 
 	/**
 	 * Instantiates a new structure update map.
@@ -67,7 +68,7 @@ public class StructureUpdateMap implements OperationMap<String, RassEntity> {
 	}
 
 	@Override
-	public ConcurrentHashMap<String, RassEntity> getNewValues() {
+	public ConcurrentMap<String, RassEntity> getNewValues() {
 		if (newValues == null) {
 			newValues = new ConcurrentHashMap<>();
 		}
@@ -75,7 +76,7 @@ public class StructureUpdateMap implements OperationMap<String, RassEntity> {
 	}
 
 	@Override
-	public ConcurrentHashMap<String, RassEntity> getOldValues() {
+	public ConcurrentMap<String, RassEntity> getOldValues() {
 		if (oldValues == null) {
 			oldValues = new ConcurrentHashMap<>();
 		}
