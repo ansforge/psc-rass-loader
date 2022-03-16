@@ -7,6 +7,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
+import com.esotericsoftware.minlog.Log;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
@@ -55,6 +56,9 @@ class ProcessRegistryTest {
 
 	@Autowired
 	private EmailService emailService;
+
+	@Autowired
+	private Kryo kryo;
 
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
@@ -172,8 +176,8 @@ class ProcessRegistryTest {
 		registry.register("1", process);
 
 		// when upload state
-		Kryo kryo = new Kryo();
-		registerWithKryo(kryo);
+//		Kryo kryo = new Kryo();
+//		registerWithKryo(kryo);
 
 		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
 		Output output = new Output(fileOutputStream);
@@ -280,6 +284,16 @@ class ProcessRegistryTest {
 		kryo.register(StructureCreateMap.class, 35);
 		kryo.register(StructureUpdateMap.class, 36);
 		kryo.register(StructureDeleteMap.class, 37);
+	}
+
+	@Test
+	public void readRegistryFileTest() throws IOException {
+//		Log.TRACE();
+		File registryFile = FileUtils.copyFileToWorkspace("pscload-registry.ser");
+		FileInputStream fileInputStream = new FileInputStream(registryFile);
+		Input input = new Input(fileInputStream);
+		registry.read(kryo, input);
+		input.close();
 	}
 
 }

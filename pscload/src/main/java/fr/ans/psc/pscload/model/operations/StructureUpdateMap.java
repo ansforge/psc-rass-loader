@@ -3,6 +3,9 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
@@ -81,6 +84,19 @@ public class StructureUpdateMap implements OperationMap<String, RassEntity> {
 			oldValues = new ConcurrentHashMap<>();
 		}
 		return oldValues;
+	}
+
+	@Override
+	public void write(Kryo kryo, Output output) {
+		kryo.writeObjectOrNull(output, newValues, ConcurrentHashMap.class);
+		kryo.writeObjectOrNull(output, oldValues, ConcurrentHashMap.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void read(Kryo kryo, Input input) {
+		newValues = (Map<String, RassEntity>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
+		oldValues = (Map<String, RassEntity>) kryo.readObjectOrNull(input, ConcurrentHashMap.class);
 	}
 
 }

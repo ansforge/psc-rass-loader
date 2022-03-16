@@ -3,6 +3,7 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
+import com.esotericsoftware.kryo.KryoSerializable;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.OperationType;
 import fr.ans.psc.pscload.visitor.Visitable;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @param <V> the value type
  */
 
-public interface OperationMap<K, V> extends Visitable {
+public interface OperationMap<K, V> extends Visitable, KryoSerializable {
 
 	 OperationType getOperation();
 
