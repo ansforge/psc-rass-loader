@@ -3,13 +3,11 @@
  */
 package fr.ans.psc.pscload.state;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import fr.ans.psc.pscload.PscloadApplication;
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.component.Runner;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,12 +20,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.io.File;
 
-import fr.ans.psc.pscload.PscloadApplication;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Runner;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The Class DiffComputedStateTest.

@@ -3,12 +3,15 @@
  */
 package fr.ans.psc.pscload.state;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.File;
-
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.visitor.OperationType;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,16 +21,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.io.File;
 
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.entities.RassEntity;
-import fr.ans.psc.pscload.model.operations.OperationMap;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.utils.FileUtils;
-import fr.ans.psc.pscload.visitor.OperationType;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The Class FileExtractedTest.

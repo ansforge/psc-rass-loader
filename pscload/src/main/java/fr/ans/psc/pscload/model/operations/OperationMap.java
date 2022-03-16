@@ -3,20 +3,11 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.OperationType;
 import fr.ans.psc.pscload.visitor.Visitable;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
 /**
  * The Class OperationMap.
@@ -64,9 +55,9 @@ public interface OperationMap<K, V> extends Visitable {
 		throw new UnsupportedOperationException();
 	}
 
-	ConcurrentMap<String, RassEntity> getNewValues();
+	Map<String, RassEntity> getNewValues();
 
-	default ConcurrentMap<String, RassEntity> getOldValues() {
+	default Map<String, RassEntity> getOldValues() {
 		throw new UnsupportedOperationException();
 	}
 }

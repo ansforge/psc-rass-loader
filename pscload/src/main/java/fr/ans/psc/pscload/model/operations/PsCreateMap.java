@@ -7,15 +7,15 @@ import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import fr.ans.psc.pscload.visitor.OperationType;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * The Class PsCreateMap.
  */
 public class PsCreateMap implements OperationMap<String, RassEntity> {
 
-	private ConcurrentMap<String , RassEntity> newValues;
+	private Map<String , RassEntity> newValues;
 
 	/**
 	 * Instantiates a new ps create map.
@@ -45,7 +45,7 @@ public class PsCreateMap implements OperationMap<String, RassEntity> {
 	}
 
 	@Override
-	public ConcurrentMap<String, RassEntity> getNewValues() {
+	public Map<String, RassEntity> getNewValues() {
 		if (newValues == null) {
 			newValues = new ConcurrentHashMap<>();
 		}

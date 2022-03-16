@@ -3,50 +3,39 @@
  */
 package fr.ans.psc.pscload.component;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.entities.*;
-import fr.ans.psc.pscload.model.operations.*;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.utils.FileUtils;
-import fr.ans.psc.pscload.visitor.OperationType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
+import com.esotericsoftware.kryo.serializers.MapSerializer;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.state.ChangesApplied;
-import fr.ans.psc.pscload.state.DiffComputed;
-import fr.ans.psc.pscload.state.Submitted;
-import fr.ans.psc.pscload.state.UploadInterrupted;
-import fr.ans.psc.pscload.state.ProcessState;
-import fr.ans.psc.pscload.state.ReadyToComputeDiff;
-import fr.ans.psc.pscload.state.ReadyToExtract;
-import fr.ans.psc.pscload.state.SerializationInterrupted;
-import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.model.entities.*;
+import fr.ans.psc.pscload.model.operations.*;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.state.*;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The Class ProcessRegistryTest.
@@ -282,7 +271,7 @@ class ProcessRegistryTest {
 		kryo.register(UploadingChanges.class, 24);
 		kryo.register(ChangesApplied.class, 25);
 		kryo.register(String[].class, 27);
-		kryo.register(ConcurrentHashMap.class, 28);
+		kryo.register(ConcurrentHashMap.class, new MapSerializer<ConcurrentHashMap<String, RassEntity>>(), 28);
 		kryo.register(UploadInterrupted.class, 29);
 		kryo.register(SerializationInterrupted.class, 30);
 		kryo.register(PsCreateMap.class, 32);

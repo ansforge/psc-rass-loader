@@ -12,25 +12,19 @@ import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.ObjectRowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
-import fr.ans.psc.model.Ps;
-import fr.ans.psc.model.WorkSituation;
 import fr.ans.psc.pscload.model.entities.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.any23.encoding.TikaEncodingDetector;
-import org.apache.poi.util.ArrayUtil;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * The Class MapsHandler.

@@ -3,19 +3,14 @@
  */
 package fr.ans.psc.pscload.service;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.SQLOutput;
-
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import fr.ans.psc.pscload.PscloadApplication;
+import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.SituationExercice;
 import fr.ans.psc.pscload.model.entities.Structure;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -24,11 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.io.File;
+import java.io.IOException;
 
-import fr.ans.psc.pscload.PscloadApplication;
-import fr.ans.psc.pscload.model.MapsHandler;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The Class MapsHandlerTest.

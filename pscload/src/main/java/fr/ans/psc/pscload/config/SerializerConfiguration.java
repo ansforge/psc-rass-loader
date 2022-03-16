@@ -10,7 +10,6 @@ import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.*;
 import fr.ans.psc.pscload.model.operations.*;
 import fr.ans.psc.pscload.state.*;
-import fr.ans.psc.pscload.visitor.OperationType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
