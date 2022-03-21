@@ -1,7 +1,7 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.state;
+package fr.ans.psc.pscload.component;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -23,12 +23,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,6 +59,9 @@ public class RunnerTest {
 
 	@Autowired
 	private ProcessRegistry registry;
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired
 	private Runner runner;
@@ -86,11 +92,6 @@ public class RunnerTest {
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
-	/**
-	 * Setup.
-	 *
-	 * @throws Exception the exception
-	 */
 	@BeforeEach
 	void setup() {
 		registry.clear();

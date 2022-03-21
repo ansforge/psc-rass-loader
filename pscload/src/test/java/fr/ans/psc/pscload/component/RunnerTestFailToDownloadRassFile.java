@@ -1,7 +1,7 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.state;
+package fr.ans.psc.pscload.component;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
