@@ -79,7 +79,13 @@ public enum RassItems {
     
     /** The situation role code. */
     SITUATION_ROLE_CODE(23),
-    
+
+    //TODO : make activityKindCode available
+//    /**
+//     * The activity kind code
+//     */
+//    ACTIVITY_KIND_CODE(49),
+
     /** The site siret. */
     SITE_SIRET(24),
     

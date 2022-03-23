@@ -33,6 +33,8 @@ public class SituationExercice extends WorkSituation {
 		setActivitySectorCode(items[RassItems.ACTIVITY_SECTOR_CODE.column]);
 		setPharmacistTableSectionCode(items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column]);
 		setRoleCode(items[RassItems.SITUATION_ROLE_CODE.column]);
+		// TODO set activityKindCode when available
+//		setActivityKindCode(items[RassItems.ACTIVITY_KIND_CODE.column]);
 		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
 			setStructure(new Structure(items));
@@ -45,6 +47,8 @@ public class SituationExercice extends WorkSituation {
 		items[RassItems.ACTIVITY_SECTOR_CODE.column] = getActivitySectorCode();
 		items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column] = getPharmacistTableSectionCode();
 		items[RassItems.SITUATION_ROLE_CODE.column] = getRoleCode();
+		// TODO set activityKindCode when available
+//		items[RassItems.ACTIVITY_KIND_CODE.column] = getActivityKindCode();
 		items[RassItems.REGISTRATION_AUTHORITY.column] = getRegistrationAuthority();
 	}
 }
