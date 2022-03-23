@@ -8,6 +8,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
 import com.esotericsoftware.minlog.Log;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
@@ -19,12 +20,17 @@ import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.visitor.OperationType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,15 +50,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 @SpringBootTest
 class ProcessRegistryTest {
-	
+
 	/** The rootpath. */
 	static String rootpath = Thread.currentThread().getContextClassLoader().getResource("work").getPath();
-	
+
 	/** The registry. */
-	private ProcessRegistry registry = new ProcessRegistry(rootpath);
+//	private ProcessRegistry registry = new ProcessRegistry(rootpath);
+
+	@Autowired
+	ProcessRegistry registry;
 
 	@Autowired
 	CustomMetrics customMetrics;
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired
 	private EmailService emailService;
@@ -76,14 +88,14 @@ class ProcessRegistryTest {
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
-	  
+
 	/**
 	 * Setup.
 	 *
 	 * @throws Exception the exception
 	 */
 	@BeforeEach
-	void setup() throws Exception {
+	void setup() {
 		registry.clear();
 		// clear work directory
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -93,10 +105,10 @@ class ProcessRegistryTest {
 				f.delete();
 			}
 		}
-
 		httpMockServer.stubFor(any(anyUrl()).willReturn(aResponse().withStatus(200)));
+//		httpMockServer.stubFor(put("v2/ps/1111").willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
 	}
-	
+
 	/**
 	 * Serialization test.
 	 *
@@ -141,23 +153,23 @@ class ProcessRegistryTest {
 		kryo.register(StructureCreateMap.class, 35);
 		kryo.register(StructureUpdateMap.class, 36);
 		kryo.register(StructureDeleteMap.class, 37);
-	        
-	        
+
+
 		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
 		Output output = new Output(fileOutputStream);
 		registry.write(kryo, output);
 		output.close();
 
-	    FileInputStream fileInputStream = new FileInputStream(registryFile);
+		FileInputStream fileInputStream = new FileInputStream(registryFile);
 		Input input = new Input(fileInputStream);
 		registry.read(kryo, input);
 
-	    registry.getCurrentProcess().setDownloadedFilename("test2");
-	    FileInputStream fileInputStream2 = new FileInputStream(registryFile);
+		registry.getCurrentProcess().setDownloadedFilename("test2");
+		FileInputStream fileInputStream2 = new FileInputStream(registryFile);
 		Input input2 = new Input(fileInputStream2);
 		registry.read(kryo, input2);
 		input2.close();
-		
+
 		assertEquals(currentId, registry.currentId());
 		assertEquals("test", registry.getCurrentProcess().getDownloadedFilename());
 	}
@@ -169,15 +181,11 @@ class ProcessRegistryTest {
 			registryFile.delete();
 		}
 
-		LoadProcess process = generateDiff();
+		LoadProcess process = generateDiff("Extraction_ProSanteConnect_Personne_activite_202112120512.txt", "Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
 		String[] exclusions = {"90"};
 		process.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
 
 		registry.register("1", process);
-
-		// when upload state
-//		Kryo kryo = new Kryo();
-//		registerWithKryo(kryo);
 
 		FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
 		Output output = new Output(fileOutputStream);
@@ -215,20 +223,21 @@ class ProcessRegistryTest {
 		PsDeleteMap deserializedPsDeleteMap = (PsDeleteMap) deserializedProcess.getMaps().stream()
 				.filter(map -> OperationType.PS_DELETE.equals(map.getOperation())).findFirst().get();
 
-		assertEquals(originalPsCreateMap.getNewValues().size(), 1);
-		assertEquals(originalPsUdpdateMap.getNewValues().size(), 2);
+		assertEquals(originalPsCreateMap.size(), 1);
+		assertEquals(originalPsUdpdateMap.size(), 2);
+		assertEquals(originalPsUdpdateMap.size(), 2);
 		assertEquals(originalPsUdpdateMap.getOldValues().size(), 2);
-		assertEquals(originalPsDeleteMap.getNewValues().size(), 1);
+		assertEquals(originalPsDeleteMap.size(), 1);
 
 		log.info(deserializedProcess.getProcessInfos().toString());
 
-		assertEquals(originalPsCreateMap.getNewValues().size(), deserializedPsCreateMap.getNewValues().size());
-		assertEquals(originalPsUdpdateMap.getNewValues().size(), deserializedPsUdpdateMap.getNewValues().size());
+		assertEquals(originalPsCreateMap.size(), deserializedPsCreateMap.size());
+		assertEquals(originalPsUdpdateMap.size(), deserializedPsUdpdateMap.size());
 		assertEquals(originalPsUdpdateMap.getOldValues().size(), deserializedPsUdpdateMap.getOldValues().size());
-		assertEquals(originalPsDeleteMap.getNewValues().size(), deserializedPsDeleteMap.getNewValues().size());
+		assertEquals(originalPsDeleteMap.size(), deserializedPsDeleteMap.size());
 	}
 
-	private LoadProcess generateDiff() throws IOException {
+	private LoadProcess generateDiff(String fileName1, String fileName2) throws IOException {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		String rootpath = cl.getResource("work").getPath();
 		File mapser = new File(rootpath + File.separator + "maps.ser");
@@ -236,7 +245,7 @@ class ProcessRegistryTest {
 			mapser.delete();
 		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
-		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
+		File extractFile = FileUtils.copyFileToWorkspace(fileName1);
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
 		String[] exclusions = {"90"};
@@ -248,7 +257,7 @@ class ProcessRegistryTest {
 		p.nextStep();
 
 		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
-		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+		File extractFile2 = FileUtils.copyFileToWorkspace(fileName2);
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
 		p2.nextStep();
@@ -256,44 +265,38 @@ class ProcessRegistryTest {
 		return p2;
 	}
 
-	private void registerWithKryo(Kryo kryo) {
-		kryo.register(HashMap.class, 9);
-		kryo.register(ArrayList.class, 10);
-		kryo.register(Professionnel.class, 11);
-		kryo.register(ExerciceProfessionnel.class, 12);
-		kryo.register(SavoirFaire.class, 13);
-		kryo.register(SituationExercice.class, 14);
-		kryo.register(RefStructure.class, 15);
-		kryo.register(Structure.class, 16);
-		kryo.register(ProcessRegistry.class, 17);
-		kryo.register(LoadProcess.class, 18);
-		kryo.register(ProcessState.class, 19);
-		kryo.register(Submitted.class, 20);
-		kryo.register(DiffComputed.class, 21);
-		kryo.register(ReadyToComputeDiff.class, 22);
-		kryo.register(ReadyToExtract.class, 23);
-		kryo.register(UploadingChanges.class, 24);
-		kryo.register(ChangesApplied.class, 25);
-		kryo.register(String[].class, 27);
-		kryo.register(ConcurrentHashMap.class, new MapSerializer<ConcurrentHashMap<String, RassEntity>>(), 28);
-		kryo.register(UploadInterrupted.class, 29);
-		kryo.register(SerializationInterrupted.class, 30);
-		kryo.register(PsCreateMap.class, 32);
-		kryo.register(PsUpdateMap.class, 33);
-		kryo.register(PsDeleteMap.class, 34);
-		kryo.register(StructureCreateMap.class, 35);
-		kryo.register(StructureUpdateMap.class, 36);
-		kryo.register(StructureDeleteMap.class, 37);
+//	this test has no assertions so it is disabled. It was useful to generate a registry file to check serialization in an other test
+//	so after spring context destruction (see @readRegistryAfterShutdownTest())
+//	but we decided to keep this code available
+	@Test
+	@Disabled
+	public void shutdownTest() throws IOException, DuplicateKeyException {
+		File registryFile = new File(rootpath + File.separator + "registry.ser");
+		if(registryFile.exists()) {
+			registryFile.delete();
+		}
+
+		LoadProcess process = generateDiff("Extraction_ProSanteConnect_Personne_activite_202112120512.txt", "Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+		String[] exclusions = {"90"};
+		process.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
+
+		registry.register("1", process);
+		context.publishEvent(new ContextClosedEvent(context));
 	}
 
 	@Test
-	public void readRegistryFileTest() throws IOException {
-//		Log.TRACE();
-		File registryFile = FileUtils.copyFileToWorkspace("pscload-registry.ser");
+	public void readRegistryAfterShutdownTest() throws IOException {
+		File registryFile = FileUtils.copyFileToWorkspace("registry-after-shutdown.ser");
 		FileInputStream fileInputStream = new FileInputStream(registryFile);
 		Input input = new Input(fileInputStream);
 		registry.read(kryo, input);
 		input.close();
+
+		PsUpdateMap psUpdateMap = (PsUpdateMap) registry.getCurrentProcess().getMaps().stream()
+				.filter(map -> OperationType.PS_UPDATE.equals(map.getOperation())).findFirst().get();
+
+		assertEquals(2, psUpdateMap.size());
+		assertEquals(2, psUpdateMap.getOldValues().size());
 	}
 
 }
