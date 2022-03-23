@@ -13,7 +13,9 @@ import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -100,36 +102,36 @@ public class ReadyToComputeDiff extends ProcessState {
 
 		log.info("filling changes maps");
 
-		process.getMaps().forEach(map -> {
+		for (OperationMap<String, RassEntity> map : process.getMaps()) {
 			switch (map.getOperation()) {
-			case PS_UPDATE:
-				diffPs.entriesDiffering().forEach((k, v) -> {
-					map.getNewValues().put(k, v.rightValue());
-					map.saveOldValue(k, v.leftValue());
-				});
-				break;
-			case PS_DELETE:
-				diffPs.entriesOnlyOnLeft().forEach(map::saveNewValue);
-				break;
-			case PS_CREATE:
-				diffPs.entriesOnlyOnRight().forEach(map::saveNewValue);
-				break;
-			case STRUCTURE_CREATE:
-				diffStructures.entriesOnlyOnRight().forEach(map::saveNewValue);
-				break;
-			case STRUCTURE_UPDATE:
-				diffStructures.entriesDiffering().forEach((k, v) -> {
-					map.getNewValues().put(k, v.rightValue());
-					map.saveOldValue(k, v.leftValue());
-					log.debug("OLD STRUCTURE {} : {}", v.leftValue().getInternalId(), v.leftValue().toString());
-				});
-				break;
+				case PS_UPDATE:
+					diffPs.entriesDiffering().forEach((k, v) -> {
+						map.put(k, v.rightValue());
+						map.saveOldValue(k, v.leftValue());
+					});
+					break;
+				case PS_DELETE:
+					diffPs.entriesOnlyOnLeft().forEach(map::put);
+					break;
+				case PS_CREATE:
+					diffPs.entriesOnlyOnRight().forEach(map::put);
+					break;
+				case STRUCTURE_CREATE:
+					diffStructures.entriesOnlyOnRight().forEach(map::put);
+					break;
+				case STRUCTURE_UPDATE:
+					diffStructures.entriesDiffering().forEach((k, v) -> {
+						map.put(k, v.rightValue());
+						map.saveOldValue(k, v.leftValue());
+						log.debug("OLD STRUCTURE {} : {}", v.leftValue().getInternalId(), v.leftValue().toString());
+					});
+					break;
 				case STRUCTURE_DELETE:
-					diffStructures.entriesOnlyOnLeft().forEach(map::saveNewValue);
-			default:
-				break;
+					diffStructures.entriesOnlyOnLeft().forEach(map::put);
+				default:
+					break;
 			}
-		});
+		}
 
 		log.info("operation maps filled.");
 	}

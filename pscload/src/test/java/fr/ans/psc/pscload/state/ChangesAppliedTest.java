@@ -163,13 +163,13 @@ public class ChangesAppliedTest {
         OperationMap<String, RassEntity> structureToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
 				.findFirst().get();
         // 2xx return status should have been removed from update map
-        assertEquals(1, psToCreate.getNewValues().size());
-        assertEquals(1, psToDelete.getNewValues().size());
-        assertEquals(0, psToUpdate.getNewValues().size());
-        assertEquals(1, structureToCreate.getNewValues().size());
-        assertEquals(HttpStatus.CONFLICT.value(), psToCreate.getNewValues().get("810100375103").getReturnStatus());
-        assertEquals(HttpStatus.GONE.value(), psToDelete.getNewValues().get("810107592585").getReturnStatus());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), structureToCreate.getNewValues().get("R10100000063415").getReturnStatus());
+        assertEquals(1, psToCreate.size());
+        assertEquals(1, psToDelete.size());
+        assertEquals(0, psToUpdate.size());
+        assertEquals(1, structureToCreate.size());
+        assertEquals(HttpStatus.CONFLICT.value(), psToCreate.get("810100375103").getReturnStatus());
+        assertEquals(HttpStatus.GONE.value(), psToDelete.get("810107592585").getReturnStatus());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), structureToCreate.get("R10100000063415").getReturnStatus());
 
         // Apply changes and generate new ser
         p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));

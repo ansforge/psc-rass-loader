@@ -142,7 +142,6 @@ public class RegistrySerializationTest {
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful()).andDo(print());
 
-        Thread.sleep(10000);
         log.warn("STARTING SHUTDOWN...");
         context.publishEvent(new ContextClosedEvent(context));
         log.warn("END OF TEST");

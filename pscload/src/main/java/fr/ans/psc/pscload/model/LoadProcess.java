@@ -96,7 +96,7 @@ public class LoadProcess implements KryoSerializable {
 	public boolean isRemainingPsOrStructuresInMaps() {
 		int count = 0;
 		for (@SuppressWarnings("rawtypes") OperationMap map : maps) {
-			count += map.getNewValues().size();
+			count += map.size();
 		}
 		return count > 0;
 
@@ -113,15 +113,15 @@ public class LoadProcess implements KryoSerializable {
 		processInfo.setLockedSerializedFileName(tmpMapsPath);
 		if (state.isAlreadyComputed()) {
 			processInfo.setPsToCreate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
-					.findFirst().get().getNewValues().size());
+					.findFirst().get().size());
 			processInfo.setPsToUpdate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
-					.findFirst().get().getNewValues().size());
+					.findFirst().get().size());
 			processInfo.setPsToDelete(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
-					.findFirst().get().getNewValues().size());
+					.findFirst().get().size());
 			processInfo.setStructureToCreate(maps.stream()
-					.filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE)).findFirst().get().getNewValues().size());
+					.filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE)).findFirst().get().size());
 			processInfo.setStructureToUpdate(maps.stream()
-					.filter(map -> map.getOperation().equals(OperationType.STRUCTURE_UPDATE)).findFirst().get().getNewValues().size());
+					.filter(map -> map.getOperation().equals(OperationType.STRUCTURE_UPDATE)).findFirst().get().size());
 		}
 
 		return processInfo;

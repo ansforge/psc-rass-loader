@@ -235,7 +235,7 @@ public class PscloadApplication {
         @Override
         public void onApplicationEvent(ContextClosedEvent event) {
             // Interrupt the worker thread.
-            ForkJoinPool.commonPool().shutdownNow();
+//            ForkJoinPool.commonPool().shutdownNow();
             // Save the registry if not empty
             if (!registry.isEmpty()) {
                 log.info("Try to save registry");

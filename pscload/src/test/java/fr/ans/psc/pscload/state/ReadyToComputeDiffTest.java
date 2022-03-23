@@ -97,8 +97,8 @@ class ReadyToComputeDiffTest {
 				.findFirst().get();
         OperationMap<String, RassEntity> psToDelete = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
 				.findFirst().get();
-		assertEquals(5, psToCreate.getNewValues().size());
-		assertEquals(0, psToDelete.getNewValues().size());
+		assertEquals(5, psToCreate.size());
+		assertEquals(0, psToDelete.size());
 	}
 
 	/**
@@ -138,9 +138,9 @@ class ReadyToComputeDiffTest {
 				.findFirst().get();
         OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
 				.findFirst().get();
-		assertEquals(1,psToDelete2.getNewValues().size());
-		assertEquals(1,psToCreate2.getNewValues().size());
-		assertEquals(2, psToUpdate2.getNewValues().size());
+		assertEquals(1,psToDelete2.size());
+		assertEquals(1,psToCreate2.size());
+		assertEquals(2, psToUpdate2.size());
 	}
 
 	/**
@@ -165,7 +165,7 @@ class ReadyToComputeDiffTest {
 				.findFirst().get();
         OperationMap<String, RassEntity> structureToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
 				.findFirst().get();
-		assertEquals(psToCreate.getNewValues().size(), 99171);
-		assertEquals(structureToCreate.getNewValues().size(), 37533);
+		assertEquals(psToCreate.size(), 99171);
+		assertEquals(structureToCreate.size(), 37533);
 	}
 }
