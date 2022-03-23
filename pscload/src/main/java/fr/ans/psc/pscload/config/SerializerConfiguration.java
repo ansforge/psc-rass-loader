@@ -33,7 +33,6 @@ public class SerializerConfiguration {
 		kryo.register(ExerciceProfessionnel.class, 12);
 		kryo.register(SavoirFaire.class, 13);
 		kryo.register(SituationExercice.class, 14);
-		kryo.register(RefStructure.class, 15);
 		kryo.register(Structure.class, 16);
 		kryo.register(ProcessRegistry.class, 17);
 		kryo.register(LoadProcess.class, 18);
@@ -52,9 +51,6 @@ public class SerializerConfiguration {
 		kryo.register(PsCreateMap.class, 32);
 		kryo.register(PsUpdateMap.class, operationMapSerializer, 33);
 		kryo.register(PsDeleteMap.class, 34);
-		kryo.register(StructureCreateMap.class, 35);
-		kryo.register(StructureUpdateMap.class, operationMapSerializer, 36);
-		kryo.register(StructureDeleteMap.class, 37);
 		return kryo;
 	}
 }

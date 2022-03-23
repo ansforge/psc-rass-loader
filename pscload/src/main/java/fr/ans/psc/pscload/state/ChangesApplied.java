@@ -44,8 +44,8 @@ public class ChangesApplied extends ProcessState {
 
     private final String reportMailBody = "\nLes réponses possibles sont les suivantes : \n" +
             "- 200 : traité avec succès\n" +
-            "- 409 : le Ps / la structure existe déjà en base, n'a pas été ajouté/modifié(e)\n" +
-            "- 410 : le Ps / la structure est déjà absente en base, n'a pas été supprimé(e)\n" +
+            "- 409 : le Ps existe déjà en base, n'a pas été ajouté/modifié\n" +
+            "- 410 : le Ps est déjà absent en base, n'a pas été supprimé\n" +
             "- 500 : Erreur côté serveur, le traitement sera rejoué au prochain différentiel.\n\n" +
             "Si certaines modifications n'ont pas été appliquées,\n" +
             "vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +

@@ -124,7 +124,6 @@ public class RunnerTest {
 				.withHeader("Content-Type", "application/zip")
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
 		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
-		httpMockServer.stubFor(any(urlMatching("/v2/structure")).willReturn(aResponse().withStatus(200)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
 		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")

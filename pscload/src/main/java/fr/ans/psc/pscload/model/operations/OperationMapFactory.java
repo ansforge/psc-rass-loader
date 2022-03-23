@@ -29,15 +29,6 @@ public class OperationMapFactory {
             case PS_UPDATE:
                 map = new PsUpdateMap(OperationType.PS_UPDATE);
                 break;
-            case STRUCTURE_CREATE:
-                map = new StructureCreateMap(OperationType.STRUCTURE_CREATE);
-                break;
-            case STRUCTURE_UPDATE:
-                map = new StructureUpdateMap(OperationType.STRUCTURE_UPDATE);
-                break;
-            case STRUCTURE_DELETE:
-                map = new StructureDeleteMap(OperationType.STRUCTURE_DELETE);
-                break;
             default:
                 map = null;
                 break;

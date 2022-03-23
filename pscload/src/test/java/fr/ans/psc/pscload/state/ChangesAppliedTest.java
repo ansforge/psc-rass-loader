@@ -115,7 +115,6 @@ public class ChangesAppliedTest {
     @DisplayName("Changes applied with no errors")
     public void changesApplied() throws DuplicateKeyException, IOException, ClassNotFoundException {
         httpMockServer.stubFor(post("/v2/ps").willReturn(aResponse().withStatus(200)));
-        httpMockServer.stubFor(post("/v2/structure").willReturn(aResponse().withStatus(200)));
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String rootpath = cl.getResource("work").getPath();
@@ -143,8 +142,6 @@ public class ChangesAppliedTest {
                 .willReturn(aResponse().withStatus(200)));
         httpMockServer.stubFor(delete("/v2/ps/810107592585")
                 .willReturn(aResponse().withStatus(410)));
-        httpMockServer.stubFor(post("/v2/structure")
-                .willReturn(aResponse().withStatus(500)));
         // Day 2 : Compute diff
         LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
         registry.register(Integer.toString(registry.nextId()), p2);
@@ -165,16 +162,12 @@ public class ChangesAppliedTest {
 				.findFirst().get();
         OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
 				.findFirst().get();
-        OperationMap<String, RassEntity> structureToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
-				.findFirst().get();
         // 2xx return status should have been removed from update map
         assertEquals(1, psToCreate.size());
         assertEquals(1, psToDelete.size());
         assertEquals(0, psToUpdate.size());
-        assertEquals(1, structureToCreate.size());
         assertEquals(HttpStatus.CONFLICT.value(), psToCreate.get("810100375103").getReturnStatus());
         assertEquals(HttpStatus.GONE.value(), psToDelete.get("810107592585").getReturnStatus());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), structureToCreate.get("R10100000063415").getReturnStatus());
 
         // Apply changes and generate new ser
         p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));
@@ -186,7 +179,6 @@ public class ChangesAppliedTest {
         serializedMaps.deserializeMaps(mapser.getAbsolutePath());
         assert serializedMaps.getPsMap().get("810100375103") != null;
         assert serializedMaps.getPsMap().get("810107592585") == null;
-        assert serializedMaps.getStructureMap().get("R10100000063415") == null;
     }
 
 }

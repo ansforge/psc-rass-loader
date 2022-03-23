@@ -118,7 +118,6 @@ public class RegistrySerializationTest {
                 .withHeader("Content-Disposition", "attachment; filename=" + extractFilenameDay1 + ".zip")
                 .withBody(extractDay1Content)));
         httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
-        httpMockServer.stubFor(any(urlMatching("/v2/structure")).willReturn(aResponse().withStatus(200)));
         runner.runScheduler();
         httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))

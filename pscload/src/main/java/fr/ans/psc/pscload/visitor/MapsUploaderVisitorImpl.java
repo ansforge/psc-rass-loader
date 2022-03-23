@@ -5,11 +5,9 @@ package fr.ans.psc.pscload.visitor;
 
 import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.PsApi;
-import fr.ans.psc.api.StructureApi;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
-import fr.ans.psc.pscload.model.entities.Structure;
 import fr.ans.psc.pscload.model.operations.*;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +29,6 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private String[] excludedProfessions;
 
-	private StructureApi structureApi;
-
 	private PsApi psApi;
 
 	/**
@@ -46,7 +42,6 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();
 		apiClient.setBasePath(apiBaseUrl);
-		this.structureApi = new StructureApi(apiClient);
 		this.psApi = new PsApi(apiClient);
 	}
 
@@ -120,66 +115,6 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			}
 		});
 
-	}
-
-	@Override
-	public void visit(StructureCreateMap map) {
-		Collection<RassEntity> items = map.values();
-		items.parallelStream().forEach(item -> {
-			try {
-				structureApi.createNewStructure((Structure) item);
-				// Remove structure from map if return code is 201
-				map.remove(item.getInternalId());
-			} catch (RestClientResponseException e) {
-				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
-						e.getLocalizedMessage());
-				item.setReturnStatus(e.getRawStatusCode());
-			} catch (RestClientException e) {
-				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
-						item.getInternalId(), e.getLocalizedMessage());
-				throw new UploadException(e);
-			}
-		});
-
-	}
-
-	@Override
-	public void visit(StructureUpdateMap map) {
-		Collection<RassEntity> items = map.values();
-		items.parallelStream().forEach(item -> {
-			try {
-				structureApi.updateStructure((Structure) item);
-				map.remove(item.getInternalId());
-			} catch (RestClientResponseException e) {
-				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
-						e.getLocalizedMessage());
-				item.setReturnStatus(e.getRawStatusCode());
-			} catch (RestClientException e) {
-				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
-						item.getInternalId(), e.getLocalizedMessage());
-				throw new UploadException(e);
-			}
-		});
-
-	}
-
-	@Override
-	public void visit(StructureDeleteMap map) {
-		Collection<RassEntity> items = map.values();
-		items.parallelStream().forEach(item -> {
-			try {
-				structureApi.deleteStructureByStructureId(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
-				map.remove(item.getInternalId());
-			} catch (RestClientResponseException e) {
-				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
-						e.getLocalizedMessage());
-				item.setReturnStatus(e.getRawStatusCode());
-			} catch (RestClientException e) {
-				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
-						item.getInternalId(), e.getLocalizedMessage());
-				throw new UploadException(e);
-			}
-		});
 	}
 
 }

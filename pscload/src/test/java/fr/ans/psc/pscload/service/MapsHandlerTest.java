@@ -83,7 +83,7 @@ public class MapsHandlerTest {
         Professionnel professionnel = initialMaps.getPsMap().get("0012800728");
         ExerciceProfessionnel exerciceProfessionnel = professionnel.getExercicesProfessionels().get(0);
         SituationExercice situationExercice = exerciceProfessionnel.getSituationsExercice().get(0);
-        Structure structure = initialMaps.getStructureMap().get(situationExercice.getStructures().get(0).getStructureId());
+        Structure structure = (Structure) situationExercice.getStructure();
 
         String line = initialMaps.generateLine(professionnel, exerciceProfessionnel, situationExercice, structure);
         String expectedLine = "0|012800728|0012800728|EVRARD|Patrice''|10/03/1968|||||||M|28|C||EVRARD|PATRICE|||L|SA42|||39806996300013||||C39806996300013|SARL PATRICE EVRARD||SARL PATRICE EVRARD||||BD|CHARLES DE GAULLE|CENTRE COMMERCIAL CARREFOUR|01000 BOURG EN BRESSE|01000||||||||339806996300013|ARS/CPAM/CPAM|\n";
@@ -107,16 +107,10 @@ public class MapsHandlerTest {
         generatedMaps.loadMapsFromFile(generatedTxtFile);
 
         assertEquals(initialMaps.getPsMap().size(), generatedMaps.getPsMap().size());
-        assertEquals(initialMaps.getStructureMap().size(), generatedMaps.getStructureMap().size());
 
         initialMaps.getPsMap().values().forEach(professionnel -> {
             Professionnel generatedPs = generatedMaps.getPsMap().get(professionnel.getInternalId());
             assert professionnel.equals(generatedPs);
-        });
-
-        initialMaps.getStructureMap().values().forEach(structure -> {
-            Structure generatedStructure = generatedMaps.getStructureMap().get(structure.getInternalId());
-            assert structure.equals(generatedStructure);
         });
     }
 }

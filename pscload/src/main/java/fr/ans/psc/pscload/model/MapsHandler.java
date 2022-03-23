@@ -37,20 +37,13 @@ import java.util.stream.Stream;
  */
 @Getter
 @Setter
-
-/**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
- */
 @EqualsAndHashCode()
 @Slf4j
 public class MapsHandler implements KryoSerializable {
 
 	private static Kryo kryo;
 
-	{
+	static {
 		kryo = new Kryo();
 		kryo.register(HashMap.class, 9);
 		kryo.register(ArrayList.class, 10);
@@ -58,15 +51,12 @@ public class MapsHandler implements KryoSerializable {
 		kryo.register(ExerciceProfessionnel.class, 12);
 		kryo.register(SavoirFaire.class, 13);
 		kryo.register(SituationExercice.class, 14);
-		kryo.register(RefStructure.class, 15);
 		kryo.register(Structure.class, 16);
 	}
 
 	private static final int ROW_LENGTH = RassItems.values().length + 1;
 
 	private Map<String, Professionnel> psMap = new HashMap<>();
-
-	private Map<String, Structure> structureMap = new HashMap<>();
 
 	/**
 	 * Load maps from file.
@@ -107,12 +97,6 @@ public class MapsHandler implements KryoSerializable {
 
 					}
 				}
-				// get structure in map by its reference from row
-				if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()
-						&& structureMap.get(items[RassItems.STRUCTURE_TECHNICAL_ID.column]) == null) {
-					Structure newStructure = new Structure(items);
-					structureMap.put(newStructure.getStructureTechnicalId(), newStructure);
-				}
 			}
 		};
 
@@ -126,15 +110,12 @@ public class MapsHandler implements KryoSerializable {
 		CsvParser parser = new CsvParser(parserSettings);
 
 		// get file charset to secure data encoding
-		InputStream is = new FileInputStream(file);
-		try {
+		try (InputStream is = new FileInputStream(file)) {
 			Charset detectedCharset = Charset.forName(new TikaEncodingDetector().guessEncoding(is));
 			log.debug("detected charset is : " + detectedCharset.displayName());
 			parser.parse(new BufferedReader(new FileReader(file, detectedCharset)));
 		} catch (IOException e) {
 			throw new IOException("Encoding detection failure", e);
-		} finally {
-			is.close();
 		}
 		log.info("loading complete!");
 	}
@@ -167,6 +148,7 @@ public class MapsHandler implements KryoSerializable {
 		input.close();
 	}
 
+
 	public File generateTxtFile(String fileName) throws IOException {
 		File txtFile = new File(fileName);
 		Writer writer = new FileWriter(txtFile, StandardCharsets.UTF_8);
@@ -192,13 +174,7 @@ public class MapsHandler implements KryoSerializable {
 		for (Professionnel professionnel : psMap.values()) {
 			for (ExerciceProfessionnel exerciceProfessionnel : professionnel.getExercicesProfessionels()) {
 				for (SituationExercice situationExercice : exerciceProfessionnel.getSituationsExercice()) {
-					Structure structure = null;
-					if (situationExercice.getStructures() != null) {
-						structure = structureMap.get(situationExercice
-								.getStructures()
-								.get(0)
-								.getStructureId());
-					}
+					Structure structure = (Structure) situationExercice.getStructure();
 					writer.write(generateLine(professionnel, exerciceProfessionnel, situationExercice, structure));
 				}
 			}
@@ -242,14 +218,12 @@ public class MapsHandler implements KryoSerializable {
 	@Override
 	public void write(Kryo kryo, Output output) {
 		kryo.writeObject(output, psMap);
-		kryo.writeObject(output, structureMap);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void read(Kryo kryo, Input input) {
 		psMap = (Map<String, Professionnel>) kryo.readObject(input, HashMap.class);
-		structureMap = (Map<String, Structure>) kryo.readObject(input, HashMap.class);
 	}
 
 	/**
@@ -257,6 +231,5 @@ public class MapsHandler implements KryoSerializable {
 	 */
 	public void clearMaps() {
 		psMap.clear();
-		structureMap.clear();
 	}
 }

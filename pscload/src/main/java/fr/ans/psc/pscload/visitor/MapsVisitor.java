@@ -30,20 +30,5 @@ public interface MapsVisitor {
 	 * @param map the map
 	 */
 	void visit(PsUpdateMap map);
-	
-	/**
-	 * Visit.
-	 *
-	 * @param map the map
-	 */
-	void visit(StructureCreateMap map);
-	
-	/**
-	 * Visit.
-	 *
-	 * @param map the map
-	 */
-	void visit(StructureUpdateMap map);
 
-	void visit(StructureDeleteMap structureDeleteMap);
 }

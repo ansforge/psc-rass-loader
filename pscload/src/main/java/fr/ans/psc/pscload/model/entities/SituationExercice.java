@@ -35,7 +35,8 @@ public class SituationExercice extends WorkSituation {
 		setRoleCode(items[RassItems.SITUATION_ROLE_CODE.column]);
 		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
-			addStructuresItem(new RefStructure(items[RassItems.STRUCTURE_TECHNICAL_ID.column])); // structureTechnicalId
+			setStructure(new Structure(items));
+//			addStructuresItem(new RefStructure(items[RassItems.STRUCTURE_TECHNICAL_ID.column])); // structureTechnicalId
 		}
 	}
 

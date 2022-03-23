@@ -25,7 +25,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.ApiClient;
-import fr.ans.psc.api.StructureApi;
 import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
@@ -101,26 +100,6 @@ public class UploadingStateTest {
 	}
 
     /**
-     * Api call test.
-     *
-     * @throws Exception the exception
-     */
-    @Test
-    @DisplayName("Structure Api Call")
-    void apiCallTest() throws Exception {
-        httpApiMockServer.stubFor(get("/v2/structure/1")
-                .willReturn(aResponse().withBodyFile("structure1.json")
-                        .withHeader("Content-Type", "application/json")
-                        .withStatus(200)));
-        ApiClient client = new ApiClient();
-        client.setBasePath(httpApiMockServer.baseUrl());
-        StructureApi structureApi = new StructureApi(client);
-        Structure structure = structureApi.getStructureById("1");
-        assertEquals("0123456789", structure.getPhone());
-
-    }
-
-    /**
      * Upload changes delete PS.
      *
      * @throws Exception the exception
@@ -152,8 +131,6 @@ public class UploadingStateTest {
 
 
         httpApiMockServer.stubFor(delete("/v2/ps/810107592544")
-                .willReturn(aResponse().withStatus(200)));
-        httpApiMockServer.stubFor(put("/v2/structure")
                 .willReturn(aResponse().withStatus(200)));
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         // Day 2 : Compute diff (1 delete)
@@ -211,8 +188,6 @@ public class UploadingStateTest {
 
         httpApiMockServer.stubFor(delete("/v2/ps/810107592544")
                 .willReturn(aResponse().withStatus(410)));
-        httpApiMockServer.stubFor(put("/v2/structure")
-                .willReturn(aResponse().withStatus(200)));
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         // Day 2 : Compute diff (1 delete)
         LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));

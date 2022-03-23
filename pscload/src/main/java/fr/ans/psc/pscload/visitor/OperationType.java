@@ -15,14 +15,5 @@ public enum OperationType {
 	PS_UPDATE,
 	
 	/** The ps delete. */
-	PS_DELETE,
-	
-	/** The structure create. */
-	STRUCTURE_CREATE,
-	
-	/** The structure update. */
-	STRUCTURE_UPDATE,
-
-	/** The structure delete. */
-	STRUCTURE_DELETE
+	PS_DELETE
 }

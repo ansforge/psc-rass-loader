@@ -118,10 +118,6 @@ public class LoadProcess implements KryoSerializable {
 					.findFirst().get().size());
 			processInfo.setPsToDelete(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
 					.findFirst().get().size());
-			processInfo.setStructureToCreate(maps.stream()
-					.filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE)).findFirst().get().size());
-			processInfo.setStructureToUpdate(maps.stream()
-					.filter(map -> map.getOperation().equals(OperationType.STRUCTURE_UPDATE)).findFirst().get().size());
 		}
 
 		return processInfo;
