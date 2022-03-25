@@ -8,6 +8,9 @@ import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.entities.Structure;
 import fr.ans.psc.pscload.model.operations.*;
+import fr.ans.psc.pscload.state.exception.LockedMapException;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 
 import java.util.Collection;
@@ -16,6 +19,7 @@ import java.util.List;
 /**
  * The Class MapsCleanerVisitorImpl.
  */
+@Slf4j
 public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	private MapsHandler maps;
@@ -37,6 +41,10 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(PsCreateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			if(map.isLocked()) {
+				log.info("Map is locked during shutdown");
+				throw new LockedMapException();
+			}
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
 				maps.getPsMap().remove(item.getInternalId());
@@ -48,6 +56,10 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(PsUpdateMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			if(map.isLocked()) {
+				log.info("Map is locked during shutdown");
+				throw new LockedMapException();
+			}
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
 				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
@@ -59,6 +71,10 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	public void visit(PsDeleteMap map) {
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
+			if(map.isLocked()) {
+				log.info("Map is locked during shutdown");
+				throw new LockedMapException();
+			}
 			generateReportLine(map, report, item);
 			if (isInconsistentWithDatabase(item.getReturnStatus())) {
 				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);

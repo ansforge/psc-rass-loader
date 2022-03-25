@@ -117,7 +117,7 @@ public class RegistrySerializationTest {
                 .withHeader("Content-Type", "application/zip")
                 .withHeader("Content-Disposition", "attachment; filename=" + extractFilenameDay1 + ".zip")
                 .withBody(extractDay1Content)));
-        httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+        httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200).withFixedDelay(50)));
         runner.runScheduler();
         httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
@@ -141,9 +141,10 @@ public class RegistrySerializationTest {
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful()).andDo(print());
 
-        Thread.sleep(10000);
+        Thread.sleep(5000);
         log.warn("STARTING SHUTDOWN...");
         context.publishEvent(new ContextClosedEvent(context));
+        Thread.sleep(5000);
         log.warn("END OF TEST");
     }
 

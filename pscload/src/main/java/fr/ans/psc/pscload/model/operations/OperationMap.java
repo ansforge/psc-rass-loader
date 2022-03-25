@@ -26,7 +26,7 @@ public abstract class OperationMap<K, V> extends ConcurrentHashMap<String, RassE
 
 	private ConcurrentMap<String, RassEntity> oldValues;
 
-	
+	private boolean locked;
 	/**
 	 * Instantiates a new operation map.
 	 */

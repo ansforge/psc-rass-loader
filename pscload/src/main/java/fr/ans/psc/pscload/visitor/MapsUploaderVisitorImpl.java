@@ -9,6 +9,7 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.*;
+import fr.ans.psc.pscload.state.exception.LockedMapException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestClientException;
@@ -48,8 +49,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	@Override
 	public void visit(PsCreateMap map) {
 		Collection<RassEntity> items = map.values();
-		items.parallelStream().forEach(item -> {
+		items.stream().forEach(item -> {
 			try {
+				if(map.isLocked()) {
+					log.info("Map is locked during shutdown");
+					throw new LockedMapException();
+				}
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
@@ -68,8 +73,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	@Override
 	public void visit(PsDeleteMap map) {
 		Collection<RassEntity> items = map.values();
-		items.parallelStream().forEach(item -> {
+		items.stream().forEach(item -> {
 			try {
+				if(map.isLocked()) {
+					log.info("Map is locked during shutdown");
+					throw new LockedMapException();
+				}
 				Professionnel prof = (Professionnel) item;
 				List<Profession> psExPros = prof.getProfessions();
 				AtomicBoolean deletable = new AtomicBoolean(true);
@@ -100,8 +109,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	@Override
 	public void visit(PsUpdateMap map) {
 		Collection<RassEntity> items = map.values();
-		items.parallelStream().forEach(item -> {
+		items.stream().forEach(item -> {
 			try {
+				if(map.isLocked()) {
+					log.info("Map is locked during shutdown");
+					throw new LockedMapException();
+				}
 				psApi.updatePs((Professionnel) item);
 				map.remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
