@@ -250,8 +250,7 @@ public class PscloadApplication {
 				log.info("Event timestamp : {}", event.getTimestamp());
 				// Interrupt the worker thread.
 
-				ThreadPoolTaskExecutor asyncExecutor = (ThreadPoolTaskExecutor) appContext
-						.getBean("processExecutor");
+				ThreadPoolTaskExecutor asyncExecutor = (ThreadPoolTaskExecutor) appContext.getBean("processExecutor");
 				log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
 				asyncExecutor.getThreadPoolExecutor().shutdownNow();
 				log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
@@ -262,7 +261,8 @@ public class PscloadApplication {
 					List<OperationMap<String, RassEntity>> operationMaps = registry.getCurrentProcess().getMaps();
 					for (OperationMap<String, RassEntity> operationMap : operationMaps) {
 						operationMap.setLocked(true);
-					}
+					}
+
 					try {
 						File registryFile = new File(filesDirectory + File.separator + "registry.ser");
 						FileOutputStream fileOutputStream = new FileOutputStream(registryFile);
@@ -281,15 +281,15 @@ public class PscloadApplication {
 						registry.write(kryo, output);
 						output.close();
 						log.info("serialization finished, thread :{}", Thread.currentThread().getId());
-
-						registry.clear();
-						FileInputStream fileInputStream = new FileInputStream(registryFile);
-						Input input = new Input(fileInputStream);
-						log.info("starting registry deserialization, thread :{}", Thread.currentThread().getId());
-						registry.read(kryo, input);
-						input.close();
-						log.info("deserialization finished, thread :{}", Thread.currentThread().getId());
-
+						if (debug) {
+							registry.clear();
+							FileInputStream fileInputStream = new FileInputStream(registryFile);
+							Input input = new Input(fileInputStream);
+							log.info("starting registry deserialization, thread :{}", Thread.currentThread().getId());
+							registry.read(kryo, input);
+							input.close();
+							log.info("deserialization finished, thread :{}", Thread.currentThread().getId());
+						}
 						log.info("Registry saved successfully !, thread :{}", Thread.currentThread().getId());
 					} catch (IOException e) {
 						log.error("Unable to save registry", e);
