@@ -3,13 +3,13 @@
  */
 package fr.ans.psc.pscload.model.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.WorkSituation;
 import lombok.EqualsAndHashCode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Can equal.

@@ -3,23 +3,15 @@
  */
 package fr.ans.psc.pscload;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoException;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.EmailTemplate;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.Stage;
-import fr.ans.psc.pscload.model.entities.*;
-import fr.ans.psc.pscload.model.operations.*;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.state.*;
-import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -30,19 +22,44 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.EmailTemplate;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.Stage;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.entities.SavoirFaire;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.OperationMapSerializer;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.Submitted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
+import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class PscloadApplication.
@@ -253,7 +270,7 @@ public class PscloadApplication {
 				ThreadPoolTaskExecutor asyncExecutor = (ThreadPoolTaskExecutor) appContext.getBean("processExecutor");
 				log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
 				asyncExecutor.getThreadPoolExecutor().shutdownNow();
-				log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
+				
 				// Save the registry if not empty
 				if (!registry.isEmpty()) {
 					log.info("Try to save registry, thread :{}", Thread.currentThread().getId());
@@ -291,6 +308,7 @@ public class PscloadApplication {
 							log.info("deserialization finished, thread :{}", Thread.currentThread().getId());
 						}
 						log.info("Registry saved successfully !, thread :{}", Thread.currentThread().getId());
+						log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
 					} catch (IOException e) {
 						log.error("Unable to save registry", e);
 					}

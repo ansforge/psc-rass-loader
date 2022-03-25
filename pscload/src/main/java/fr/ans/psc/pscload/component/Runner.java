@@ -3,26 +3,35 @@
  */
 package fr.ans.psc.pscload.component;
 
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.EmailTemplate;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.Stage;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.state.*;
-import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
-import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
-import fr.ans.psc.pscload.state.exception.UploadException;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.time.Duration;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.time.Duration;
-import java.util.Date;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.EmailTemplate;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.Stage;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.Submitted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
+import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
+import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
+import fr.ans.psc.pscload.state.exception.UploadException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class Scheduler.

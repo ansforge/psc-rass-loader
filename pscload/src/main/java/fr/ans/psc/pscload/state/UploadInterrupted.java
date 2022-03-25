@@ -6,6 +6,7 @@ package fr.ans.psc.pscload.state;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 
 /**
