@@ -83,6 +83,11 @@ public class EmailService {
         }
     }
 
+    /**
+     * Send mail.
+     *
+     * @param template the template
+     */
     public void sendMail(EmailTemplate template) {
         this.sendMail(template, null, null);
     }

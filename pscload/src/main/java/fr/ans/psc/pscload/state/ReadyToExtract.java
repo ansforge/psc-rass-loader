@@ -35,6 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReadyToExtract extends ProcessState {
 
+    /**
+     * Instantiates a new ready to extract.
+     */
     public ReadyToExtract() {
         super();
     }

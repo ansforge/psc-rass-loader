@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.component;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -37,6 +40,9 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.ans.psc.pscload.PscloadApplication;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class RegistrySerializationTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
@@ -104,6 +110,11 @@ public class RegistrySerializationTest {
 //    So there isn't any assertion but if this tests failed, a KryoException would be thrown, then failing the test
 //
 //    Because of the Spring context destruction at the end of the test, this method MUST be placed alone in its own
+/**
+ * Shutdown serialization test.
+ *
+ * @throws Exception the exception
+ */
 //    test class
     @Test
     @DisplayName("test shutdown serialization")

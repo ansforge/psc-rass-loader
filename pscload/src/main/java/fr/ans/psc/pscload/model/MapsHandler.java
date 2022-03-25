@@ -50,6 +50,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Getter
 @Setter
+
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode()
 @Slf4j
 public class MapsHandler implements KryoSerializable {
@@ -162,6 +169,13 @@ public class MapsHandler implements KryoSerializable {
 	}
 
 
+	/**
+	 * Generate txt file.
+	 *
+	 * @param fileName the file name
+	 * @return the file
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public File generateTxtFile(String fileName) throws IOException {
 		File txtFile = new File(fileName);
 		Writer writer = new FileWriter(txtFile, StandardCharsets.UTF_8);
@@ -197,6 +211,15 @@ public class MapsHandler implements KryoSerializable {
 		return txtFile;
 	}
 
+	/**
+	 * Generate line.
+	 *
+	 * @param professionnel the professionnel
+	 * @param exerciceProfessionnel the exercice professionnel
+	 * @param situationExercice the situation exercice
+	 * @param structure the structure
+	 * @return the string
+	 */
 	public String generateLine (Professionnel professionnel, ExerciceProfessionnel exerciceProfessionnel,
 								SituationExercice situationExercice, Structure structure) {
 

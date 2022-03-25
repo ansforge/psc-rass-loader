@@ -34,6 +34,9 @@ public class DiffComputed extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	/**
+	 * Instantiates a new diff computed.
+	 */
 	public DiffComputed() {
 		super();
 	}

@@ -171,6 +171,11 @@ public class TestingController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	/**
+	 * Run full process.
+	 *
+	 * @return the response entity
+	 */
 	@PostMapping(value = "test/process/full-run")
 	public ResponseEntity<Void> runFullProcess(){
 		try {

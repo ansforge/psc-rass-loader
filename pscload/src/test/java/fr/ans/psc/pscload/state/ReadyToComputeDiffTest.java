@@ -45,6 +45,7 @@ class ReadyToComputeDiffTest {
 	@Autowired
 	private EmailService emailService;
 
+	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
@@ -67,6 +68,9 @@ class ReadyToComputeDiffTest {
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
+	/**
+	 * Sets the up.
+	 */
 	@BeforeEach
 	void setUp() {
 		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());

@@ -88,6 +88,9 @@ public class RunnerTest {
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
+	/**
+	 * Setup.
+	 */
 	@BeforeEach
 	void setup() {
 		registry.clear();

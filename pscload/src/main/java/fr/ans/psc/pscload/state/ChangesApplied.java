@@ -59,6 +59,9 @@ public class ChangesApplied extends ProcessState {
             "vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
             " \"resume\"";
 
+    /**
+     * Instantiates a new changes applied.
+     */
     public ChangesApplied() {
         super();
     }

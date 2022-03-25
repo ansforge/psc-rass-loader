@@ -75,6 +75,7 @@ class ProcessRegistryTest {
 	@Autowired
 	ProcessRegistry registry;
 
+	/** The custom metrics. */
 	@Autowired
 	CustomMetrics customMetrics;
 
@@ -87,10 +88,16 @@ class ProcessRegistryTest {
 	@Autowired
 	private Kryo kryo;
 
+	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
 
+	/**
+	 * Register pg properties.
+	 *
+	 * @param propertiesRegistry the properties registry
+	 */
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url",
@@ -186,6 +193,12 @@ class ProcessRegistryTest {
 		assertEquals("test", registry.getCurrentProcess().getDownloadedFilename());
 	}
 
+	/**
+	 * Read registry ser file.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws DuplicateKeyException the duplicate key exception
+	 */
 	@Test
 	public void readRegistrySerFile() throws IOException, DuplicateKeyException {
 		File registryFile = new File(rootpath + File.separator + "registry.ser");
@@ -283,6 +296,12 @@ class ProcessRegistryTest {
 
 //	this test has no assertions so it is disabled. It was useful to generate a registry file to check serialization in an other test
 //	so after spring context destruction (see @readRegistryAfterShutdownTest())
+/**
+ * Shutdown test.
+ *
+ * @throws IOException Signals that an I/O exception has occurred.
+ * @throws DuplicateKeyException the duplicate key exception
+ */
 //	but we decided to keep this code available
 	@Test
 	@Disabled
@@ -300,6 +319,11 @@ class ProcessRegistryTest {
 		context.publishEvent(new ContextClosedEvent(context));
 	}
 
+	/**
+	 * Read registry after shutdown test.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Test
 	@Disabled
 	public void readRegistryAfterShutdownTest() throws IOException {

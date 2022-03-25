@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.state;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -43,6 +46,7 @@ public class DiffComputedStateTest {
     @Autowired
     private EmailService emailService;
 
+    /** The http mock server. */
     @RegisterExtension
     static WireMockExtension httpMockServer = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
@@ -65,6 +69,9 @@ public class DiffComputedStateTest {
         propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
     }
 
+    /**
+     * Sets the up.
+     */
     @BeforeEach
     void setUp() {
         File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
@@ -79,6 +86,11 @@ public class DiffComputedStateTest {
                 .willReturn(aResponse().withStatus(200)));
     }
 
+    /**
+     * Size metrics test.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     @DisplayName("should set size metrics")
     void sizeMetricsTest() throws IOException {

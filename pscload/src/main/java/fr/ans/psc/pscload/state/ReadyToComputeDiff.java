@@ -50,6 +50,9 @@ public class ReadyToComputeDiff extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	/**
+	 * Instantiates a new ready to compute diff.
+	 */
 	public ReadyToComputeDiff() {
 		super();
 	}

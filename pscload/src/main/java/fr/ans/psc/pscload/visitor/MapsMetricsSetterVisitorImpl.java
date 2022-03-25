@@ -1,3 +1,6 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.visitor;
 
 import java.util.Arrays;
@@ -11,11 +14,19 @@ import fr.ans.psc.pscload.model.operations.PsDeleteMap;
 import fr.ans.psc.pscload.model.operations.PsUpdateMap;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class MapsMetricsSetterVisitorImpl.
+ */
 @Slf4j
 public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
 
     private CustomMetrics customMetrics;
 
+    /**
+     * Instantiates a new maps metrics setter visitor impl.
+     *
+     * @param customMetrics the custom metrics
+     */
     public MapsMetricsSetterVisitorImpl(CustomMetrics customMetrics) {
         this.customMetrics = customMetrics;
     }

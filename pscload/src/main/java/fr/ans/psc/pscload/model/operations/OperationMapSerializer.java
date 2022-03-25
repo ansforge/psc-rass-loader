@@ -12,6 +12,9 @@ import com.esotericsoftware.kryo.serializers.MapSerializer;
 
 import fr.ans.psc.pscload.model.entities.RassEntity;
 
+/**
+ * The Class OperationMapSerializer.
+ */
 public class OperationMapSerializer extends MapSerializer<OperationMap> {
 
     @Override

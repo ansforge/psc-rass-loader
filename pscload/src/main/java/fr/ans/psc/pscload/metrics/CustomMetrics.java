@@ -225,6 +225,12 @@ public class CustomMetrics {
 		Counter.builder(SER_FILE_TAG).tags(TIMESTAMP_TAG, "").register(meterRegistry);
 	}
 
+	/**
+	 * Sets the ps metric size.
+	 *
+	 * @param metric the metric
+	 * @param value the value
+	 */
 	public void setPsMetricSize(SizeMetric metric, int value) {
 		appSizeGauges.get(metric).set(value);
 	}

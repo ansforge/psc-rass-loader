@@ -68,6 +68,11 @@ public class MapsHandlerTest {
         assertEquals(initialMaps, deserializedMaps);
     }
 
+    /**
+     * Line generator.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     @DisplayName("test line generator")
     public void lineGenerator() throws IOException {
@@ -87,6 +92,11 @@ public class MapsHandlerTest {
         assertEquals(expectedLine, line);
     }
 
+    /**
+     * Generate txt file.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     @DisplayName("generate txt file from ser")
     public void generateTxtFile() throws IOException {

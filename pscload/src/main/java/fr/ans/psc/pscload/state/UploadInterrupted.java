@@ -14,6 +14,9 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
  */
 public class UploadInterrupted extends ProcessState {
 
+	/**
+	 * Instantiates a new upload interrupted.
+	 */
 	public UploadInterrupted() {
 		super();
 	}

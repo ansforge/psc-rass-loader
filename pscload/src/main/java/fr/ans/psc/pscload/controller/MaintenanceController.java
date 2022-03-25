@@ -67,6 +67,12 @@ public class MaintenanceController {
         }
     }
 
+    /**
+     * Generate txt file.
+     *
+     * @param serFile the ser file
+     * @return the response entity
+     */
     @PostMapping(value = "/maintenance/from-ser-to-txt")
     public ResponseEntity<String> generateTxtFile(@RequestParam MultipartFile serFile) {
         InputStream initialStream = null;

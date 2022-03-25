@@ -98,6 +98,11 @@ public class Runner {
         }
     }
 
+    /**
+     * Run process.
+     *
+     * @throws DuplicateKeyException the duplicate key exception
+     */
     public void runProcess() throws DuplicateKeyException {
         if (isProcessExpired()) {
             // clear registry if latest is expired
@@ -150,6 +155,11 @@ public class Runner {
         }
     }
 
+    /**
+     * Run full process.
+     *
+     * @throws DuplicateKeyException the duplicate key exception
+     */
     @Async("processExecutor")
     public void runFullProcess() throws DuplicateKeyException {
         runProcess();

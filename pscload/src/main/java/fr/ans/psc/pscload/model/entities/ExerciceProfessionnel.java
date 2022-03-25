@@ -20,6 +20,13 @@ import lombok.EqualsAndHashCode;
 
 /**
  */
+
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class ExerciceProfessionnel extends Profession {
 
