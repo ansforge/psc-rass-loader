@@ -195,7 +195,10 @@ public class PscloadApplication {
 
 						log.info(String.format("Stage is %s, will be automatically resumed.",
 								stateClass.getSimpleName()));
-						ForkJoinPool.commonPool().submit(() -> {
+						ThreadPoolTaskExecutor asyncExecutor = (ThreadPoolTaskExecutor) appContext
+								.getBean("processExecutor");
+						log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
+						asyncExecutor.getThreadPoolExecutor().submit(() -> {
 							try {
 								if (stateClass.equals(UploadingChanges.class)) {
 									// upload changes
