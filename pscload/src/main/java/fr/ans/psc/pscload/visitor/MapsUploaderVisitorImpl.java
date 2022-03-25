@@ -53,6 +53,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			try {
 				if(map.isLocked()) {
 					log.info("Map is locked during shutdown");
+					Thread.currentThread().stop();
+					log.info("Thread {} is stopped", Thread.currentThread().getId());
 					throw new LockedMapException();
 				}
 				psApi.createNewPs((Professionnel) item);
@@ -77,6 +79,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			try {
 				if(map.isLocked()) {
 					log.info("Map is locked during shutdown");
+					Thread.currentThread().stop();
+					log.info("Thread {} is stopped", Thread.currentThread().getId());
 					throw new LockedMapException();
 				}
 				Professionnel prof = (Professionnel) item;
@@ -113,6 +117,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			try {
 				if(map.isLocked()) {
 					log.info("Map is locked during shutdown");
+					Thread.currentThread().stop();
+					log.info("Thread {} is stopped", Thread.currentThread().getId());
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);

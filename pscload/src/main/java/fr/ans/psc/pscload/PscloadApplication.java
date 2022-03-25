@@ -251,7 +251,6 @@ public class PscloadApplication {
 						.getBean("processExecutor");
 				log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
 				asyncExecutor.getThreadPoolExecutor().shutdownNow();
-
 				log.info("Active Async Threads : {}", asyncExecutor.getActiveCount());
 				// Save the registry if not empty
 				if (!registry.isEmpty()) {
