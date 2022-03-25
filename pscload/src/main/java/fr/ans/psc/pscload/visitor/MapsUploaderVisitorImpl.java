@@ -36,7 +36,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	 * Instantiates a new maps uploader visitor impl.
 	 *
 	 * @param excludedProfessions the excluded professions
-	 * @param apiBaseUrl the api base url
+	 * @param apiBaseUrl          the api base url
 	 */
 	public MapsUploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl) {
 		super();
@@ -51,10 +51,13 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		Collection<RassEntity> items = map.values();
 		items.stream().forEach(item -> {
 			try {
-				if(map.isLocked()) {
+				if (map.isLocked()) {
 					log.info("Map is locked during shutdown");
-					Thread.currentThread().stop();
-					log.info("Thread {} is stopped", Thread.currentThread().getId());
+					try {
+						log.info("Thread {} is stopped", Thread.currentThread().getId());
+						Thread.currentThread().stop();
+					} catch (ThreadDeath ignore) {
+					}
 					throw new LockedMapException();
 				}
 				psApi.createNewPs((Professionnel) item);
@@ -77,10 +80,13 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		Collection<RassEntity> items = map.values();
 		items.stream().forEach(item -> {
 			try {
-				if(map.isLocked()) {
+				if (map.isLocked()) {
 					log.info("Map is locked during shutdown");
-					Thread.currentThread().stop();
-					log.info("Thread {} is stopped", Thread.currentThread().getId());
+					try {
+						log.info("Thread {} is stopped", Thread.currentThread().getId());
+						Thread.currentThread().stop();
+					} catch (ThreadDeath ignore) {
+					}
 					throw new LockedMapException();
 				}
 				Professionnel prof = (Professionnel) item;
@@ -115,10 +121,13 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		Collection<RassEntity> items = map.values();
 		items.stream().forEach(item -> {
 			try {
-				if(map.isLocked()) {
+				if (map.isLocked()) {
 					log.info("Map is locked during shutdown");
-					Thread.currentThread().stop();
-					log.info("Thread {} is stopped", Thread.currentThread().getId());
+					try {
+						log.info("Thread {} is stopped", Thread.currentThread().getId());
+						Thread.currentThread().stop();
+					} catch (ThreadDeath ignore) {
+					}
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);
