@@ -23,7 +23,6 @@
 	</properties>
 	
   <modules>
-<!--	<module>psc-api</module>-->
 	<module>pscload</module>
   </modules>
   
