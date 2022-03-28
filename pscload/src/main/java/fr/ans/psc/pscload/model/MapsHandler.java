@@ -72,9 +72,7 @@ public class MapsHandler implements KryoSerializable {
 		ObjectRowProcessor rowProcessor = new ObjectRowProcessor() {
 			@Override
 			public void rowProcessed(Object[] objects, ParsingContext parsingContext) {
-				if (objects.length != ROW_LENGTH) {
-					throw new IllegalArgumentException();
-				}
+
 				String[] items = Arrays.asList(objects).toArray(new String[ROW_LENGTH]);
 				// test if exists by nationalId (item 2)
 				Professionnel psMapped = psMap.get(items[RassItems.NATIONAL_ID.column]);

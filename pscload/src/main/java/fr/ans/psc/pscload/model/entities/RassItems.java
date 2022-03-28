@@ -80,12 +80,6 @@ public enum RassItems {
     /** The situation role code. */
     SITUATION_ROLE_CODE(23),
 
-    //TODO : make activityKindCode available
-//    /**
-//     * The activity kind code
-//     */
-//    ACTIVITY_KIND_CODE(49),
-
     /** The site siret. */
     SITE_SIRET(24),
     
@@ -159,7 +153,12 @@ public enum RassItems {
     OLD_STRUCTURE_ID(47),
     
     /** The registration authority. */
-    REGISTRATION_AUTHORITY(48);
+    REGISTRATION_AUTHORITY(48),
+
+    /**
+     * The activity kind code
+     */
+    ACTIVITY_KIND_CODE(49);
 
     /** The column. */
     public int column;
