@@ -3,11 +3,25 @@
  */
 package fr.ans.psc.pscload.state;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
@@ -16,14 +30,6 @@ import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The Class ReadyToComputeDiff.
@@ -44,6 +50,9 @@ public class ReadyToComputeDiff extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	/**
+	 * Instantiates a new ready to compute diff.
+	 */
 	public ReadyToComputeDiff() {
 		super();
 	}

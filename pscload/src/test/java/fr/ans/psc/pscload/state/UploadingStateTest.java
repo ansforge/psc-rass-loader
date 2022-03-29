@@ -3,7 +3,11 @@
  */
 package fr.ans.psc.pscload.state;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,8 +28,6 @@ import org.springframework.test.context.DynamicPropertySource;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
-import fr.ans.psc.ApiClient;
-import fr.ans.psc.model.Structure;
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;

@@ -3,14 +3,10 @@
  */
 package fr.ans.psc.pscload.controller;
 
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Runner;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.ProcessInfo;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.state.*;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -19,9 +15,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.component.Runner;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.ProcessInfo;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
+import fr.ans.psc.pscload.state.UploadingChanges;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ProcessController.

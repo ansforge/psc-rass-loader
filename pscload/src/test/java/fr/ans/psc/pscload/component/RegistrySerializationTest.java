@@ -1,10 +1,23 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.component;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import fr.ans.psc.pscload.PscloadApplication;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -20,20 +33,14 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import fr.ans.psc.pscload.PscloadApplication;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class RegistrySerializationTest.
+ */
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
@@ -53,7 +60,9 @@ public class RegistrySerializationTest {
     @Autowired
     private MockMvc mockmvc;
 
-    /** The http mock server. */
+    /**
+     * The http mock server.
+     */
     @RegisterExtension
     static WireMockExtension httpMockServer = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
@@ -73,6 +82,7 @@ public class RegistrySerializationTest {
         propertiesRegistry.add("use.x509.auth", () -> "false");
         propertiesRegistry.add("enable.scheduler", () -> "true");
         propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
+        propertiesRegistry.add("snitch", () -> "true");
         propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
     }
 
@@ -95,19 +105,24 @@ public class RegistrySerializationTest {
     }
 
 
-
 //    CAUTION
 //    This method tests that the registry serialization ends properly when context shuts down.
 //    So there isn't any assertion but if this tests failed, a KryoException would be thrown, then failing the test
 //
 //    Because of the Spring context destruction at the end of the test, this method MUST be placed alone in its own
+
+    /**
+     * Shutdown serialization test.
+     *
+     * @throws Exception the exception
+     */
 //    test class
     @Test
     @DisplayName("test shutdown serialization")
     public void shutdownSerializationTest() throws Exception {
         // first day : populate ser
         String rassEndpoint = "/V300/services/extraction/Extraction_ProSanteConnect";
-        String extractFilenameDay1 = "extract_small_202203170801.txt";
+        String extractFilenameDay1 = "small_202203170801.txt";
         zipFile("wiremock/" + extractFilenameDay1);
         String extractDay1Path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + extractFilenameDay1 + ".zip")
                 .getPath();
@@ -121,12 +136,21 @@ public class RegistrySerializationTest {
         runner.runScheduler();
         httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful()).andDo(print());
+                .andExpect(status().is2xxSuccessful());
+
+        while (!registry.isEmpty() && registry.getCurrentProcess().isRemainingPsOrStructuresInMaps()) {
+            log.info("remaining ops: {}, {}",
+                    registry.getCurrentProcess().getProcessInfos().getPsToCreate(),
+                    registry.getCurrentProcess().getProcessInfos().getPsToUpdate());
+
+            Thread.sleep(1000);
+        }
+        Thread.sleep(1000);
         registry.clear();
 
 
         // second day : generate diff
-        String extractFilenameDay2 = "extract_small_202203170801.txt";
+        String extractFilenameDay2 = "small_202203180802.txt";
         zipFile("wiremock/" + extractFilenameDay2);
         String extractDay2Path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + extractFilenameDay2 + ".zip")
                 .getPath();
@@ -136,14 +160,21 @@ public class RegistrySerializationTest {
                 .withHeader("Content-Type", "application/zip")
                 .withHeader("Content-Disposition", "attachment; filename=" + extractFilenameDay2 + ".zip")
                 .withBody(extractDay2Content)));
+        httpMockServer.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post("/v2/ps").willReturn(aResponse().withStatus(200)));
+        httpMockServer.stubFor(put("/v2/ps").willReturn(aResponse().withStatus(200).withFixedDelay(500)));
         runner.runScheduler();
 
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful()).andDo(print());
+                .andExpect(status().is2xxSuccessful());
 
-        Thread.sleep(10000);
+        while (!registry.isEmpty() && registry.getCurrentProcess().getProcessInfos().getPsToUpdate() > 25) {
+            log.info("remaining ops: {}", registry.getCurrentProcess().getProcessInfos().getPsToCreate());
+            Thread.sleep(1000);
+        }
+        Thread.sleep(1000);
         log.warn("STARTING SHUTDOWN...");
-        context.publishEvent(new ContextClosedEvent(context));
+        Assertions.assertDoesNotThrow(() -> {context.publishEvent(new ContextClosedEvent(context));}, "An exception occurs during registry read");
+        Thread.sleep(5000);
         log.warn("END OF TEST");
     }
 

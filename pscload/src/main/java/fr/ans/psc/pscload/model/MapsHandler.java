@@ -3,6 +3,26 @@
  */
 package fr.ans.psc.pscload.model;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.IntStream;
+
+import org.apache.any23.encoding.TikaEncodingDetector;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
@@ -12,31 +32,31 @@ import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.ObjectRowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-import fr.ans.psc.model.Expertise;
+
 import fr.ans.psc.model.Profession;
-import fr.ans.psc.model.Ps;
-import fr.ans.psc.model.WorkSituation;
-import fr.ans.psc.pscload.model.entities.*;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassItems;
+import fr.ans.psc.pscload.model.entities.SavoirFaire;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.any23.encoding.TikaEncodingDetector;
-import org.apache.poi.util.ArrayUtil;
-
-import java.io.*;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * The Class MapsHandler.
  */
 @Getter
 @Setter
+
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode()
 @Slf4j
 public class MapsHandler implements KryoSerializable {
@@ -147,6 +167,13 @@ public class MapsHandler implements KryoSerializable {
 	}
 
 
+	/**
+	 * Generate txt file.
+	 *
+	 * @param fileName the file name
+	 * @return the file
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public File generateTxtFile(String fileName) throws IOException {
 		File txtFile = new File(fileName);
 		Writer writer = new FileWriter(txtFile, StandardCharsets.UTF_8);
@@ -182,6 +209,15 @@ public class MapsHandler implements KryoSerializable {
 		return txtFile;
 	}
 
+	/**
+	 * Generate line.
+	 *
+	 * @param professionnel the professionnel
+	 * @param exerciceProfessionnel the exercice professionnel
+	 * @param situationExercice the situation exercice
+	 * @param structure the structure
+	 * @return the string
+	 */
 	public String generateLine (Professionnel professionnel, ExerciceProfessionnel exerciceProfessionnel,
 								SituationExercice situationExercice, Structure structure) {
 

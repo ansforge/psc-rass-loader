@@ -12,14 +12,21 @@
 
 package fr.ans.psc.pscload.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.io.Serializable;
-
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode
 @ToString
 @Getter

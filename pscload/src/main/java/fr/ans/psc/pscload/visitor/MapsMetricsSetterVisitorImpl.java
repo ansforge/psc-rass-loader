@@ -1,18 +1,32 @@
+/*
+ * Copyright A.N.S 2021
+ */
 package fr.ans.psc.pscload.visitor;
+
+import java.util.Arrays;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.entities.RassEntity;
-import fr.ans.psc.pscload.model.operations.*;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-
+/**
+ * The Class MapsMetricsSetterVisitorImpl.
+ */
 @Slf4j
 public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
 
     private CustomMetrics customMetrics;
 
+    /**
+     * Instantiates a new maps metrics setter visitor impl.
+     *
+     * @param customMetrics the custom metrics
+     */
     public MapsMetricsSetterVisitorImpl(CustomMetrics customMetrics) {
         this.customMetrics = customMetrics;
     }

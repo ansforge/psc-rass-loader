@@ -3,17 +3,18 @@
  */
 package fr.ans.psc.pscload.metrics;
 
-import fr.ans.psc.pscload.model.Stage;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+
+import org.springframework.stereotype.Component;
+
+import fr.ans.psc.pscload.model.Stage;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 
 /**
  * The Class CustomMetrics.
@@ -224,6 +225,12 @@ public class CustomMetrics {
 		Counter.builder(SER_FILE_TAG).tags(TIMESTAMP_TAG, "").register(meterRegistry);
 	}
 
+	/**
+	 * Sets the ps metric size.
+	 *
+	 * @param metric the metric
+	 * @param value the value
+	 */
 	public void setPsMetricSize(SizeMetric metric, int value) {
 		appSizeGauges.get(metric).set(value);
 	}

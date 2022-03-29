@@ -3,34 +3,11 @@
  */
 package fr.ans.psc.pscload.component;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.MapSerializer;
-import com.esotericsoftware.minlog.Log;
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.entities.*;
-import fr.ans.psc.pscload.model.operations.*;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.state.*;
-import fr.ans.psc.pscload.utils.FileUtils;
-import fr.ans.psc.pscload.visitor.OperationType;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,9 +17,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.SavoirFaire;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.OperationMapSerializer;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.Submitted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
+import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.visitor.OperationType;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ProcessRegistryTest.
@@ -60,6 +75,7 @@ class ProcessRegistryTest {
 	@Autowired
 	ProcessRegistry registry;
 
+	/** The custom metrics. */
 	@Autowired
 	CustomMetrics customMetrics;
 
@@ -72,10 +88,16 @@ class ProcessRegistryTest {
 	@Autowired
 	private Kryo kryo;
 
+	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
 
+	/**
+	 * Register pg properties.
+	 *
+	 * @param propertiesRegistry the properties registry
+	 */
 	@DynamicPropertySource
 	static void registerPgProperties(DynamicPropertyRegistry propertiesRegistry) {
 		propertiesRegistry.add("extract.download.url",
@@ -171,6 +193,12 @@ class ProcessRegistryTest {
 		assertEquals("test", registry.getCurrentProcess().getDownloadedFilename());
 	}
 
+	/**
+	 * Read registry ser file.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws DuplicateKeyException the duplicate key exception
+	 */
 	@Test
 	public void readRegistrySerFile() throws IOException, DuplicateKeyException {
 		File registryFile = new File(rootpath + File.separator + "registry.ser");
@@ -268,6 +296,12 @@ class ProcessRegistryTest {
 
 //	this test has no assertions so it is disabled. It was useful to generate a registry file to check serialization in an other test
 //	so after spring context destruction (see @readRegistryAfterShutdownTest())
+/**
+ * Shutdown test.
+ *
+ * @throws IOException Signals that an I/O exception has occurred.
+ * @throws DuplicateKeyException the duplicate key exception
+ */
 //	but we decided to keep this code available
 	@Test
 	@Disabled
@@ -285,6 +319,11 @@ class ProcessRegistryTest {
 		context.publishEvent(new ContextClosedEvent(context));
 	}
 
+	/**
+	 * Read registry after shutdown test.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Test
 	@Disabled
 	public void readRegistryAfterShutdownTest() throws IOException {

@@ -25,8 +25,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Runner;
 import lombok.extern.slf4j.Slf4j;
 
 /**

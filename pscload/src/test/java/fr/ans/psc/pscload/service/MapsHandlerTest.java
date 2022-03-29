@@ -8,14 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.SQLOutput;
 
-import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
-import fr.ans.psc.pscload.model.entities.Professionnel;
-import fr.ans.psc.pscload.model.entities.SituationExercice;
-import fr.ans.psc.pscload.model.entities.Structure;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -28,6 +21,10 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
 import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -71,6 +68,11 @@ public class MapsHandlerTest {
         assertEquals(initialMaps, deserializedMaps);
     }
 
+    /**
+     * Line generator.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     @DisplayName("test line generator")
     public void lineGenerator() throws IOException {
@@ -90,6 +92,11 @@ public class MapsHandlerTest {
         assertEquals(expectedLine, line);
     }
 
+    /**
+     * Generate txt file.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     @Test
     @DisplayName("generate txt file from ser")
     public void generateTxtFile() throws IOException {

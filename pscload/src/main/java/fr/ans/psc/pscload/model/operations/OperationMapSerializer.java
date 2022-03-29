@@ -3,14 +3,18 @@
  */
 package fr.ans.psc.pscload.model.operations;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
+
 import fr.ans.psc.pscload.model.entities.RassEntity;
 
-import java.util.concurrent.ConcurrentHashMap;
-
+/**
+ * The Class OperationMapSerializer.
+ */
 public class OperationMapSerializer extends MapSerializer<OperationMap> {
 
     @Override
