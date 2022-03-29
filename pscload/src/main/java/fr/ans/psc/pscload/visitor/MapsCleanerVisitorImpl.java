@@ -45,6 +45,13 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 		items.forEach(item -> {
 			if(map.isLocked()) {
 				log.info("Map is locked during shutdown");
+				long id = 0L;
+				try {
+					id = Thread.currentThread().getId();
+					Thread.currentThread().stop();
+				} catch (ThreadDeath ignore) {
+					log.info("Thread {} is stopped", id);
+				}
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
@@ -60,6 +67,13 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 		items.forEach(item -> {
 			if(map.isLocked()) {
 				log.info("Map is locked during shutdown");
+				long id = 0L;
+				try {
+					id = Thread.currentThread().getId();
+					Thread.currentThread().stop();
+				} catch (ThreadDeath ignore) {
+					log.info("Thread {} is stopped", id);
+				}
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
@@ -75,6 +89,13 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 		items.forEach(item -> {
 			if(map.isLocked()) {
 				log.info("Map is locked during shutdown");
+				long id = 0L;
+				try {
+					id = Thread.currentThread().getId();
+					Thread.currentThread().stop();
+				} catch (ThreadDeath ignore) {
+					log.info("Thread {} is stopped", id);
+				}
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);

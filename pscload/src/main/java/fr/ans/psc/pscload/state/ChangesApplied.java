@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.esotericsoftware.kryo.KryoException;
+import fr.ans.psc.pscload.state.exception.LockedMapException;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestClientException;
@@ -155,6 +157,9 @@ public class ChangesApplied extends ProcessState {
         } catch (IOException e) {
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
+        } catch (LockedMapException e) {
+            log.error("Shutdown was initiated during Changes Applied stage. " +
+                    "No serialized file will be generated before complete shutdown.");
         }
     }
 
