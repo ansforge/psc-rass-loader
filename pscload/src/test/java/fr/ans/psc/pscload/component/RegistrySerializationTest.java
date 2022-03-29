@@ -9,7 +9,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.File;
@@ -82,6 +81,7 @@ public class RegistrySerializationTest {
         propertiesRegistry.add("use.x509.auth", () -> "false");
         propertiesRegistry.add("enable.scheduler", () -> "true");
         propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
+        propertiesRegistry.add("snitch", () -> "true");
         propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
     }
 
@@ -135,7 +135,7 @@ public class RegistrySerializationTest {
         runner.runScheduler();
         httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful()).andDo(print());
+                .andExpect(status().is2xxSuccessful());
         registry.clear();
 
 
@@ -153,7 +153,7 @@ public class RegistrySerializationTest {
         runner.runScheduler();
 
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful()).andDo(print());
+                .andExpect(status().is2xxSuccessful());
 
         Thread.sleep(5000);
         log.warn("STARTING SHUTDOWN...");

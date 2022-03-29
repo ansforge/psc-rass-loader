@@ -56,10 +56,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			try {
 				if (map.isLocked()) {
 					log.info("Map is locked during shutdown");
+					long id = 0L;
 					try {
-						log.info("Thread {} is stopped", Thread.currentThread().getId());
+						id = Thread.currentThread().getId();
 						Thread.currentThread().stop();
 					} catch (ThreadDeath ignore) {
+						log.info("Thread {} is stopped", id);
 					}
 					throw new LockedMapException();
 				}
@@ -85,10 +87,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			try {
 				if (map.isLocked()) {
 					log.info("Map is locked during shutdown");
+					long id = 0L;
 					try {
-						log.info("Thread {} is stopped", Thread.currentThread().getId());
+						id = Thread.currentThread().getId();
 						Thread.currentThread().stop();
 					} catch (ThreadDeath ignore) {
+						log.info("Thread {} is stopped", id);
 					}
 					throw new LockedMapException();
 				}
@@ -126,10 +130,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 			try {
 				if (map.isLocked()) {
 					log.info("Map is locked during shutdown");
+					long id = 0L;
 					try {
-						log.info("Thread {} is stopped", Thread.currentThread().getId());
+						id = Thread.currentThread().getId();
 						Thread.currentThread().stop();
 					} catch (ThreadDeath ignore) {
+						log.info("Thread {} is stopped", id);
 					}
 					throw new LockedMapException();
 				}
