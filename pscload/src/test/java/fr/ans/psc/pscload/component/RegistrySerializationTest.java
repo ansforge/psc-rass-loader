@@ -3,12 +3,10 @@
  */
 package fr.ans.psc.pscload.component;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.File;
@@ -62,7 +60,9 @@ public class RegistrySerializationTest {
     @Autowired
     private MockMvc mockmvc;
 
-    /** The http mock server. */
+    /**
+     * The http mock server.
+     */
     @RegisterExtension
     static WireMockExtension httpMockServer = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
@@ -105,24 +105,24 @@ public class RegistrySerializationTest {
     }
 
 
-
 //    CAUTION
 //    This method tests that the registry serialization ends properly when context shuts down.
 //    So there isn't any assertion but if this tests failed, a KryoException would be thrown, then failing the test
 //
 //    Because of the Spring context destruction at the end of the test, this method MUST be placed alone in its own
-/**
- * Shutdown serialization test.
- *
- * @throws Exception the exception
- */
+
+    /**
+     * Shutdown serialization test.
+     *
+     * @throws Exception the exception
+     */
 //    test class
     @Test
     @DisplayName("test shutdown serialization")
     public void shutdownSerializationTest() throws Exception {
         // first day : populate ser
         String rassEndpoint = "/V300/services/extraction/Extraction_ProSanteConnect";
-        String extractFilenameDay1 = "extract_small_202203170801.txt";
+        String extractFilenameDay1 = "small_202203170801.txt";
         zipFile("wiremock/" + extractFilenameDay1);
         String extractDay1Path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + extractFilenameDay1 + ".zip")
                 .getPath();
@@ -132,16 +132,25 @@ public class RegistrySerializationTest {
                 .withHeader("Content-Type", "application/zip")
                 .withHeader("Content-Disposition", "attachment; filename=" + extractFilenameDay1 + ".zip")
                 .withBody(extractDay1Content)));
-        httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200).withFixedDelay(50)));
+        httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
         runner.runScheduler();
         httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful());
+
+        while (!registry.isEmpty() && registry.getCurrentProcess().isRemainingPsOrStructuresInMaps()) {
+            log.info("remaining ops: {}, {}",
+                    registry.getCurrentProcess().getProcessInfos().getPsToCreate(),
+                    registry.getCurrentProcess().getProcessInfos().getPsToUpdate());
+
+            Thread.sleep(1000);
+        }
+        Thread.sleep(1000);
         registry.clear();
 
 
         // second day : generate diff
-        String extractFilenameDay2 = "extract_small_202203170801.txt";
+        String extractFilenameDay2 = "small_202203180802.txt";
         zipFile("wiremock/" + extractFilenameDay2);
         String extractDay2Path = Thread.currentThread().getContextClassLoader().getResource("wiremock/" + extractFilenameDay2 + ".zip")
                 .getPath();
@@ -151,12 +160,18 @@ public class RegistrySerializationTest {
                 .withHeader("Content-Type", "application/zip")
                 .withHeader("Content-Disposition", "attachment; filename=" + extractFilenameDay2 + ".zip")
                 .withBody(extractDay2Content)));
+        httpMockServer.stubFor(com.github.tomakehurst.wiremock.client.WireMock.post("/v2/ps").willReturn(aResponse().withStatus(200)));
+        httpMockServer.stubFor(put("/v2/ps").willReturn(aResponse().withStatus(200).withFixedDelay(500)));
         runner.runScheduler();
 
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful());
 
-        Thread.sleep(5000);
+        while (!registry.isEmpty() && registry.getCurrentProcess().getProcessInfos().getPsToUpdate() > 25) {
+            log.info("remaining ops: {}", registry.getCurrentProcess().getProcessInfos().getPsToCreate());
+            Thread.sleep(1000);
+        }
+        Thread.sleep(1000);
         log.warn("STARTING SHUTDOWN...");
         Assertions.assertDoesNotThrow(() -> {context.publishEvent(new ContextClosedEvent(context));}, "An exception occurs during registry read");
         Thread.sleep(5000);
