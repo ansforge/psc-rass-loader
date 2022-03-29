@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -157,7 +158,7 @@ public class RegistrySerializationTest {
 
         Thread.sleep(5000);
         log.warn("STARTING SHUTDOWN...");
-        context.publishEvent(new ContextClosedEvent(context));
+        Assertions.assertDoesNotThrow(() -> {context.publishEvent(new ContextClosedEvent(context));}, "An exception occurs during registry read");
         Thread.sleep(5000);
         log.warn("END OF TEST");
     }
