@@ -125,7 +125,7 @@ public class RunnerTest {
 		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
-		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")
+		mockmvc.perform(MockMvcRequestBuilders.get("/process/info?details=true")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status()
 				.is2xxSuccessful())
