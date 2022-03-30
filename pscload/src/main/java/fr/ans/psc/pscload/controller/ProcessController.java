@@ -152,6 +152,7 @@ public class ProcessController {
     public ResponseEntity<List<ProcessInfo>> processInfo(@RequestParam(value = "details",
             required = false, defaultValue = "false") boolean withDetails) {
         List<LoadProcess> processes = registry.list();
+        log.info("param details = {}", withDetails);
         List<ProcessInfo> processesInfos = new ArrayList<>();
         processes.forEach(process -> processesInfos.add(process.getProcessInfos(withDetails)));
         return new ResponseEntity<>(processesInfos, HttpStatus.OK);
