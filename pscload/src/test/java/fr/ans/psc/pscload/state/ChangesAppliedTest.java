@@ -40,7 +40,7 @@ import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.utils.FileUtils;
-import fr.ans.psc.pscload.visitor.OperationType;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -158,11 +158,11 @@ public class ChangesAppliedTest {
         p2.getState().setProcess(p2);
         p2.nextStep();
 
-        OperationMap<String, RassEntity> psToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+        OperationMap<String, RassEntity> psToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
-        OperationMap<String, RassEntity> psToUpdate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+        OperationMap<String, RassEntity> psToUpdate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.UPDATE))
 				.findFirst().get();
-        OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+        OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
 				.findFirst().get();
         // 2xx return status should have been removed from update map
         assertEquals(1, psToCreate.size());

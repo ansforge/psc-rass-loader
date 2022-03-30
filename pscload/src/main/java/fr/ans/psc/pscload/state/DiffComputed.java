@@ -54,7 +54,7 @@ public class DiffComputed extends ProcessState {
 
 	private void logReferenceMetrics() {
 		Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
-			String metricKey = String.join("_", "PS_REFERENCE", id_type.name(), "SIZE");
+			String metricKey = String.join("_", "REFERENCE", id_type.name(), "SIZE");
 			CustomMetrics.SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
 
 			log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());

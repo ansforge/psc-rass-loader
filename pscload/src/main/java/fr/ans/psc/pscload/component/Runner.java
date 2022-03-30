@@ -6,6 +6,7 @@ package fr.ans.psc.pscload.component;
 import java.io.File;
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -169,11 +170,11 @@ public class Runner {
      * Run continue.
      */
     @Async("processExecutor")
-    public void runContinue(LoadProcess process) {
+    public void runContinue(LoadProcess process, List<String> excludedOperations) {
         try {
             // upload changes
             log.info("Received request to process in Runner.runContinue()");
-            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
+            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations));
             customMetrics.resetSizeMetrics();
             customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             process.nextStep();

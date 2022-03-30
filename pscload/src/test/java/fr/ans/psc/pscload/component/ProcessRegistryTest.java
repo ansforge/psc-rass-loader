@@ -18,13 +18,10 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -56,7 +53,7 @@ import fr.ans.psc.pscload.state.Submitted;
 import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.utils.FileUtils;
-import fr.ans.psc.pscload.visitor.OperationType;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -232,18 +229,18 @@ class ProcessRegistryTest {
 		assertEquals(process.getTimestamp(), deserializedProcess.getTimestamp());
 
 		PsCreateMap originalPsCreateMap = (PsCreateMap) process.getMaps().stream()
-				.filter(map -> OperationType.PS_CREATE.equals(map.getOperation())).findFirst().get();
+				.filter(map -> OperationType.CREATE.equals(map.getOperation())).findFirst().get();
 		PsUpdateMap originalPsUdpdateMap = (PsUpdateMap) process.getMaps().stream()
-				.filter(map -> OperationType.PS_UPDATE.equals(map.getOperation())).findFirst().get();
+				.filter(map -> OperationType.UPDATE.equals(map.getOperation())).findFirst().get();
 		PsDeleteMap originalPsDeleteMap = (PsDeleteMap) process.getMaps().stream()
-				.filter(map -> OperationType.PS_DELETE.equals(map.getOperation())).findFirst().get();
+				.filter(map -> OperationType.DELETE.equals(map.getOperation())).findFirst().get();
 
 		PsCreateMap deserializedPsCreateMap = (PsCreateMap) deserializedProcess.getMaps().stream()
-				.filter(map -> OperationType.PS_CREATE.equals(map.getOperation())).findFirst().get();
+				.filter(map -> OperationType.CREATE.equals(map.getOperation())).findFirst().get();
 		PsUpdateMap deserializedPsUdpdateMap = (PsUpdateMap) deserializedProcess.getMaps().stream()
-				.filter(map -> OperationType.PS_UPDATE.equals(map.getOperation())).findFirst().get();
+				.filter(map -> OperationType.UPDATE.equals(map.getOperation())).findFirst().get();
 		PsDeleteMap deserializedPsDeleteMap = (PsDeleteMap) deserializedProcess.getMaps().stream()
-				.filter(map -> OperationType.PS_DELETE.equals(map.getOperation())).findFirst().get();
+				.filter(map -> OperationType.DELETE.equals(map.getOperation())).findFirst().get();
 
 		assertEquals(originalPsCreateMap.size(), 1);
 		assertEquals(originalPsUdpdateMap.size(), 2);

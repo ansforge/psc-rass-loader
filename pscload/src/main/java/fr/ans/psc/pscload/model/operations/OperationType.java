@@ -1,7 +1,7 @@
 /*
  * Copyright A.N.S 2021
  */
-package fr.ans.psc.pscload.visitor;
+package fr.ans.psc.pscload.model.operations;
 
 /**
  * The Enum OperationType.
@@ -9,11 +9,11 @@ package fr.ans.psc.pscload.visitor;
 public enum OperationType {
 
 	/** The ps create. */
-	PS_CREATE,
+	CREATE,
 	
 	/** The ps update. */
-	PS_UPDATE,
+	UPDATE,
 	
 	/** The ps delete. */
-	PS_DELETE
+	DELETE
 }

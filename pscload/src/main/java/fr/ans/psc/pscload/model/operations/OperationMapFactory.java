@@ -4,7 +4,6 @@
 package fr.ans.psc.pscload.model.operations;
 
 import fr.ans.psc.pscload.model.entities.RassEntity;
-import fr.ans.psc.pscload.visitor.OperationType;
 
 /**
  * A factory for creating OperationMap objects.
@@ -20,14 +19,14 @@ public class OperationMapFactory {
     public static OperationMap<String, RassEntity> getOperationMap(OperationType operation) {
         OperationMap<String, RassEntity> map;
         switch (operation) {
-            case PS_CREATE:
-                map = new PsCreateMap(OperationType.PS_CREATE);
+            case CREATE:
+                map = new PsCreateMap(OperationType.CREATE);
                 break;
-            case PS_DELETE:
-                map = new PsDeleteMap(OperationType.PS_DELETE);
+            case DELETE:
+                map = new PsDeleteMap(OperationType.DELETE);
                 break;
-            case PS_UPDATE:
-                map = new PsUpdateMap(OperationType.PS_UPDATE);
+            case UPDATE:
+                map = new PsUpdateMap(OperationType.UPDATE);
                 break;
             default:
                 map = null;

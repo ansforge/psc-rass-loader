@@ -75,13 +75,16 @@ public class ProcessController {
      * @return the  result
      */
     @PostMapping(value = "/process/continue")
-    public ResponseEntity<Void> continueProcess() {
+    public ResponseEntity<Void> continueProcess(@RequestParam(value = "exclude", required = false) List<String> excludedOperations) {
         LoadProcess process = registry.getCurrentProcess();
         ResponseEntity<Void> result;
         if (process != null) {
             if (process.getState().getClass().equals(DiffComputed.class)) {
                 // launch process in a separate thread because this method is annoted Async
-                runner.runContinue(process);
+                if (excludedOperations != null) {
+                    excludedOperations.forEach(String::toUpperCase);
+                }
+                runner.runContinue(process, excludedOperations);
                 result = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 // Response OK
                 return result;
@@ -102,15 +105,18 @@ public class ProcessController {
      * @return the deferred result
      */
     @PostMapping(value = "/process/resume")
-    public ResponseEntity<Void> resumeProcess() {
+    public ResponseEntity<Void> resumeProcess(@RequestParam(value = "exclude", required = false) List<String> excludedOperations) {
         // We can call continue process because it contains the updated maps to apply.
         LoadProcess process = registry.getCurrentProcess();
         ResponseEntity<Void> response;
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
-                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-                runner.runContinue(process);
+                if (excludedOperations != null) {
+                    excludedOperations.forEach(String::toUpperCase);
+                }
+                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations));
+                runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 return response;
             }

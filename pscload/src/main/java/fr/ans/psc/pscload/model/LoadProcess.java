@@ -21,7 +21,7 @@ import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.model.operations.OperationMapFactory;
 import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
-import fr.ans.psc.pscload.visitor.OperationType;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -117,20 +117,20 @@ public class LoadProcess implements KryoSerializable {
         processInfo.setExtractFileName(extractedFilename);
         processInfo.setLockedSerializedFileName(tmpMapsPath);
         if (state.isAlreadyComputed()) {
-            processInfo.setPsToCreateCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+            processInfo.setPsToCreateCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
                     .findFirst().get().size());
-            processInfo.setPsToUpdateCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+            processInfo.setPsToUpdateCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.UPDATE))
                     .findFirst().get().size());
-            processInfo.setPsToDeleteCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+            processInfo.setPsToDeleteCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
                     .findFirst().get().size());
 
             if (withDetails) {
                 processInfo.setPsToCreateIds(new ArrayList<>(maps.stream()
-                        .filter(map -> map.getOperation().equals(OperationType.PS_CREATE)).findFirst().get().keySet()));
+                        .filter(map -> map.getOperation().equals(OperationType.CREATE)).findFirst().get().keySet()));
                 processInfo.setPsToUpdateIds(new ArrayList<>(maps.stream()
-                        .filter(map -> map.getOperation().equals(OperationType.PS_UPDATE)).findFirst().get().keySet()));
+                        .filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get().keySet()));
                 processInfo.setPsToDeleteIds(new ArrayList<>(maps.stream()
-                        .filter(map -> map.getOperation().equals(OperationType.PS_DELETE)).findFirst().get().keySet()));
+                        .filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get().keySet()));
             }
         }
 

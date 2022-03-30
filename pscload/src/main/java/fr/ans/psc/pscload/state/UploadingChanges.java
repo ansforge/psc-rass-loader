@@ -15,6 +15,9 @@ import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * The Class UploadingChanges.
  */
@@ -26,6 +29,8 @@ public class UploadingChanges extends ProcessState {
 
     private String apiBaseUrl;
 
+    private List<String> excludedOperations;
+
     /**
      * Instantiates a new Uploading Changes.
      *
@@ -33,8 +38,13 @@ public class UploadingChanges extends ProcessState {
      * @param apiBaseUrl          the api base url
      */
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
+        this(excludedProfessions, apiBaseUrl, null);
+    }
+
+    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, List<String> excludedOperations) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
+        this.excludedOperations = excludedOperations;
     }
 
     /**
@@ -49,8 +59,14 @@ public class UploadingChanges extends ProcessState {
         log.info("calling API...");
     	
 		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl);
+
+        List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
+        if (excludedOperations != null) {
+            processMaps.removeIf(map -> excludedOperations.contains(map.getOperation().name()));
+        }
+
 		try {
-            for (OperationMap<String, RassEntity> map : process.getMaps()) {
+            for (OperationMap<String, RassEntity> map : processMaps) {
                 map.accept(visitor);
             }
             log.info("API operations done.");

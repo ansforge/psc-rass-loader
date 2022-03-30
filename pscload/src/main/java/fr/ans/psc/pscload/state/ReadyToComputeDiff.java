@@ -106,16 +106,16 @@ public class ReadyToComputeDiff extends ProcessState {
 
 		process.getMaps().forEach(map -> {
 			switch (map.getOperation()) {
-			case PS_UPDATE:
+			case UPDATE:
 				diffPs.entriesDiffering().forEach((k, v) -> {
 					map.put(k, v.rightValue());
 					map.saveOldValue(k, v.leftValue());
 				});
 				break;
-			case PS_DELETE:
+			case DELETE:
 				diffPs.entriesOnlyOnLeft().forEach(map::put);
 				break;
-			case PS_CREATE:
+			case CREATE:
 				diffPs.entriesOnlyOnRight().forEach(map::put);
 				break;
 			default:
@@ -128,7 +128,7 @@ public class ReadyToComputeDiff extends ProcessState {
 
 	private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
 		Arrays.stream(ID_TYPE.values()).forEach(id_type -> {
-			String metricKey = String.join("_", "PS_REFERENCE", id_type.name(), "SIZE");
+			String metricKey = String.join("_", "REFERENCE", id_type.name(), "SIZE");
 			SizeMetric metric = SizeMetric.valueOf(metricKey);
 
 			customMetrics.setPsMetricSize(metric, Math.toIntExact(psMap.values().stream().filter(

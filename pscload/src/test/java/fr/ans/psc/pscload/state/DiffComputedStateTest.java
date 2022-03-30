@@ -111,9 +111,9 @@ public class DiffComputedStateTest {
 
         // NO EXISTING SER, REFERENCE METRICS MUST BE STILL SET AT -1
         assertEquals(-1, diffComputed1.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_REFERENCE_ADELI_SIZE).get());
+                SizeMetric.REFERENCE_ADELI_SIZE).get());
         assertEquals(-1, diffComputed1.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_REFERENCE_RPPS_SIZE).get());
+                SizeMetric.REFERENCE_RPPS_SIZE).get());
 
         String[] exclusions = { "90" };
         p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
@@ -135,22 +135,22 @@ public class DiffComputedStateTest {
 
         // DAY 2, REFERENCE METRICS ARE SET ACCORDING TO SERIALIZED FILE FROM DAY 1
         assertEquals(3, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_REFERENCE_ADELI_SIZE).get());
+                SizeMetric.REFERENCE_ADELI_SIZE).get());
         assertEquals(2, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_REFERENCE_RPPS_SIZE).get());
+                SizeMetric.REFERENCE_RPPS_SIZE).get());
 
         // DIFFERENCE BETWEEN FILE1 AND FILE2
         assertEquals(0, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_CREATE_ADELI_SIZE).get());
+                SizeMetric.CREATE_ADELI_SIZE).get());
         assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_CREATE_RPPS_SIZE).get());
+                SizeMetric.CREATE_RPPS_SIZE).get());
         assertEquals(0, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_DELETE_ADELI_SIZE).get());
+                SizeMetric.DELETE_ADELI_SIZE).get());
         assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_DELETE_RPPS_SIZE).get());
+                SizeMetric.DELETE_RPPS_SIZE).get());
         assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_UPDATE_ADELI_SIZE).get());
+                SizeMetric.UPDATE_ADELI_SIZE).get());
         assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.PS_UPDATE_RPPS_SIZE).get());
+                SizeMetric.UPDATE_RPPS_SIZE).get());
     }
 }

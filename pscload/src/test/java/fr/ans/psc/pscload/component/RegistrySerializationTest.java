@@ -16,13 +16,10 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
-import fr.ans.psc.pscload.model.operations.PsCreateMap;
-import fr.ans.psc.pscload.model.operations.PsUpdateMap;
-import fr.ans.psc.pscload.visitor.OperationType;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
@@ -176,11 +173,11 @@ public class RegistrySerializationTest {
 
         LoadProcess process = registry.getCurrentProcess();
         OperationMap<String, RassEntity> psCreateMap = process.getMaps().stream()
-                .filter(map -> map.getOperation().equals(OperationType.PS_CREATE)).findFirst().get();
+                .filter(map -> map.getOperation().equals(OperationType.CREATE)).findFirst().get();
         OperationMap<String, RassEntity> psUpdateMap = process.getMaps().stream()
-                .filter(map -> map.getOperation().equals(OperationType.PS_UPDATE)).findFirst().get();
+                .filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
         OperationMap<String, RassEntity> psDeleteMap = process.getMaps().stream()
-                .filter(map -> map.getOperation().equals(OperationType.PS_DELETE)).findFirst().get();
+                .filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get();
 
         assertEquals(0, psCreateMap.size());
         assertEquals(31, psUpdateMap.size());
