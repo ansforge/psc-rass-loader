@@ -16,7 +16,15 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.visitor.OperationType;
 import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -46,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
+@DirtiesContext
 public class RegistrySerializationTest {
 
     @Autowired
@@ -164,6 +174,19 @@ public class RegistrySerializationTest {
         httpMockServer.stubFor(put("/v2/ps").willReturn(aResponse().withStatus(200).withFixedDelay(500)));
         runner.runScheduler();
 
+        LoadProcess process = registry.getCurrentProcess();
+        OperationMap<String, RassEntity> psCreateMap = process.getMaps().stream()
+                .filter(map -> map.getOperation().equals(OperationType.PS_CREATE)).findFirst().get();
+        OperationMap<String, RassEntity> psUpdateMap = process.getMaps().stream()
+                .filter(map -> map.getOperation().equals(OperationType.PS_UPDATE)).findFirst().get();
+        OperationMap<String, RassEntity> psDeleteMap = process.getMaps().stream()
+                .filter(map -> map.getOperation().equals(OperationType.PS_DELETE)).findFirst().get();
+
+        assertEquals(0, psCreateMap.size());
+        assertEquals(31, psUpdateMap.size());
+        assertEquals(31, psUpdateMap.getOldValues().size());
+        assertEquals(0, psDeleteMap.size());
+
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful());
 
@@ -172,6 +195,7 @@ public class RegistrySerializationTest {
             Thread.sleep(1000);
         }
         Thread.sleep(1000);
+
         log.warn("STARTING SHUTDOWN...");
         Assertions.assertDoesNotThrow(() -> {context.publishEvent(new ContextClosedEvent(context));}, "An exception occurs during registry read");
         Thread.sleep(5000);

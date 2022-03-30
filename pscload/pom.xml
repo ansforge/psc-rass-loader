@@ -33,6 +33,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<groupId>org.junit.vintage</groupId>-->
+<!--					<artifactId>junit-vintage-engine</artifactId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -111,6 +117,18 @@
 			<artifactId>psc-api-client</artifactId>
 			<version>2.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite-engine</artifactId>
+			<version>1.8.2</version>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.junit.platform</groupId>-->
+<!--			<artifactId>junit-platform-runner</artifactId>-->
+<!--			<version>1.8.2</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+
 	</dependencies>
 
 	<build>
@@ -145,6 +163,10 @@
 					<skipTests>false</skipTests>
 					<testFailureIgnore>true</testFailureIgnore>
 					<forkMode>once</forkMode>
+					<excludes>
+						<exclude>**/RegistrySerializationTest.java</exclude>
+						<exclude>**/RegistryDeserializationTest.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -169,6 +191,5 @@
 			</snapshots>
 		</repository>
 	</repositories>
-
 
 </project>

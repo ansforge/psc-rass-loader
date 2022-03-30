@@ -80,9 +80,6 @@ class ProcessRegistryTest {
 	CustomMetrics customMetrics;
 
 	@Autowired
-	private ApplicationContext context;
-
-	@Autowired
 	private EmailService emailService;
 
 	@Autowired
@@ -293,51 +290,4 @@ class ProcessRegistryTest {
 
 		return p2;
 	}
-
-//	this test has no assertions so it is disabled. It was useful to generate a registry file to check serialization in an other test
-//	so after spring context destruction (see @readRegistryAfterShutdownTest())
-/**
- * Shutdown test.
- *
- * @throws IOException Signals that an I/O exception has occurred.
- * @throws DuplicateKeyException the duplicate key exception
- */
-//	but we decided to keep this code available
-	@Test
-	@Disabled
-	public void shutdownTest() throws IOException, DuplicateKeyException {
-		File registryFile = new File(rootpath + File.separator + "registry.ser");
-		if(registryFile.exists()) {
-			registryFile.delete();
-		}
-
-		LoadProcess process = generateDiff("Extraction_ProSanteConnect_Personne_activite_202112120512.txt", "Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
-		String[] exclusions = {"90"};
-		process.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
-
-		registry.register("1", process);
-		context.publishEvent(new ContextClosedEvent(context));
-	}
-
-	/**
-	 * Read registry after shutdown test.
-	 *
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	@Test
-	@Disabled
-	public void readRegistryAfterShutdownTest() throws IOException {
-		File registryFile = FileUtils.copyFileToWorkspace("registry-after-shutdown.ser");
-		FileInputStream fileInputStream = new FileInputStream(registryFile);
-		Input input = new Input(fileInputStream);
-		registry.read(kryo, input);
-		input.close();
-
-		PsUpdateMap psUpdateMap = (PsUpdateMap) registry.getCurrentProcess().getMaps().stream()
-				.filter(map -> OperationType.PS_UPDATE.equals(map.getOperation())).findFirst().get();
-
-		assertEquals(2, psUpdateMap.size());
-		assertEquals(2, psUpdateMap.getOldValues().size());
-	}
-
 }

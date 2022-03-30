@@ -70,6 +70,39 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PscloadApplication {
 
+	private static Kryo kryo;
+
+	static {
+		kryo = new Kryo();
+		OperationMapSerializer operationMapSerializer = new OperationMapSerializer();
+		kryo.register(HashMap.class, 9);
+		kryo.register(ArrayList.class, 10);
+		kryo.register(Professionnel.class, 11);
+		kryo.register(ExerciceProfessionnel.class, 12);
+		kryo.register(SavoirFaire.class, 13);
+		kryo.register(SituationExercice.class, 14);
+		kryo.register(Structure.class, 16);
+		kryo.register(ProcessRegistry.class, 17);
+		kryo.register(LoadProcess.class, 18);
+		kryo.register(ProcessState.class, 19);
+		kryo.register(Submitted.class, 20);
+		kryo.register(DiffComputed.class, 21);
+		kryo.register(ReadyToComputeDiff.class, 22);
+		kryo.register(ReadyToExtract.class, 23);
+		kryo.register(UploadingChanges.class, 24);
+		kryo.register(ChangesApplied.class, 25);
+		kryo.register(String[].class, 27);
+		kryo.register(ConcurrentHashMap.class, 28);
+		kryo.register(UploadInterrupted.class, 29);
+		kryo.register(SerializationInterrupted.class, 30);
+		kryo.register(OperationMap.class, operationMapSerializer, 31);
+		kryo.register(PsCreateMap.class, 32);
+		kryo.register(PsUpdateMap.class, operationMapSerializer, 33);
+		kryo.register(PsDeleteMap.class, 34);
+	}
+
+	private static boolean shutingDown;
+
 	/**
 	 * The registry.
 	 */
@@ -100,41 +133,9 @@ public class PscloadApplication {
 	@Value("${api.base.url}")
 	private String apiBaseUrl;
 
-	private static Kryo kryo;
-
-	private static boolean shutingDown;
-
 	@Autowired
 	private ApplicationContext appContext;
 
-	static {
-		kryo = new Kryo();
-		OperationMapSerializer operationMapSerializer = new OperationMapSerializer();
-		kryo.register(HashMap.class, 9);
-		kryo.register(ArrayList.class, 10);
-		kryo.register(Professionnel.class, 11);
-		kryo.register(ExerciceProfessionnel.class, 12);
-		kryo.register(SavoirFaire.class, 13);
-		kryo.register(SituationExercice.class, 14);
-		kryo.register(Structure.class, 16);
-		kryo.register(ProcessRegistry.class, 17);
-		kryo.register(LoadProcess.class, 18);
-		kryo.register(ProcessState.class, 19);
-		kryo.register(Submitted.class, 20);
-		kryo.register(DiffComputed.class, 21);
-		kryo.register(ReadyToComputeDiff.class, 22);
-		kryo.register(ReadyToExtract.class, 23);
-		kryo.register(UploadingChanges.class, 24);
-		kryo.register(ChangesApplied.class, 25);
-		kryo.register(String[].class, 27);
-		kryo.register(ConcurrentHashMap.class, 28);
-		kryo.register(UploadInterrupted.class, 29);
-		kryo.register(SerializationInterrupted.class, 30);
-		kryo.register(OperationMap.class, operationMapSerializer, 31);
-		kryo.register(PsCreateMap.class, 32);
-		kryo.register(PsUpdateMap.class, operationMapSerializer, 33);
-		kryo.register(PsDeleteMap.class, 34);
-	}
 
 	/**
 	 * The main method.
