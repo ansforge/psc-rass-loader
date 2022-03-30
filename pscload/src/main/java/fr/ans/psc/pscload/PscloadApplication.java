@@ -173,7 +173,7 @@ public class PscloadApplication {
 					// UnLock the maps
 					List<OperationMap<String, RassEntity>> operationMaps = registry.getCurrentProcess().getMaps();
 					for (OperationMap<String, RassEntity> operationMap : operationMaps) {
-						operationMap.setLocked(true);
+						operationMap.setLocked(false);
 					}
 					if (debug) {
 						registryFile.delete();
