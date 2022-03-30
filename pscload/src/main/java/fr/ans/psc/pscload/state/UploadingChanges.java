@@ -10,6 +10,7 @@ import com.esotericsoftware.kryo.io.Output;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import fr.ans.psc.pscload.state.exception.LockedMapException;
 import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,10 +49,15 @@ public class UploadingChanges extends ProcessState {
         log.info("calling API...");
     	
 		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl);
-		for (OperationMap<String, RassEntity> map : process.getMaps()) {
-			map.accept(visitor);
-		}
-		log.info("API operations done.");
+		try {
+            for (OperationMap<String, RassEntity> map : process.getMaps()) {
+                map.accept(visitor);
+            }
+            log.info("API operations done.");
+        } catch (LockedMapException e) {
+            log.error("Shutdown was initiated during Uploading Changes stage.");
+        }
+
     }
 
     @Override

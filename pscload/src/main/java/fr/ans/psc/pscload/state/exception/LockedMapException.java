@@ -6,6 +6,6 @@ package fr.ans.psc.pscload.state.exception;
 /**
  * The Class LockedMapException.
  */
-public class LockedMapException extends LoadProcessException {
+public class LockedMapException extends RuntimeException {
 
 }
