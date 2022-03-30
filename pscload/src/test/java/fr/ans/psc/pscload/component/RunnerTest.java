@@ -8,6 +8,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -22,6 +23,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -139,6 +144,30 @@ public class RunnerTest {
 		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is2xxSuccessful()).andDo(print());
+	}
+
+	@Test
+	@DisplayName("continue process with exclusions")
+	public void continueProcessWithExclusionsTest() throws Exception {
+		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
+		String filename = "Extraction_ProSanteConnect_Personne_activite_202112120512.txt";
+		zipFile(filename);
+		String path = Thread.currentThread().getContextClassLoader().getResource(filename + ".zip")
+				.getPath();
+		byte[] content = readFileToBytes(path);
+		httpMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(200)
+				.withHeader("Content-Type", "application/zip")
+				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
+		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+		runner.runScheduler();
+		assertFalse(registry.isEmpty());
+
+		httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
+		RequestPattern pattern = RequestPatternBuilder.newRequestPattern(RequestMethod.POST, UrlPattern.ANY).build();
+		mockmvc.perform(post("/process/continue?exclude=create").accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().is2xxSuccessful()).andDo(print());
+
+		assertEquals(5, httpMockServer.countRequestsMatching(pattern).getCount());
 	}
 
 	private static void zipFile(String filename) throws Exception {

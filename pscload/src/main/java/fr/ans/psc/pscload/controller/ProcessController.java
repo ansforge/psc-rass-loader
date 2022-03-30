@@ -80,10 +80,10 @@ public class ProcessController {
         ResponseEntity<Void> result;
         if (process != null) {
             if (process.getState().getClass().equals(DiffComputed.class)) {
-                // launch process in a separate thread because this method is annoted Async
                 if (excludedOperations != null) {
-                    excludedOperations.forEach(String::toUpperCase);
+                    excludedOperations.replaceAll(String::toUpperCase);
                 }
+                // launch process in a separate thread because this method is annoted Async
                 runner.runContinue(process, excludedOperations);
                 result = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 // Response OK
@@ -112,9 +112,6 @@ public class ProcessController {
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
-                if (excludedOperations != null) {
-                    excludedOperations.forEach(String::toUpperCase);
-                }
                 process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations));
                 runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);
