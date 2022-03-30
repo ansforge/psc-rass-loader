@@ -141,6 +141,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				psApi.updatePs((Professionnel) item);
 				map.remove(item.getInternalId());
+				map.getOldValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
