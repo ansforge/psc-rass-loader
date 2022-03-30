@@ -150,8 +150,8 @@ public class RegistrySerializationTest {
 
         while (!registry.isEmpty() && registry.getCurrentProcess().isRemainingPsOrStructuresInMaps()) {
             log.info("remaining ops: {}, {}",
-                    registry.getCurrentProcess().getProcessInfos().getPsToCreate(),
-                    registry.getCurrentProcess().getProcessInfos().getPsToUpdate());
+                    registry.getCurrentProcess().getProcessInfos(false).getPsToCreateCount(),
+                    registry.getCurrentProcess().getProcessInfos(false).getPsToUpdateCount());
 
             Thread.sleep(1000);
         }
@@ -190,8 +190,8 @@ public class RegistrySerializationTest {
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful());
 
-        while (!registry.isEmpty() && registry.getCurrentProcess().getProcessInfos().getPsToUpdate() > 25) {
-            log.info("remaining ops: {}", registry.getCurrentProcess().getProcessInfos().getPsToCreate());
+        while (!registry.isEmpty() && registry.getCurrentProcess().getProcessInfos(false).getPsToUpdateCount() > 25) {
+            log.info("remaining ops: {}", registry.getCurrentProcess().getProcessInfos(false).getPsToCreateCount());
             Thread.sleep(1000);
         }
         Thread.sleep(1000);

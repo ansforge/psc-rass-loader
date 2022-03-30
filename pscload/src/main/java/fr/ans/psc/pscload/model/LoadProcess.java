@@ -32,125 +32,134 @@ import lombok.Setter;
 @Setter
 public class LoadProcess implements KryoSerializable {
 
-	private String downloadedFilename;
+    private String downloadedFilename;
 
-	private String extractedFilename;
+    private String extractedFilename;
 
-	private String tmpMapsPath;
+    private String tmpMapsPath;
 
-	private List<OperationMap<String, RassEntity>> maps = new ArrayList<>();
+    private List<OperationMap<String, RassEntity>> maps = new ArrayList<>();
 
-	private long timestamp;
+    private long timestamp;
 
-	private ProcessState state;
+    private ProcessState state;
 
-	private String id;
-	
-	/**
-	 * Instantiates a new load process.
-	 */
-	public LoadProcess() {
-		super();
-		init();
-	}
+    private String id;
 
-	/**
-	 * Instantiates a new load process.
-	 *
-	 * @param state the state
-	 */
-	public LoadProcess(ProcessState state) {
-		super();
-		this.state = state;
-		this.state.setProcess(this);
-		init();
-	}
+    /**
+     * Instantiates a new load process.
+     */
+    public LoadProcess() {
+        super();
+        init();
+    }
 
-	private void init() {
-		timestamp = Calendar.getInstance().getTimeInMillis();
-		Arrays.asList(OperationType.values()).forEach(operation -> {
-			maps.add(OperationMapFactory.getOperationMap(operation));
-		});
-	}
+    /**
+     * Instantiates a new load process.
+     *
+     * @param state the state
+     */
+    public LoadProcess(ProcessState state) {
+        super();
+        this.state = state;
+        this.state.setProcess(this);
+        init();
+    }
 
-	/**
-	 * Instantiates a new load process.
-	 *
-	 * @param state the state
-	 * @param id    the id
-	 */
-	public LoadProcess(ProcessState state, String id) {
-		this(state);
-		this.id = id;
-	}
+    private void init() {
+        timestamp = Calendar.getInstance().getTimeInMillis();
+        Arrays.asList(OperationType.values()).forEach(operation -> {
+            maps.add(OperationMapFactory.getOperationMap(operation));
+        });
+    }
 
-	/**
-	 * Runtask.
-	 *
-	 * @throws LoadProcessException the load process exception
-	 */
-	public void nextStep() throws LoadProcessException {
-		state.nextStep();
-	}
+    /**
+     * Instantiates a new load process.
+     *
+     * @param state the state
+     * @param id    the id
+     */
+    public LoadProcess(ProcessState state, String id) {
+        this(state);
+        this.id = id;
+    }
 
-	public void setState(ProcessState state) {
-		this.state = state;
-		state.setProcess(this);
-	}
+    /**
+     * Runtask.
+     *
+     * @throws LoadProcessException the load process exception
+     */
+    public void nextStep() throws LoadProcessException {
+        state.nextStep();
+    }
 
-	public boolean isRemainingPsOrStructuresInMaps() {
-		int count = 0;
-		for (@SuppressWarnings("rawtypes") OperationMap map : maps) {
-			count += map.size();
-		}
-		return count > 0;
+    public void setState(ProcessState state) {
+        this.state = state;
+        state.setProcess(this);
+    }
 
-	}
+    public boolean isRemainingPsOrStructuresInMaps() {
+        int count = 0;
+        for (@SuppressWarnings("rawtypes") OperationMap map : maps) {
+            count += map.size();
+        }
+        return count > 0;
 
-	public ProcessInfo getProcessInfos() {
-		ProcessInfo processInfo = new ProcessInfo();
-		processInfo.setProcessId(id);
-		DateFormat df = new SimpleDateFormat();
-		processInfo.setCreatedOn(df.format(new Date(timestamp)));
-		processInfo.setState(state.getClass().getSimpleName());
-		processInfo.setDownloadedFileName(downloadedFilename);
-		processInfo.setExtractFileName(extractedFilename);
-		processInfo.setLockedSerializedFileName(tmpMapsPath);
-		if (state.isAlreadyComputed()) {
-			processInfo.setPsToCreate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
-					.findFirst().get().size());
-			processInfo.setPsToUpdate(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
-					.findFirst().get().size());
-			processInfo.setPsToDelete(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
-					.findFirst().get().size());
-		}
+    }
 
-		return processInfo;
-	}
+    public ProcessInfo getProcessInfos(boolean withDetails) {
+        ProcessInfo processInfo = new ProcessInfo();
+        processInfo.setProcessId(id);
+        DateFormat df = new SimpleDateFormat();
+        processInfo.setCreatedOn(df.format(new Date(timestamp)));
+        processInfo.setState(state.getClass().getSimpleName());
+        processInfo.setDownloadedFileName(downloadedFilename);
+        processInfo.setExtractFileName(extractedFilename);
+        processInfo.setLockedSerializedFileName(tmpMapsPath);
+        if (state.isAlreadyComputed()) {
+            processInfo.setPsToCreateCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+                    .findFirst().get().size());
+            processInfo.setPsToUpdateCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+                    .findFirst().get().size());
+            processInfo.setPsToDeleteCount(maps.stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
+                    .findFirst().get().size());
 
-	@Override
-	public void write(Kryo kryo, Output output) {
-		output.writeString(id);
-		output.writeLong(timestamp);
-		output.writeString(downloadedFilename);
-		output.writeString(extractedFilename);
-		output.writeString(tmpMapsPath);
-		// We need to write the class also because state is an abstract class (hope
-		// never null)
-		kryo.writeClassAndObject(output, state);
-		kryo.writeObjectOrNull(output, maps, ArrayList.class);
-	}
+            if (withDetails) {
+                processInfo.setPsToCreateIds(new ArrayList<>(maps.stream()
+                        .filter(map -> map.getOperation().equals(OperationType.PS_CREATE)).findFirst().get().keySet()));
+                processInfo.setPsToUpdateIds(new ArrayList<>(maps.stream()
+                        .filter(map -> map.getOperation().equals(OperationType.PS_UPDATE)).findFirst().get().keySet()));
+                processInfo.setPsToDeleteIds(new ArrayList<>(maps.stream()
+                        .filter(map -> map.getOperation().equals(OperationType.PS_DELETE)).findFirst().get().keySet()));
+            }
+        }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void read(Kryo kryo, Input input) {
-		id = input.readString();
-		timestamp = input.readLong();
-		downloadedFilename = input.readString();
-		extractedFilename = input.readString();
-		tmpMapsPath = input.readString();
-		state = (ProcessState) kryo.readClassAndObject(input);
-		maps = (List<OperationMap<String, RassEntity>>) kryo.readObjectOrNull(input, ArrayList.class);
-	}
+        return processInfo;
+    }
+
+    @Override
+    public void write(Kryo kryo, Output output) {
+        output.writeString(id);
+        output.writeLong(timestamp);
+        output.writeString(downloadedFilename);
+        output.writeString(extractedFilename);
+        output.writeString(tmpMapsPath);
+        // We need to write the class also because state is an abstract class (hope
+        // never null)
+        kryo.writeClassAndObject(output, state);
+        kryo.writeObjectOrNull(output, maps, ArrayList.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void read(Kryo kryo, Input input) {
+        id = input.readString();
+        timestamp = input.readLong();
+        downloadedFilename = input.readString();
+        extractedFilename = input.readString();
+        tmpMapsPath = input.readString();
+        state = (ProcessState) kryo.readClassAndObject(input);
+        maps = (List<OperationMap<String, RassEntity>>) kryo.readObjectOrNull(input, ArrayList.class);
+    }
 
 }

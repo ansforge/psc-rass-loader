@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.ans.psc.pscload.component.ProcessRegistry;
@@ -148,10 +149,11 @@ public class ProcessController {
      * @return the result
      */
     @GetMapping(value = "/process/info")
-    public ResponseEntity<List<ProcessInfo>> processInfo() {
+    public ResponseEntity<List<ProcessInfo>> processInfo(@RequestParam(value = "details",
+            required = false, defaultValue = "false") boolean withDetails) {
         List<LoadProcess> processes = registry.list();
         List<ProcessInfo> processesInfos = new ArrayList<>();
-        processes.forEach(process -> processesInfos.add(process.getProcessInfos()));
+        processes.forEach(process -> processesInfos.add(process.getProcessInfos(withDetails)));
         return new ResponseEntity<>(processesInfos, HttpStatus.OK);
     }
 

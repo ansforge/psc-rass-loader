@@ -13,6 +13,7 @@
 package fr.ans.psc.pscload.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,12 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-/**
- * Can equal.
- *
- * @param other the other
- * @return true, if successful
- */
 @EqualsAndHashCode
 @ToString
 @Getter
@@ -45,19 +40,22 @@ public class ProcessInfo implements Serializable{
   private String state;
   
   @JsonProperty("psToCreate")
-  private Integer psToCreate;
+  private Integer psToCreateCount;
+
+  @JsonProperty("psToCreateIds")
+  private List<String> psToCreateIds;
   
   @JsonProperty("psToUpdate")
-  private Integer psToUpdate;
+  private Integer psToUpdateCount;
+
+  @JsonProperty("psToUpdateIds")
+  private List<String> psToUpdateIds;
   
   @JsonProperty("psToDelete")
-  private Integer psToDelete;
-  
-  @JsonProperty("structureToCreate")
-  private Integer structureToCreate;
-  
-  @JsonProperty("structureToUpdate")
-  private Integer structureToUpdate;
+  private Integer psToDeleteCount;
+
+  @JsonProperty("psToDeleteIds")
+  private List<String> psToDeleteIds;
 
   @JsonProperty("downloadedFileName")
   private String downloadedFileName;

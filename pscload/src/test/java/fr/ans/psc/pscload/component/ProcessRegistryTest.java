@@ -251,8 +251,6 @@ class ProcessRegistryTest {
 		assertEquals(originalPsUdpdateMap.getOldValues().size(), 2);
 		assertEquals(originalPsDeleteMap.size(), 1);
 
-		log.info(deserializedProcess.getProcessInfos().toString());
-
 		assertEquals(originalPsCreateMap.size(), deserializedPsCreateMap.size());
 		assertEquals(originalPsUdpdateMap.size(), deserializedPsUdpdateMap.size());
 		assertEquals(originalPsUdpdateMap.getOldValues().size(), deserializedPsUdpdateMap.getOldValues().size());
