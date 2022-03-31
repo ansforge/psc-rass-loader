@@ -3,19 +3,18 @@
  */
 package fr.ans.psc.pscload.state;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import fr.ans.psc.pscload.PscloadApplication;
-import fr.ans.psc.pscload.component.DuplicateKeyException;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.entities.RassEntity;
-import fr.ans.psc.pscload.model.operations.OperationMap;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.utils.FileUtils;
-import fr.ans.psc.pscload.visitor.OperationType;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,12 +28,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-import java.io.File;
-import java.io.IOException;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import fr.ans.psc.pscload.PscloadApplication;
+import fr.ans.psc.pscload.component.DuplicateKeyException;
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.utils.FileUtils;
+import fr.ans.psc.pscload.model.operations.OperationType;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ChangesAppliedTest.
@@ -110,7 +117,6 @@ public class ChangesAppliedTest {
     @DisplayName("Changes applied with no errors")
     public void changesApplied() throws DuplicateKeyException, IOException, ClassNotFoundException {
         httpMockServer.stubFor(post("/v2/ps").willReturn(aResponse().withStatus(200)));
-        httpMockServer.stubFor(post("/v2/structure").willReturn(aResponse().withStatus(200)));
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String rootpath = cl.getResource("work").getPath();
@@ -138,8 +144,6 @@ public class ChangesAppliedTest {
                 .willReturn(aResponse().withStatus(200)));
         httpMockServer.stubFor(delete("/v2/ps/810107592585")
                 .willReturn(aResponse().withStatus(410)));
-        httpMockServer.stubFor(post("/v2/structure")
-                .willReturn(aResponse().withStatus(500)));
         // Day 2 : Compute diff
         LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
         registry.register(Integer.toString(registry.nextId()), p2);
@@ -154,22 +158,18 @@ public class ChangesAppliedTest {
         p2.getState().setProcess(p2);
         p2.nextStep();
 
-        OperationMap<String, RassEntity> psToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_CREATE))
+        OperationMap<String, RassEntity> psToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
-        OperationMap<String, RassEntity> psToUpdate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_UPDATE))
+        OperationMap<String, RassEntity> psToUpdate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.UPDATE))
 				.findFirst().get();
-        OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.PS_DELETE))
-				.findFirst().get();
-        OperationMap<String, RassEntity> structureToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.STRUCTURE_CREATE))
+        OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
 				.findFirst().get();
         // 2xx return status should have been removed from update map
         assertEquals(1, psToCreate.size());
         assertEquals(1, psToDelete.size());
         assertEquals(0, psToUpdate.size());
-        assertEquals(1, structureToCreate.size());
         assertEquals(HttpStatus.CONFLICT.value(), psToCreate.get("810100375103").getReturnStatus());
         assertEquals(HttpStatus.GONE.value(), psToDelete.get("810107592585").getReturnStatus());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), structureToCreate.get("R10100000063415").getReturnStatus());
 
         // Apply changes and generate new ser
         p2.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService));
@@ -181,7 +181,6 @@ public class ChangesAppliedTest {
         serializedMaps.deserializeMaps(mapser.getAbsolutePath());
         assert serializedMaps.getPsMap().get("810100375103") != null;
         assert serializedMaps.getPsMap().get("810107592585") == null;
-        assert serializedMaps.getStructureMap().get("R10100000063415") == null;
     }
 
 }

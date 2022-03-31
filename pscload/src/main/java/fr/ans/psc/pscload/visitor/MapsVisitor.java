@@ -3,7 +3,9 @@
  */
 package fr.ans.psc.pscload.visitor;
 
-import fr.ans.psc.pscload.model.operations.*;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
 
 /**
  * The Interface MapsUploaderVisitor.
@@ -30,20 +32,5 @@ public interface MapsVisitor {
 	 * @param map the map
 	 */
 	void visit(PsUpdateMap map);
-	
-	/**
-	 * Visit.
-	 *
-	 * @param map the map
-	 */
-	void visit(StructureCreateMap map);
-	
-	/**
-	 * Visit.
-	 *
-	 * @param map the map
-	 */
-	void visit(StructureUpdateMap map);
 
-	void visit(StructureDeleteMap structureDeleteMap);
 }

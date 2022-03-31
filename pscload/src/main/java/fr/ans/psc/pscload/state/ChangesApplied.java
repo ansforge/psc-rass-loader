@@ -3,9 +3,32 @@
  */
 package fr.ans.psc.pscload.state;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import com.esotericsoftware.kryo.KryoException;
+import fr.ans.psc.pscload.state.exception.LockedMapException;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.MapsHandler;
@@ -16,19 +39,6 @@ import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.visitor.MapsCleanerVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * The Class ChangesApplied.
@@ -44,13 +54,16 @@ public class ChangesApplied extends ProcessState {
 
     private final String reportMailBody = "\nLes réponses possibles sont les suivantes : \n" +
             "- 200 : traité avec succès\n" +
-            "- 409 : le Ps / la structure existe déjà en base, n'a pas été ajouté/modifié(e)\n" +
-            "- 410 : le Ps / la structure est déjà absente en base, n'a pas été supprimé(e)\n" +
+            "- 409 : le Ps existe déjà en base, n'a pas été ajouté/modifié\n" +
+            "- 410 : le Ps est déjà absent en base, n'a pas été supprimé\n" +
             "- 500 : Erreur côté serveur, le traitement sera rejoué au prochain différentiel.\n\n" +
             "Si certaines modifications n'ont pas été appliquées,\n" +
             "vérifiez la plateforme et tentez de relancer le process à partir du endpoint" +
             " \"resume\"";
 
+    /**
+     * Instantiates a new changes applied.
+     */
     public ChangesApplied() {
         super();
     }
@@ -144,6 +157,9 @@ public class ChangesApplied extends ProcessState {
         } catch (IOException e) {
             log.error("Error during serialization");
             throw new SerFileGenerationException("Error during serialization");
+        } catch (LockedMapException e) {
+            log.error("Shutdown was initiated during Changes Applied stage. " +
+                    "No serialized file will be generated before complete shutdown.");
         }
     }
 

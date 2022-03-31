@@ -3,25 +3,31 @@
  */
 package fr.ans.psc.pscload.controller;
 
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Runner;
-import fr.ans.psc.pscload.metrics.CustomMetrics;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.ProcessInfo;
-import fr.ans.psc.pscload.service.EmailService;
-import fr.ans.psc.pscload.state.*;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.component.Runner;
+import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.ProcessInfo;
+import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
+import fr.ans.psc.pscload.state.UploadingChanges;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ProcessController.
@@ -69,13 +75,16 @@ public class ProcessController {
      * @return the  result
      */
     @PostMapping(value = "/process/continue")
-    public ResponseEntity<Void> continueProcess() {
+    public ResponseEntity<Void> continueProcess(@RequestParam(value = "exclude", required = false) List<String> excludedOperations) {
         LoadProcess process = registry.getCurrentProcess();
         ResponseEntity<Void> result;
         if (process != null) {
             if (process.getState().getClass().equals(DiffComputed.class)) {
+                if (excludedOperations != null) {
+                    excludedOperations.replaceAll(String::toUpperCase);
+                }
                 // launch process in a separate thread because this method is annoted Async
-                runner.runContinue(process);
+                runner.runContinue(process, excludedOperations);
                 result = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 // Response OK
                 return result;
@@ -96,15 +105,15 @@ public class ProcessController {
      * @return the deferred result
      */
     @PostMapping(value = "/process/resume")
-    public ResponseEntity<Void> resumeProcess() {
+    public ResponseEntity<Void> resumeProcess(@RequestParam(value = "exclude", required = false) List<String> excludedOperations) {
         // We can call continue process because it contains the updated maps to apply.
         LoadProcess process = registry.getCurrentProcess();
         ResponseEntity<Void> response;
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
-                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
-                runner.runContinue(process);
+                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations));
+                runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 return response;
             }
@@ -143,10 +152,12 @@ public class ProcessController {
      * @return the result
      */
     @GetMapping(value = "/process/info")
-    public ResponseEntity<List<ProcessInfo>> processInfo() {
+    public ResponseEntity<List<ProcessInfo>> processInfo(@RequestParam(value = "details",
+            required = false, defaultValue = "false") boolean withDetails) {
         List<LoadProcess> processes = registry.list();
+        log.info("param details = {}", withDetails);
         List<ProcessInfo> processesInfos = new ArrayList<>();
-        processes.forEach(process -> processesInfos.add(process.getProcessInfos()));
+        processes.forEach(process -> processesInfos.add(process.getProcessInfos(withDetails)));
         return new ResponseEntity<>(processesInfos, HttpStatus.OK);
     }
 

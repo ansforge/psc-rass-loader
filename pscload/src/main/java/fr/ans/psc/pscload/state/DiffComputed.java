@@ -3,17 +3,18 @@
  */
 package fr.ans.psc.pscload.state;
 
+import java.util.Arrays;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.visitor.MapsMetricsSetterVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Arrays;
 
 /**
  * The Class DiffComputed.
@@ -33,6 +34,9 @@ public class DiffComputed extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	/**
+	 * Instantiates a new diff computed.
+	 */
 	public DiffComputed() {
 		super();
 	}
@@ -50,7 +54,7 @@ public class DiffComputed extends ProcessState {
 
 	private void logReferenceMetrics() {
 		Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
-			String metricKey = String.join("_", "PS_REFERENCE", id_type.name(), "SIZE");
+			String metricKey = String.join("_", "REFERENCE", id_type.name(), "SIZE");
 			CustomMetrics.SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
 
 			log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());
