@@ -3,11 +3,9 @@
  */
 package fr.ans.psc.pscload.component;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -17,13 +15,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -31,21 +36,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import fr.ans.psc.pscload.PscloadApplication;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.component.Runner;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 /**
  * The Class DiffComputedStateTest.
@@ -92,6 +94,9 @@ public class RunnerTest {
 		propertiesRegistry.add("pscextract.base.url", () -> httpMockServer.baseUrl());
 	}
 
+	/**
+	 * Setup.
+	 */
 	@BeforeEach
 	void setup() {
 		registry.clear();
@@ -124,10 +129,9 @@ public class RunnerTest {
 				.withHeader("Content-Type", "application/zip")
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
 		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
-		httpMockServer.stubFor(any(urlMatching("/v2/structure")).willReturn(aResponse().withStatus(200)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
-		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")
+		mockmvc.perform(MockMvcRequestBuilders.get("/process/info?details=true")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status()
 				.is2xxSuccessful())
@@ -141,6 +145,30 @@ public class RunnerTest {
 		mockmvc.perform(MockMvcRequestBuilders.get("/process/info")
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is2xxSuccessful()).andDo(print());
+	}
+
+	@Test
+	@DisplayName("continue process with exclusions")
+	public void continueProcessWithExclusionsTest() throws Exception {
+		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
+		String filename = "Extraction_ProSanteConnect_Personne_activite_202112120512.txt";
+		zipFile(filename);
+		String path = Thread.currentThread().getContextClassLoader().getResource(filename + ".zip")
+				.getPath();
+		byte[] content = readFileToBytes(path);
+		httpMockServer.stubFor(get(contextPath).willReturn(aResponse().withStatus(200)
+				.withHeader("Content-Type", "application/zip")
+				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
+		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+		runner.runScheduler();
+		assertFalse(registry.isEmpty());
+
+		httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
+		mockmvc.perform(post("/process/continue?exclude=create").accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().is2xxSuccessful()).andDo(print());
+
+		WireMock client = WireMock.create().port(httpMockServer.getPort()).build();
+		client.verifyThat(exactly(0), postRequestedFor(urlMatching("/v2/ps")));
 	}
 
 	private static void zipFile(String filename) throws Exception {

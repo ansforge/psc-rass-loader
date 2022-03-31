@@ -3,28 +3,33 @@
  */
 package fr.ans.psc.pscload.state;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.entities.Professionnel;
-import fr.ans.psc.pscload.model.entities.Structure;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The Class ReadyToComputeDiff.
@@ -45,6 +50,9 @@ public class ReadyToComputeDiff extends ProcessState {
 		this.customMetrics = customMetrics;
 	}
 
+	/**
+	 * Instantiates a new ready to compute diff.
+	 */
 	public ReadyToComputeDiff() {
 		super();
 	}
@@ -65,14 +73,11 @@ public class ReadyToComputeDiff extends ProcessState {
 			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 			if (maps.exists()) {
 				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
-				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap(), oldMaps.getStructureMap());
+				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap());
 			}
 			// Launch diff
 			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
-			MapDifference<String, Structure> diffStructures = Maps.difference(oldMaps.getStructureMap(),
-					newMaps.getStructureMap());
-
-			fillChangesMaps(diffPs, diffStructures);
+			fillChangesMaps(diffPs);
 
 		} catch (IOException e) {
 			throw new DiffException("I/O Error when deserializing file", e);
@@ -95,34 +100,23 @@ public class ReadyToComputeDiff extends ProcessState {
 
 	}
 
-	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs,
-			MapDifference<String, Structure> diffStructures) {
+	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs) {
 
 		log.info("filling changes maps");
 
 		process.getMaps().forEach(map -> {
 			switch (map.getOperation()) {
-			case PS_UPDATE:
+			case UPDATE:
 				diffPs.entriesDiffering().forEach((k, v) -> {
 					map.put(k, v.rightValue());
 					map.saveOldValue(k, v.leftValue());
 				});
 				break;
-			case PS_DELETE:
+			case DELETE:
 				diffPs.entriesOnlyOnLeft().forEach(map::put);
 				break;
-			case PS_CREATE:
+			case CREATE:
 				diffPs.entriesOnlyOnRight().forEach(map::put);
-				break;
-			case STRUCTURE_CREATE:
-				diffStructures.entriesOnlyOnRight().forEach(map::put);
-				break;
-			case STRUCTURE_UPDATE:
-				diffStructures.entriesDiffering().forEach((k, v) -> {
-					map.put(k, v.rightValue());
-					map.saveOldValue(k, v.leftValue());
-					log.debug("OLD STRUCTURE {} : {}", v.leftValue().getInternalId(), v.leftValue().toString());
-				});
 				break;
 			default:
 				break;
@@ -132,17 +126,14 @@ public class ReadyToComputeDiff extends ProcessState {
 		log.info("operation maps filled.");
 	}
 
-	private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap,
-														   Map<String, Structure> structureMap) {
+	private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
 		Arrays.stream(ID_TYPE.values()).forEach(id_type -> {
-			String metricKey = String.join("_", "PS_REFERENCE", id_type.name(), "SIZE");
+			String metricKey = String.join("_", "REFERENCE", id_type.name(), "SIZE");
 			SizeMetric metric = SizeMetric.valueOf(metricKey);
 
 			customMetrics.setPsMetricSize(metric, Math.toIntExact(psMap.values().stream().filter(
 					professionnel -> id_type.value.equals(professionnel.getIdType())).count()));
 		});
-
-		customMetrics.setPsMetricSize(SizeMetric.STRUCTURE_REFERENCE_SIZE, structureMap.size());
 	}
 
 	/**

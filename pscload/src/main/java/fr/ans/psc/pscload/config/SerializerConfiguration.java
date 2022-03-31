@@ -3,19 +3,36 @@
  */
 package fr.ans.psc.pscload.config;
 
-import com.esotericsoftware.kryo.Kryo;
-import fr.ans.psc.pscload.component.ProcessRegistry;
-import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.entities.*;
-import fr.ans.psc.pscload.model.operations.*;
-import fr.ans.psc.pscload.state.*;
-import fr.ans.psc.pscload.visitor.OperationType;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.esotericsoftware.kryo.Kryo;
+
+import fr.ans.psc.pscload.component.ProcessRegistry;
+import fr.ans.psc.pscload.model.LoadProcess;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
+import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.SavoirFaire;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.entities.Structure;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.OperationMapSerializer;
+import fr.ans.psc.pscload.model.operations.PsCreateMap;
+import fr.ans.psc.pscload.model.operations.PsDeleteMap;
+import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.state.ChangesApplied;
+import fr.ans.psc.pscload.state.DiffComputed;
+import fr.ans.psc.pscload.state.ProcessState;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
+import fr.ans.psc.pscload.state.ReadyToExtract;
+import fr.ans.psc.pscload.state.SerializationInterrupted;
+import fr.ans.psc.pscload.state.Submitted;
+import fr.ans.psc.pscload.state.UploadInterrupted;
+import fr.ans.psc.pscload.state.UploadingChanges;
 
 /**
  * The Class SerializerConfiguration.
@@ -33,7 +50,6 @@ public class SerializerConfiguration {
 		kryo.register(ExerciceProfessionnel.class, 12);
 		kryo.register(SavoirFaire.class, 13);
 		kryo.register(SituationExercice.class, 14);
-		kryo.register(RefStructure.class, 15);
 		kryo.register(Structure.class, 16);
 		kryo.register(ProcessRegistry.class, 17);
 		kryo.register(LoadProcess.class, 18);
@@ -52,9 +68,6 @@ public class SerializerConfiguration {
 		kryo.register(PsCreateMap.class, 32);
 		kryo.register(PsUpdateMap.class, operationMapSerializer, 33);
 		kryo.register(PsDeleteMap.class, 34);
-		kryo.register(StructureCreateMap.class, 35);
-		kryo.register(StructureUpdateMap.class, operationMapSerializer, 36);
-		kryo.register(StructureDeleteMap.class, 37);
 		return kryo;
 	}
 }

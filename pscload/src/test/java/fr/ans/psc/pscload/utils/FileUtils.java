@@ -3,10 +3,10 @@
  */
 package fr.ans.psc.pscload.utils;
 
-import com.google.common.io.Files;
-
 import java.io.File;
 import java.io.IOException;
+
+import com.google.common.io.Files;
 
 /**
  * The Class FileUtils.
