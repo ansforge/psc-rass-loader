@@ -15,6 +15,7 @@ import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,12 +82,15 @@ public class UploadingChanges extends ProcessState {
     @Override
 	public void write(Kryo kryo, Output output) {
     	kryo.writeClassAndObject(output, excludedProfessions);
+    	kryo.writeClassAndObject(output, excludedOperations);
     	output.writeString(apiBaseUrl);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
 	public void read(Kryo kryo, Input input) {
         excludedProfessions = (String[]) kryo.readClassAndObject(input);
+        excludedOperations = (List<String>) kryo.readClassAndObject(input);
         apiBaseUrl = input.readString();
     }
 
