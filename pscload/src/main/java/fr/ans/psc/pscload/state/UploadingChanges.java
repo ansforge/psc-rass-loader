@@ -63,12 +63,8 @@ public class UploadingChanges extends ProcessState {
         List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
         if (excludedOperations != null) {
             String ops = String.join(",", excludedOperations);
-            //TODO: suppress log when test's ok
-            log.info("number of maps : {}", processMaps.size());
             log.info("these operations won't be processed : {}", ops);
             processMaps.removeIf(map -> excludedOperations.contains(map.getOperation().name()));
-            //TODO: suppress log when test's ok
-            log.info("number of maps : {}", processMaps.size());
         }
 
 		try {

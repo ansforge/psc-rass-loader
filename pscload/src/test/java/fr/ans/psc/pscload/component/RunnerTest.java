@@ -3,10 +3,7 @@
  */
 package fr.ans.psc.pscload.component;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,15 +15,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -163,11 +164,11 @@ public class RunnerTest {
 		assertFalse(registry.isEmpty());
 
 		httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
-		RequestPattern pattern = RequestPatternBuilder.newRequestPattern(RequestMethod.POST, UrlPattern.ANY).build();
 		mockmvc.perform(post("/process/continue?exclude=create").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is2xxSuccessful()).andDo(print());
 
-		assertEquals(5, httpMockServer.countRequestsMatching(pattern).getCount());
+		WireMock client = WireMock.create().port(httpMockServer.getPort()).build();
+		client.verifyThat(exactly(0), postRequestedFor(urlMatching("/v2/ps")));
 	}
 
 	private static void zipFile(String filename) throws Exception {
