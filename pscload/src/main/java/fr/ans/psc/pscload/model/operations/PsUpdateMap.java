@@ -5,7 +5,6 @@ package fr.ans.psc.pscload.model.operations;
 
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
-import fr.ans.psc.pscload.visitor.OperationType;
 
 /**
  * The Class PsUpdateMap.
@@ -28,6 +27,11 @@ public class PsUpdateMap extends OperationMap<String, RassEntity> {
 	public PsUpdateMap(OperationType operation) {
 		super(operation);
 
+	}
+
+	@Override
+	public OperationType getOperation() {
+		return OperationType.UPDATE;
 	}
 
 

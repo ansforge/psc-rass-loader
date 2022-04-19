@@ -34,7 +34,7 @@ job "pscload" {
     }
 
     task "pscload" {
-      kill_timeout = "30s"
+      kill_timeout = "90s"
       kill_signal = "SIGTERM"
       driver = "docker"
       config {
@@ -101,7 +101,7 @@ spring.mail.properties.mail.smtp.auth={{ with secret "psc-ecosystem/admin" }}{{ 
 spring.mail.properties.mail.smtp.starttls.enable={{ with secret "psc-ecosystem/admin" }}{{ .Data.data.mail_enable_tls }}{{ end }}
 pscload.mail.receiver={{ with secret "psc-ecosystem/admin" }}{{ .Data.data.mail_receiver }}{{ end }}
 enable.emailing=true
-{{ with secret "psc-ecosystem/pscload" }}debug={{ .Data.data.debug }}{{ end }}
+{{ with secret "psc-ecosystem/pscload" }}snitch={{ .Data.data.debug }}{{ end }}
 EOF
         destination = "secrets/application.properties"
         change_mode = "restart"

@@ -5,6 +5,12 @@ package fr.ans.psc.pscload.model.entities;
 
 import lombok.EqualsAndHashCode;
 
+/**
+ * Can equal.
+ *
+ * @param other the other
+ * @return true, if successful
+ */
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends fr.ans.psc.model.Structure implements RassEntity {
 
@@ -58,6 +64,33 @@ public class Structure extends fr.ans.psc.model.Structure implements RassEntity 
 		setEmail(items[RassItems.STRUCTURE_EMAIL.column]);
 		setDepartmentCode(items[RassItems.DEPARTMENT_CODE.column]);
 		setOldStructureId(items[RassItems.OLD_STRUCTURE_ID.column]);
+	}
+
+	public void setStructureItems(String[] items) {
+		items[RassItems.SITE_SIRET.column] = getSiteSIRET();
+		items[RassItems.SITE_SIREN.column] = getSiteSIREN();
+		items[RassItems.SITE_FINESS.column] = getSiteFINESS();
+		items[RassItems.LEGAL_ESTABLISHMENT_FINESS.column] = getLegalEstablishmentFINESS();
+		items[RassItems.STRUCTURE_TECHNICAL_ID.column] = getStructureTechnicalId();
+		items[RassItems.LEGAL_COMMERCIAL_NAME.column] = getLegalCommercialName();
+		items[RassItems.PUBLIC_COMMERCIAL_NAME.column] = getPublicCommercialName();
+		items[RassItems.RECIPIENT_ADDITIONAL_INFO.column] = getRecipientAdditionalInfo();
+		items[RassItems.GEO_LOCATION_ADDITIONAL_INFO.column] = getGeoLocationAdditionalInfo();
+		items[RassItems.STREET_NUMBER.column] = getStreetNumber();
+		items[RassItems.STREET_NUMBER_REPETITION_INDEX.column] = getStreetNumberRepetitionIndex();
+		items[RassItems.STREET_CATEGORY_CODE.column] = getStreetCategoryCode();
+		items[RassItems.STREET_LABEL.column] = getStreetLabel();
+		items[RassItems.DISTRIBUTION_MENTION.column] = getDistributionMention();
+		items[RassItems.CEDEX_OFFICE.column] = getCedexOffice();
+		items[RassItems.POSTAL_CODE.column] = getPostalCode();
+		items[RassItems.COMMUNE_CODE.column] = getCommuneCode();
+		items[RassItems.COUNTRY_CODE.column] = getCountryCode();
+		items[RassItems.STRUCTURE_PHONE.column] = getPhone();
+		items[RassItems.STRUCTURE_PHONE_2.column] = getPhone2();
+		items[RassItems.STRUCTURE_FAX.column] = getFax();
+		items[RassItems.STRUCTURE_EMAIL.column] = getEmail();
+		items[RassItems.DEPARTMENT_CODE.column] = getDepartmentCode();
+		items[RassItems.OLD_STRUCTURE_ID.column] = getOldStructureId();
 	}
 
 

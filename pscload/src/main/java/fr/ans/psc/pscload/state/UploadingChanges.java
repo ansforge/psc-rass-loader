@@ -6,12 +6,18 @@ package fr.ans.psc.pscload.state;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import fr.ans.psc.pscload.state.exception.LockedMapException;
 import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The Class UploadingChanges.
@@ -24,6 +30,8 @@ public class UploadingChanges extends ProcessState {
 
     private String apiBaseUrl;
 
+    private List<String> excludedOperations;
+
     /**
      * Instantiates a new Uploading Changes.
      *
@@ -31,8 +39,13 @@ public class UploadingChanges extends ProcessState {
      * @param apiBaseUrl          the api base url
      */
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
+        this(excludedProfessions, apiBaseUrl, null);
+    }
+
+    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, List<String> excludedOperations) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
+        this.excludedOperations = excludedOperations;
     }
 
     /**
@@ -47,21 +60,37 @@ public class UploadingChanges extends ProcessState {
         log.info("calling API...");
     	
 		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl);
-		for (OperationMap<String, RassEntity> map : process.getMaps()) {
-			map.accept(visitor);
-		}
-		log.info("API operations done.");
+
+        List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
+        if (excludedOperations != null) {
+            String ops = String.join(",", excludedOperations);
+            log.info("these operations won't be processed : {}", ops);
+            processMaps.removeIf(map -> excludedOperations.contains(map.getOperation().name()));
+        }
+
+		try {
+            for (OperationMap<String, RassEntity> map : processMaps) {
+                map.accept(visitor);
+            }
+            log.info("API operations done.");
+        } catch (LockedMapException e) {
+            log.error("Shutdown was initiated during Uploading Changes stage.");
+        }
+
     }
 
     @Override
 	public void write(Kryo kryo, Output output) {
     	kryo.writeClassAndObject(output, excludedProfessions);
+    	kryo.writeClassAndObject(output, excludedOperations);
     	output.writeString(apiBaseUrl);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
 	public void read(Kryo kryo, Input input) {
         excludedProfessions = (String[]) kryo.readClassAndObject(input);
+        excludedOperations = (List<String>) kryo.readClassAndObject(input);
         apiBaseUrl = input.readString();
     }
 
