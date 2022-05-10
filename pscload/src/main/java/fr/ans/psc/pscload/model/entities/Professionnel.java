@@ -5,11 +5,11 @@ package fr.ans.psc.pscload.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
-import lombok.EqualsAndHashCode;
 
 /**
  * Can equal.
@@ -17,7 +17,6 @@ import lombok.EqualsAndHashCode;
  * @param other the other
  * @return true, if successful
  */
-@EqualsAndHashCode(callSuper = true)
 public class Professionnel extends Ps implements RassEntity {
 
 	/**
@@ -119,4 +118,16 @@ public class Professionnel extends Ps implements RassEntity {
 		return exercicesProfessionnels;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstName(),
+				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
+				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
+				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum));
+	}
 }

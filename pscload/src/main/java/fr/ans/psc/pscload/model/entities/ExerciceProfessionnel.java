@@ -5,11 +5,11 @@ package fr.ans.psc.pscload.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.WorkSituation;
-import lombok.EqualsAndHashCode;
 
 /**
  * Can equal.
@@ -27,7 +27,6 @@ import lombok.EqualsAndHashCode;
  * @param other the other
  * @return true, if successful
  */
-@EqualsAndHashCode(callSuper = true)
 public class ExerciceProfessionnel extends Profession {
 
 	private static final long serialVersionUID = 546016744459782913L;
@@ -78,4 +77,15 @@ public class ExerciceProfessionnel extends Profession {
 		return situationsExercice;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getCode(), getCategoryCode(), getSalutationCode(), getLastName(), getFirstName(),
+				getSavoirFaire().stream().map(SavoirFaire::hashCode).reduce(0, Integer::sum),
+				getSituationsExercice().stream().map(SituationExercice::hashCode).reduce(0, Integer::sum));
+	}
 }
