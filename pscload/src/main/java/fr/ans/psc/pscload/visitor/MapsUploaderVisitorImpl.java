@@ -36,9 +36,6 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private PsApi psApi;
 
-	@Value("${snitch}")
-	private boolean debug;
-
 	/**
 	 * Instantiates a new maps uploader visitor impl.
 	 *
@@ -144,15 +141,6 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);
-
-				if (debug) {
-					Professionnel prof = (Professionnel) item;
-					Professionnel previousProf = (Professionnel) map.getOldValues().get(item.getInternalId());
-					log.info("current ps : " + prof.getNationalId() + " hash code = " + prof.hashCode());
-					log.info("previous ps : " + previousProf.getNationalId() + " hash code = " + previousProf.hashCode());
-					log.info(prof.toString());
-					log.info(previousProf.toString());
-				}
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
