@@ -144,12 +144,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);
-				if (debug) {
+
 					Professionnel updatedPs = (Professionnel) item;
 					if(updatedPs.equals(map.getOldValue(item.getInternalId()))) {
 						log.info("Ps {} updated but with no changes", item.getInternalId());
 					}
-				}
+
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
