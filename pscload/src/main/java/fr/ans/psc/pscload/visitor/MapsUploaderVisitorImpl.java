@@ -36,6 +36,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private PsApi psApi;
 
+	@Value("${snitch}")
+	private boolean debug;
+
 	/**
 	 * Instantiates a new maps uploader visitor impl.
 	 *
@@ -141,6 +144,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);
+				if (debug) {
+					Professionnel updatedPs = (Professionnel) item;
+					if(updatedPs.equals(map.getOldValue(item.getInternalId()))) {
+						log.info("Ps {} updated but with no changes", item.getInternalId());
+					}
+				}
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {
