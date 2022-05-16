@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
-import lombok.EqualsAndHashCode;
 
 /**
  * Can equal.
@@ -118,6 +117,7 @@ public class Professionnel extends Ps implements RassEntity {
 		professions.forEach(profession -> exercicesProfessionnels.add((ExerciceProfessionnel) profession));
 		return exercicesProfessionnels;
 	}
+  
 	@Override
 	public boolean equals(Object o) {
 		return super.equals(o);

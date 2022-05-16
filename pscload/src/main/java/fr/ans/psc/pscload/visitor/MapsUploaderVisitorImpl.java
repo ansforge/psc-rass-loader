@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -34,6 +35,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	private String[] excludedProfessions;
 
 	private PsApi psApi;
+
+	@Value("${snitch}")
+	private boolean debug;
 
 	/**
 	 * Instantiates a new maps uploader visitor impl.
@@ -125,6 +129,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsUpdateMap map) {
+		log.info("snitch mode activated ? {}", debug);
+
 		Collection<RassEntity> items = map.values();
 		items.stream().forEach(item -> {
 			try {
@@ -140,6 +146,14 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);
+
+				if (debug) {
+					Professionnel updatedPs = (Professionnel) item;
+					if(updatedPs.equals(map.getOldValue(item.getInternalId()))) {
+						log.info("Ps {} updated but with no changes", item.getInternalId());
+					}
+				}
+
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 			} catch (RestClientResponseException e) {

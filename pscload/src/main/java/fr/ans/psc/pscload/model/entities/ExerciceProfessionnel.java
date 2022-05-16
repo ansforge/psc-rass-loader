@@ -10,7 +10,6 @@ import java.util.Objects;
 import fr.ans.psc.model.Expertise;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.WorkSituation;
-import lombok.EqualsAndHashCode;
 
 /**
  * Can equal.
