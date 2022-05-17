@@ -141,11 +141,8 @@ public class MapsHandlerTest {
         assertEquals(1, order2Map.getPsMap().size());
 
         MapDifference<String, Professionnel> diffPs = Maps.difference(order1Map.getPsMap(), order2Map.getPsMap());
-        assertNotEquals(0, diffPs.entriesDiffering().size());
-
-        log.info("order 1 hashCode : {}", order1Map.getPsMap().get("810107592544").hashCode());
-        log.info("order 2 hashCode : {}", order2Map.getPsMap().get("810107592544").hashCode());
-
+        assertEquals(0, diffPs.entriesDiffering().size());
+        assertEquals(order1Map.getPsMap().get("810107592544").hashCode(), order2Map.getPsMap().get("810107592544").hashCode());
         assertEquals(order1Map.getPsMap().get("810107592544"), order2Map.getPsMap().get("810107592544"));
     }
 }
