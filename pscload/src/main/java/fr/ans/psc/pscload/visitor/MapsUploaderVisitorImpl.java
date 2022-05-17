@@ -10,6 +10,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import fr.ans.psc.pscload.model.operations.OperationType;
+import fr.ans.psc.pscload.service.MessageProducer;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -36,6 +40,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private PsApi psApi;
 
+	private MessageProducer messageProducer;
+
 	@Value("${snitch}")
 	private boolean debug;
 
@@ -51,6 +57,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		ApiClient apiClient = new ApiClient();
 		apiClient.setBasePath(apiBaseUrl);
 		this.psApi = new PsApi(apiClient);
+		this.messageProducer = new MessageProducer(new RabbitTemplate());
 	}
 
 	@Override
@@ -71,6 +78,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
+				messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -114,6 +122,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
 				map.remove(item.getInternalId());
+				messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -152,6 +161,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
+				messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
