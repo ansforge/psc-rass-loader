@@ -12,8 +12,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.ans.psc.pscload.model.operations.OperationType;
 import fr.ans.psc.pscload.service.MessageProducer;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -51,13 +49,14 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	 * @param excludedProfessions the excluded professions
 	 * @param apiBaseUrl          the api base url
 	 */
-	public MapsUploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl) {
+	public MapsUploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer) {
 		super();
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();
 		apiClient.setBasePath(apiBaseUrl);
 		this.psApi = new PsApi(apiClient);
-		this.messageProducer = new MessageProducer(new RabbitTemplate());
+		this.messageProducer = messageProducer;
+
 	}
 
 	@Override
