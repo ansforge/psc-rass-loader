@@ -152,12 +152,6 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				psApi.updatePs((Professionnel) item);
-
-					Professionnel updatedPs = (Professionnel) item;
-					if(updatedPs.equals(map.getOldValue(item.getInternalId()))) {
-						log.info("Ps {} updated but with no changes", item.getInternalId());
-					}
-
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 				messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);

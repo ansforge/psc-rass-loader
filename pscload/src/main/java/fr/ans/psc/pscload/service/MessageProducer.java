@@ -7,7 +7,7 @@ package fr.ans.psc.pscload.service;
 import com.google.gson.Gson;
 import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.operations.OperationType;
-import fr.ans.psc.rabbitmq.conf.PscRabbitMqConfiguration;
+import static fr.ans.psc.rabbitmq.conf.PscRabbitMqConfiguration.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,13 +29,13 @@ public class MessageProducer {
         String routingKey;
         switch (operation) {
             case CREATE:
-                routingKey = PscRabbitMqConfiguration.PS_CREATE_MESSAGES_QUEUE_ROUTING_KEY;
+                routingKey = PS_CREATE_MESSAGES_QUEUE_ROUTING_KEY;
                 break;
             case DELETE:
-                routingKey = PscRabbitMqConfiguration.PS_DELETE_MESSAGES_QUEUE_ROUTING_KEY;
+                routingKey = PS_DELETE_MESSAGES_QUEUE_ROUTING_KEY;
                 break;
             case UPDATE:
-                routingKey = PscRabbitMqConfiguration.PS_UPDATE_MESSAGES_QUEUE_ROUTING_KEY;
+                routingKey = PS_UPDATE_MESSAGES_QUEUE_ROUTING_KEY;
                 break;
             default:
                 routingKey = "";
@@ -44,7 +44,7 @@ public class MessageProducer {
 
         Gson json = new Gson();
         try {
-            rabbitTemplate.convertAndSend(PscRabbitMqConfiguration.EXCHANGE_MESSAGES, routingKey, json.toJson(professionnel));
+            rabbitTemplate.convertAndSend(EXCHANGE_MESSAGES, routingKey, json.toJson(professionnel));
         } catch (AmqpException e) {
             log.error("Error occurred when sending Ps {} informations to queue manager", professionnel.getNationalId());
             e.printStackTrace();
