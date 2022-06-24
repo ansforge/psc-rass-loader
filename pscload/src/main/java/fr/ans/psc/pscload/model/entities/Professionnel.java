@@ -36,27 +36,30 @@ public class Professionnel extends Ps implements RassEntity {
 	 * @param items the items
 	 * @param deep the deep
 	 */
-	public Professionnel(String[] items, boolean deep) {
+	public Professionnel(Object[] items, boolean deep) {
 		super();
-		setIdType(items[RassItems.ID_TYPE.column]);
-		setId(items[RassItems.ID.column]);
-		setNationalId(items[RassItems.NATIONAL_ID.column]);
-		setLastName(items[RassItems.LAST_NAME.column]);
-		setFirstName(items[RassItems.FIRST_NAME.column]);
-		setDateOfBirth(items[RassItems.DOB.column]);
-		setBirthAddressCode(items[RassItems.BIRTH_ADDRESS_CODE.column]);
-		setBirthCountryCode(items[RassItems.BIRTH_COUNTRY_CODE.column]);
-		setBirthAddress(items[RassItems.BIRTH_ADDRESS.column]);
-		setGenderCode(items[RassItems.GENDER_CODE.column]);
-		setPhone(items[RassItems.PHONE.column]);
-		setEmail(items[RassItems.EMAIL.column]);
-		setSalutationCode(items[RassItems.SALUTATION_CODE.column]);
+		setIdType((String) items[RassItems.ID_TYPE.column]);
+		setId((String) items[RassItems.ID.column]);
+		setNationalId((String) items[RassItems.NATIONAL_ID.column]);
+		setLastName((String) items[RassItems.LAST_NAME.column]);
+		setFirstName((List<String>) items[RassItems.FIRST_NAME.column]);
+		setDateOfBirth((String) items[RassItems.DOB.column]);
+		setBirthAddressCode((String) items[RassItems.BIRTH_ADDRESS_CODE.column]);
+		setBirthCountryCode((String) items[RassItems.BIRTH_COUNTRY_CODE.column]);
+		setBirthAddress((String) items[RassItems.BIRTH_ADDRESS.column]);
+		setGenderCode((String) items[RassItems.GENDER_CODE.column]);
+		setPhone((String) items[RassItems.PHONE.column]);
+		setEmail((String) items[RassItems.EMAIL.column]);
+		setSalutationCode((String) items[RassItems.SALUTATION_CODE.column]);
 		if (deep) {
 			addProfessionsItem(new ExerciceProfessionnel(items));
 		}
+		setIds((List<String>) items[RassItems.IDS.column]);
+		setActivated((Long) items[RassItems.ACTIVATED.column]);
+		setDeactivated((Long) items[RassItems.DEACTIVATED.column]);
 	}
 
-	public void setProfessionnelItems(String[] items) {
+	public void setProfessionnelItems(Object[] items) {
 		items[RassItems.ID_TYPE.column] = getIdType();
 		items[RassItems.ID.column] = getId();
 		items[RassItems.NATIONAL_ID.column] = getNationalId();
@@ -70,6 +73,9 @@ public class Professionnel extends Ps implements RassEntity {
 		items[RassItems.PHONE.column] = getPhone();
 		items[RassItems.EMAIL.column] = getEmail();
 		items[RassItems.SALUTATION_CODE.column] = getSalutationCode();
+		items[RassItems.IDS.column] = getIds();
+		items[RassItems.ACTIVATED.column] = getActivated();
+		items[RassItems.DEACTIVATED.column] = getDeactivated();
 	}
 
 	/**
@@ -126,7 +132,7 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getId(), professionnel.getId()) &&
 				Objects.equals(this.getNationalId(), professionnel.getNationalId()) &&
 				Objects.equals(this.getLastName(), professionnel.getLastName()) &&
-				Objects.equals(this.getFirstName(), professionnel.getFirstName()) &&
+				this.getFirstName().containsAll(professionnel.getFirstName()) &&
 				Objects.equals(this.getDateOfBirth(), professionnel.getDateOfBirth()) &&
 				Objects.equals(this.getBirthAddressCode(), professionnel.getBirthAddressCode()) &&
 				Objects.equals(this.getBirthCountryCode(), professionnel.getBirthCountryCode()) &&
@@ -136,7 +142,10 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getEmail(), professionnel.getEmail()) &&
 				Objects.equals(this.getSalutationCode(), professionnel.getSalutationCode()) &&
 				Objects.equals(this.getExercicesProfessionels().size(), professionnel.getExercicesProfessionels().size()) &&
-				this.getExercicesProfessionels().containsAll(professionnel.getExercicesProfessionels());
+				this.getExercicesProfessionels().containsAll(professionnel.getExercicesProfessionels()) &&
+				this.getIds().containsAll(professionnel.getIds()) &&
+				Objects.equals(this.getActivated(), professionnel.getActivated()) &&
+				Objects.equals(this.getDeactivated(), professionnel.getDeactivated());
 	}
 
 //	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
@@ -145,6 +154,7 @@ public class Professionnel extends Ps implements RassEntity {
 		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstName(),
 				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
 				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
-				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum));
+				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum),
+				getIds(), getActivated(), getDeactivated());
 	}
 }

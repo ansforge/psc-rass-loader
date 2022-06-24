@@ -32,10 +32,10 @@ public class SavoirFaire extends Expertise {
      *
      * @param items the items
      */
-    public SavoirFaire(String[] items) {
+    public SavoirFaire(Object[] items) {
         super();
-        setTypeCode(items[RassItems.EXPERTISE_TYPE_CODE.column]);
-        setCode(items[RassItems.EXPERTISE_CODE.column]);
+        setTypeCode((String) items[RassItems.EXPERTISE_TYPE_CODE.column]);
+        setCode((String) items[RassItems.EXPERTISE_CODE.column]);
     }
 
     public void setSavoirFaireItems(String[] items) {

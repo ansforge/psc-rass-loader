@@ -33,16 +33,16 @@ public class SituationExercice extends WorkSituation {
 	 *
 	 * @param items the items
 	 */
-	public SituationExercice(String[] items) {
+	public SituationExercice(Object[] items) {
 		super();
-		setModeCode(items[RassItems.SITUATION_MODE_CODE.column]);
-		setActivitySectorCode(items[RassItems.ACTIVITY_SECTOR_CODE.column]);
-		setPharmacistTableSectionCode(items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column]);
-		setRoleCode(items[RassItems.SITUATION_ROLE_CODE.column]);
-		setActivityKindCode(items[RassItems.ACTIVITY_KIND_CODE.column]);
-		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
-		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
-			setStructure(new Structure(items));
+		setModeCode((String) items[RassItems.SITUATION_MODE_CODE.column]);
+		setActivitySectorCode((String) items[RassItems.ACTIVITY_SECTOR_CODE.column]);
+		setPharmacistTableSectionCode((String) items[RassItems.PHARMACIST_TABLE_SECTION_CODE.column]);
+		setRoleCode((String) items[RassItems.SITUATION_ROLE_CODE.column]);
+		setActivityKindCode((String) items[RassItems.ACTIVITY_KIND_CODE.column]);
+		setRegistrationAuthority((String) items[RassItems.REGISTRATION_AUTHORITY.column]);
+		if (!((String)items[RassItems.STRUCTURE_TECHNICAL_ID.column]).isBlank()) {
+			setStructure(new Structure((String[]) items));
 //			addStructuresItem(new RefStructure(items[RassItems.STRUCTURE_TECHNICAL_ID.column])); // structureTechnicalId
 		}
 	}

@@ -28,13 +28,13 @@ public class ExerciceProfessionnel extends Profession {
 	 *
 	 * @param items the items
 	 */
-	public ExerciceProfessionnel(String[] items) {
+	public ExerciceProfessionnel(Object[] items) {
 		super();
-		setCode(items[RassItems.EX_PRO_CODE.column]);
-		setCategoryCode(items[RassItems.CATEGORY_CODE.column]);
-		setSalutationCode(items[RassItems.EX_PRO_SALUTATION_CODE.column]);
-		setLastName(items[RassItems.EX_PRO_LAST_NAME.column]);
-		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
+		setCode((String) items[RassItems.EX_PRO_CODE.column]);
+		setCategoryCode((String) items[RassItems.CATEGORY_CODE.column]);
+		setSalutationCode((String) items[RassItems.EX_PRO_SALUTATION_CODE.column]);
+		setLastName((String) items[RassItems.EX_PRO_LAST_NAME.column]);
+		setFirstName((String) items[RassItems.EX_PRO_FIRST_NAME.column]);
 		addExpertisesItem(new SavoirFaire(items));
 		addWorkSituationsItem(new SituationExercice(items));
 	}
