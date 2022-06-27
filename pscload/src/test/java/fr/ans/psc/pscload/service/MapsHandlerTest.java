@@ -91,7 +91,7 @@ public class MapsHandlerTest {
         Structure structure = (Structure) situationExercice.getStructure();
 
         String line = initialMaps.generateLine(professionnel, exerciceProfessionnel, situationExercice, structure);
-        String expectedLine = "0|012800728|0012800728|EVRARD|Patrice''|10/03/1968|||||||M|28|C||EVRARD|PATRICE|||L|SA42|||39806996300013||||C39806996300013|SARL PATRICE EVRARD||SARL PATRICE EVRARD||||BD|CHARLES DE GAULLE|CENTRE COMMERCIAL CARREFOUR|01000 BOURG EN BRESSE|01000||||||||339806996300013|ARS/CPAM/CPAM||\n";
+        String expectedLine = "0|012800728|0012800728|EVRARD|Patrice|10/03/1968|||||||M|28|C||EVRARD|PATRICE|||L|SA42|||39806996300013||||C39806996300013|SARL PATRICE EVRARD||SARL PATRICE EVRARD||||BD|CHARLES DE GAULLE|CENTRE COMMERCIAL CARREFOUR|01000 BOURG EN BRESSE|01000||||||||339806996300013|ARS/CPAM/CPAM|||||\n";
         assertEquals(expectedLine, line);
     }
 

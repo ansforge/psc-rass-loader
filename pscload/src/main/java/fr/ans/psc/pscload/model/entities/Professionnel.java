@@ -57,12 +57,12 @@ public class Professionnel extends Ps implements RassEntity {
 		}
 	}
 
-	public void setProfessionnelItems(Object[] items) {
+	public void setProfessionnelItems(String[] items) {
 		items[RassItems.ID_TYPE.column] = getIdType();
 		items[RassItems.ID.column] = getId();
 		items[RassItems.NATIONAL_ID.column] = getNationalId();
 		items[RassItems.LAST_NAME.column] = getLastName();
-		items[RassItems.FIRST_NAME.column] = getFirstName();
+		items[RassItems.FIRST_NAME.column] = getFirstName().toString().replace("[","").replace("]","").replace(",","'").replace(" ","");
 		items[RassItems.DOB.column] = getDateOfBirth();
 		items[RassItems.BIRTH_ADDRESS_CODE.column] = getBirthAddressCode();
 		items[RassItems.BIRTH_COUNTRY_CODE.column] = getBirthCountryCode();
@@ -71,9 +71,9 @@ public class Professionnel extends Ps implements RassEntity {
 		items[RassItems.PHONE.column] = getPhone();
 		items[RassItems.EMAIL.column] = getEmail();
 		items[RassItems.SALUTATION_CODE.column] = getSalutationCode();
-		items[RassItems.IDS.column] = getIds();
-		items[RassItems.ACTIVATED.column] = getActivated();
-		items[RassItems.DEACTIVATED.column] = getDeactivated();
+		items[RassItems.IDS.column] = getIds() == null ? "" : getIds().toString();
+		items[RassItems.ACTIVATED.column] = getActivated() == null ? "" : getActivated().toString();
+		items[RassItems.DEACTIVATED.column] = getDeactivated() == null ? "" : getDeactivated().toString();
 	}
 
 	/**
