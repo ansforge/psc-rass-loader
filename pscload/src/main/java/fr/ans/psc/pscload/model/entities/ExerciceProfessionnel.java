@@ -30,10 +30,10 @@ public class ExerciceProfessionnel extends Profession {
 	 */
 	public ExerciceProfessionnel(String[] items) {
 		super();
-		setCode( items[RassItems.EX_PRO_CODE.column]);
+		setCode(items[RassItems.EX_PRO_CODE.column]);
 		setCategoryCode(items[RassItems.CATEGORY_CODE.column]);
-		setSalutationCode( items[RassItems.EX_PRO_SALUTATION_CODE.column]);
-		setLastName( items[RassItems.EX_PRO_LAST_NAME.column]);
+		setSalutationCode(items[RassItems.EX_PRO_SALUTATION_CODE.column]);
+		setLastName(items[RassItems.EX_PRO_LAST_NAME.column]);
 		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
 		addExpertisesItem(new SavoirFaire(items));
 		addWorkSituationsItem(new SituationExercice(items));

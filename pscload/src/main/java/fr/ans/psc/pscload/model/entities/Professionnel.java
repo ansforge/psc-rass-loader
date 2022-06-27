@@ -15,10 +15,10 @@ import java.util.Optional;
 public class Professionnel extends Ps implements RassEntity {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2859304844064466893L;
-	
+
 	/**
 	 * returnStatus after failure in change request
 	 */
@@ -39,19 +39,19 @@ public class Professionnel extends Ps implements RassEntity {
 	 */
 	public Professionnel(String[] items, boolean deep) {
 		super();
-		setIdType( items[RassItems.ID_TYPE.column]);
-		setId( items[RassItems.ID.column]);
-		setNationalId( items[RassItems.NATIONAL_ID.column]);
-		setLastName( items[RassItems.LAST_NAME.column]);
-		setFirstName( new ArrayList<String> (Arrays.asList(items[RassItems.FIRST_NAME.column].split("'"))));
-		setDateOfBirth( items[RassItems.DOB.column]);
-		setBirthAddressCode( items[RassItems.BIRTH_ADDRESS_CODE.column]);
-		setBirthCountryCode( items[RassItems.BIRTH_COUNTRY_CODE.column]);
-		setBirthAddress( items[RassItems.BIRTH_ADDRESS.column]);
-		setGenderCode( items[RassItems.GENDER_CODE.column]);
-		setPhone( items[RassItems.PHONE.column]);
-		setEmail( items[RassItems.EMAIL.column]);
-		setSalutationCode( items[RassItems.SALUTATION_CODE.column]);
+		setIdType(items[RassItems.ID_TYPE.column]);
+		setId(items[RassItems.ID.column]);
+		setNationalId(items[RassItems.NATIONAL_ID.column]);
+		setLastName(items[RassItems.LAST_NAME.column]);
+		setFirstName(new ArrayList<String> (Arrays.asList(items[RassItems.FIRST_NAME.column].split("'"))));
+		setDateOfBirth(items[RassItems.DOB.column]);
+		setBirthAddressCode(items[RassItems.BIRTH_ADDRESS_CODE.column]);
+		setBirthCountryCode(items[RassItems.BIRTH_COUNTRY_CODE.column]);
+		setBirthAddress(items[RassItems.BIRTH_ADDRESS.column]);
+		setGenderCode(items[RassItems.GENDER_CODE.column]);
+		setPhone(items[RassItems.PHONE.column]);
+		setEmail(items[RassItems.EMAIL.column]);
+		setSalutationCode(items[RassItems.SALUTATION_CODE.column]);
 		if (deep) {
 			addProfessionsItem(new ExerciceProfessionnel(items));
 		}
@@ -103,7 +103,7 @@ public class Professionnel extends Ps implements RassEntity {
 	public String getInternalId() {
 		return getNationalId();
 	}
-	
+
 	@Override
 	public String getIdType() {
 		return super.getIdType();
