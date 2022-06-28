@@ -7,7 +7,6 @@ import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public class Professionnel extends Ps implements RassEntity {
 		setId(items[RassItems.ID.column]);
 		setNationalId(items[RassItems.NATIONAL_ID.column]);
 		setLastName(items[RassItems.LAST_NAME.column]);
-		setFirstName(new ArrayList<String> (Arrays.asList(items[RassItems.FIRST_NAME.column].split("'"))));
+		setFirstNames(Prenom.stringToList(items[RassItems.FIRST_NAMES.column]));
 		setDateOfBirth(items[RassItems.DOB.column]);
 		setBirthAddressCode(items[RassItems.BIRTH_ADDRESS_CODE.column]);
 		setBirthCountryCode(items[RassItems.BIRTH_COUNTRY_CODE.column]);
@@ -62,7 +61,7 @@ public class Professionnel extends Ps implements RassEntity {
 		items[RassItems.ID.column] = getId();
 		items[RassItems.NATIONAL_ID.column] = getNationalId();
 		items[RassItems.LAST_NAME.column] = getLastName();
-		items[RassItems.FIRST_NAME.column] = getFirstName().toString().replace("[","").replace("]","").replace(",","'").replace(" ","");
+		items[RassItems.FIRST_NAMES.column] = Prenom.listToString(getFirstNames());
 		items[RassItems.DOB.column] = getDateOfBirth();
 		items[RassItems.BIRTH_ADDRESS_CODE.column] = getBirthAddressCode();
 		items[RassItems.BIRTH_COUNTRY_CODE.column] = getBirthCountryCode();
@@ -130,7 +129,7 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getId(), professionnel.getId()) &&
 				Objects.equals(this.getNationalId(), professionnel.getNationalId()) &&
 				Objects.equals(this.getLastName(), professionnel.getLastName()) &&
-				this.getFirstName().containsAll(professionnel.getFirstName()) &&
+				this.getFirstNames().containsAll(professionnel.getFirstNames()) &&
 				Objects.equals(this.getDateOfBirth(), professionnel.getDateOfBirth()) &&
 				Objects.equals(this.getBirthAddressCode(), professionnel.getBirthAddressCode()) &&
 				Objects.equals(this.getBirthCountryCode(), professionnel.getBirthCountryCode()) &&
@@ -149,7 +148,7 @@ public class Professionnel extends Ps implements RassEntity {
 //	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
 	@Override
 	public int hashCode() {
-		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstName(),
+		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstNames(),
 				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
 				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
 				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum),

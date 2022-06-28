@@ -49,7 +49,7 @@ public class UploadingChanges extends ProcessState {
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer, List<String> excludedOperations) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
-        this.messageProducer = messageProducer;
+        //this.messageproducer = messageProducer;
         this.excludedOperations = excludedOperations;
     }
 

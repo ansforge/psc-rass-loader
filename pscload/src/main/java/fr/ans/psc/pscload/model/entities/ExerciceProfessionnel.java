@@ -34,7 +34,7 @@ public class ExerciceProfessionnel extends Profession {
 		setCategoryCode(items[RassItems.CATEGORY_CODE.column]);
 		setSalutationCode(items[RassItems.EX_PRO_SALUTATION_CODE.column]);
 		setLastName(items[RassItems.EX_PRO_LAST_NAME.column]);
-		setFirstName(items[RassItems.EX_PRO_FIRST_NAME.column]);
+		setFirstNames(Prenom.stringToList(items[RassItems.EX_PRO_FIRST_NAME.column]));
 		addExpertisesItem(new SavoirFaire(items));
 		addWorkSituationsItem(new SituationExercice(items));
 	}
@@ -44,7 +44,7 @@ public class ExerciceProfessionnel extends Profession {
 		items[RassItems.CATEGORY_CODE.column] = getCategoryCode();
 		items[RassItems.EX_PRO_SALUTATION_CODE.column] = getSalutationCode();
 		items[RassItems.EX_PRO_LAST_NAME.column] = getLastName();
-		items[RassItems.EX_PRO_FIRST_NAME.column] = getFirstName();
+		items[RassItems.EX_PRO_FIRST_NAME.column] = Prenom.listToString(getFirstName());
 	}
 
 	public List<SavoirFaire> getSavoirFaire() {
