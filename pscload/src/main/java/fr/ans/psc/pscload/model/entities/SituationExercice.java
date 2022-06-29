@@ -42,7 +42,7 @@ public class SituationExercice extends WorkSituation {
 		setActivityKindCode(items[RassItems.ACTIVITY_KIND_CODE.column]);
 		setRegistrationAuthority(items[RassItems.REGISTRATION_AUTHORITY.column]);
 		if (!items[RassItems.STRUCTURE_TECHNICAL_ID.column].isBlank()) {
-			setStructure(new Structure((String[])items));
+			setStructure(new Structure(items));
 //			addStructuresItem(new RefStructure(items[RassItems.STRUCTURE_TECHNICAL_ID.column])); // structureTechnicalId
 		}
 	}
