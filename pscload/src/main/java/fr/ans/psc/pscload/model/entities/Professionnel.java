@@ -3,6 +3,7 @@
  */
 package fr.ans.psc.pscload.model.entities;
 
+import fr.ans.psc.model.FirstName;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 
@@ -70,9 +71,6 @@ public class Professionnel extends Ps implements RassEntity {
 		items[RassItems.PHONE.column] = getPhone();
 		items[RassItems.EMAIL.column] = getEmail();
 		items[RassItems.SALUTATION_CODE.column] = getSalutationCode();
-		items[RassItems.IDS.column] = getIds() == null ? "" : getIds().toString();
-		items[RassItems.ACTIVATED.column] = getActivated() == null ? "" : getActivated().toString();
-		items[RassItems.DEACTIVATED.column] = getDeactivated() == null ? "" : getDeactivated().toString();
 	}
 
 	/**
@@ -145,13 +143,13 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getDeactivated(), professionnel.getDeactivated());
 	}
 
-//	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
+	//	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
 	@Override
 	public int hashCode() {
-		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstNames(),
+		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstNames().stream().map(FirstName::hashCode).reduce(0, Integer::sum),
 				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
 				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
 				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum),
-				getIds(), getActivated(), getDeactivated());
+				(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated());
 	}
 }

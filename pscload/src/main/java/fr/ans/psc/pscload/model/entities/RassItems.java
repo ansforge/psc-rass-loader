@@ -158,22 +158,7 @@ public enum RassItems {
     /**
      * The activity kind code
      */
-    ACTIVITY_KIND_CODE(49),
-
-    /**
-     * The list of all known ids
-     */
-    IDS(50),
-
-    /**
-     * The activation date
-     */
-    ACTIVATED(51),
-
-    /**
-     * The deactivation date
-     */
-    DEACTIVATED(52);
+    ACTIVITY_KIND_CODE(49);
 
     /** The column. */
     public int column;
