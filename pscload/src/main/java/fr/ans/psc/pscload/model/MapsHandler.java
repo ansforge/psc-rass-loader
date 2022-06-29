@@ -68,7 +68,7 @@ public class MapsHandler implements KryoSerializable {
 		kryo.register(SavoirFaire.class, 13);
 		kryo.register(SituationExercice.class, 14);
 		kryo.register(Structure.class, 16);
-		kryo.register(FirstName.class, 32);
+		kryo.register(FirstName.class, 35);
 	}
 
 	private static final int ROW_LENGTH = RassItems.values().length + 1;
