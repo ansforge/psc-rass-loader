@@ -174,7 +174,7 @@
 	<repositories>
 		<repository>
 			<id>psc-api-client-mvn-repo</id>
-			<url>https://github.com/prosanteconnect/psc-ecosystem-components/raw/test-mvn-repo/</url>
+			<url>https://github.com/prosanteconnect/psc-ecosystem-components/raw/psc-api-test-mvn-repo/</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
