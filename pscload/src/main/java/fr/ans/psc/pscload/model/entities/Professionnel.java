@@ -143,7 +143,7 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getDeactivated(), professionnel.getDeactivated());
 	}
 
-	//	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
+//	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
 	@Override
 	public int hashCode() {
 		return Objects.hash(getIdType(), getId(), getNationalId(), getLastName(), getFirstNames().stream().map(FirstName::hashCode).reduce(0, Integer::sum),
