@@ -53,8 +53,10 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		super();
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();
+		log.info("Connecting to PSC API at {}", apiBaseUrl);
 		apiClient.setBasePath(apiBaseUrl);
 		this.psApi = new PsApi(apiClient);
+		log.info("Connected to PSC API at {}", apiBaseUrl);
 		this.messageProducer = messageProducer;
 
 	}
@@ -77,7 +79,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+				//messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -121,7 +123,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
 				map.remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+				//messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -154,7 +156,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				psApi.updatePs((Professionnel) item);
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
+				//messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
