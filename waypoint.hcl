@@ -92,5 +92,5 @@ variable "registry_path" {
 
 variable "log_level" {
   type = string
-  default = "DEBUG"
+  default = "INFO"
 }
