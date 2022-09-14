@@ -85,6 +85,11 @@ variable "proxy_host" {
   default = ""
 }
 
+variable "proxy_port" {
+  type = string
+  default = ""
+}
+
 variable "non_proxy_hosts" {
   type = string
   default = "10.0.0.0/8"
