@@ -29,7 +29,7 @@ app "prosanteconnect/pscload-v2" {
     # Uncomment below to use a remote docker registry to push your built images.
     registry {
       use "docker" {
-        image = "${var.registry_path}/pscload-v2"
+        image = "${var.registry_username}/pscload-v2"
         tag = gitrefpretty()
         username = var.registry_username
         password = var.registry_password
