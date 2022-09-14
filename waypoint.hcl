@@ -92,7 +92,7 @@ variable "non_proxy_hosts" {
 
 variable "dockerfile_path" {
   type = string
-  default = "Dockerfile"
+  default = "Dockerfile.ext"
 }
 
 variable "log_level" {
