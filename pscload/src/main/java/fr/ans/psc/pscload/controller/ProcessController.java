@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.ans.psc.pscload.service.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -51,9 +50,6 @@ public class ProcessController {
 
     @Autowired
     private Runner runner;
-
-    @Autowired
-    private MessageProducer messageProducer;
 
     @Autowired
     private CustomMetrics customMetrics;
@@ -119,7 +115,7 @@ public class ProcessController {
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
-                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, messageProducer,
+                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl,
                         excludedOperations, isRabbitMqEnabled));
                 runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);

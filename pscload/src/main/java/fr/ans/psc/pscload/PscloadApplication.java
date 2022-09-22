@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import fr.ans.psc.pscload.service.MessageProducer;
+import fr.ans.psc.model.FirstName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -72,7 +72,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 // this annotation is required since the rabbitmq shared config stands in its own package
 // idk why but it didn't work without this explicit scan
-@ComponentScan(basePackages = {"fr.ans.psc.pscload", "fr.ans.psc.rabbitmq.conf"})
+@ComponentScan(basePackages = {"fr.ans.psc.pscload"})
 public class PscloadApplication {
 
 	private static Kryo kryo;
@@ -104,6 +104,7 @@ public class PscloadApplication {
 		kryo.register(PsCreateMap.class, 32);
 		kryo.register(PsUpdateMap.class, operationMapSerializer, 33);
 		kryo.register(PsDeleteMap.class, 34);
+		kryo.register(FirstName.class, 35);
 	}
 
 	private static boolean shutingDown;
@@ -122,9 +123,6 @@ public class PscloadApplication {
 
 	@Autowired
 	private EmailService emailService;
-
-	@Autowired
-	private MessageProducer messageProducer;
 
 	@Value("${files.directory:.}")
 	private String filesDirectory;
@@ -231,7 +229,7 @@ public class PscloadApplication {
 									customMetrics.getAppMiscGauges().get(CustomMetrics.MiscCustomMetric.STAGE)
 											.set(Stage.UPLOAD_CHANGES_STARTED.value);
 
-									process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, messageProducer));
+									process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl));
 									process.nextStep();
 
 								}
