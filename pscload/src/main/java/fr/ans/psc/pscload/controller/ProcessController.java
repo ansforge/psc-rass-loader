@@ -63,6 +63,9 @@ public class ProcessController {
 
     private final ProcessRegistry registry;
 
+    @Value("${rabbitmq.enabled:false}")
+    private boolean isRabbitMqEnabled;
+
     /**
      * Instantiates a new process controller.
      *
@@ -116,7 +119,8 @@ public class ProcessController {
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
-                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, messageProducer, excludedOperations));
+                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, messageProducer,
+                        excludedOperations, isRabbitMqEnabled));
                 runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 return response;

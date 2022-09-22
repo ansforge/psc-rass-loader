@@ -36,6 +36,8 @@ public class UploadingChanges extends ProcessState {
 
     private List<String> excludedOperations;
 
+    private boolean isRabbitMqEnabled;
+
     /**
      * Instantiates a new Uploading Changes.
      *
@@ -43,14 +45,16 @@ public class UploadingChanges extends ProcessState {
      * @param apiBaseUrl          the api base url
      */
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer) {
-        this(excludedProfessions, apiBaseUrl, messageProducer, null);
+        this(excludedProfessions, apiBaseUrl, messageProducer, null, false);
     }
 
-    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer, List<String> excludedOperations) {
+    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer,
+                            List<String> excludedOperations, boolean isRabbitMqEnabled) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
         this.messageProducer = messageProducer;
         this.excludedOperations = excludedOperations;
+        this.isRabbitMqEnabled = isRabbitMqEnabled;
     }
 
     /**
@@ -64,7 +68,7 @@ public class UploadingChanges extends ProcessState {
     public void nextStep() throws LoadProcessException {
         log.info("calling API...");
     	
-		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, messageProducer);
+		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, messageProducer, isRabbitMqEnabled);
 
         List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
         if (excludedOperations != null) {

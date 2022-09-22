@@ -40,6 +40,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private MessageProducer messageProducer;
 
+	private boolean isRabbitMqEnabled;
+
 	@Value("${snitch}")
 	private boolean debug;
 
@@ -49,13 +51,15 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	 * @param excludedProfessions the excluded professions
 	 * @param apiBaseUrl          the api base url
 	 */
-	public MapsUploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer) {
+	public MapsUploaderVisitorImpl(String[] excludedProfessions, String apiBaseUrl,
+								   MessageProducer messageProducer, boolean isRabbitMqEnabled) {
 		super();
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();
 		apiClient.setBasePath(apiBaseUrl);
 		this.psApi = new PsApi(apiClient);
 		this.messageProducer = messageProducer;
+		this.isRabbitMqEnabled = isRabbitMqEnabled;
 
 	}
 
@@ -77,7 +81,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
-//				messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+				if (isRabbitMqEnabled) {
+					messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -121,7 +127,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
 				map.remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+				if (isRabbitMqEnabled) {
+					messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -154,7 +162,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				psApi.updatePs((Professionnel) item);
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
+				if (isRabbitMqEnabled) {
+					messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
+				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
