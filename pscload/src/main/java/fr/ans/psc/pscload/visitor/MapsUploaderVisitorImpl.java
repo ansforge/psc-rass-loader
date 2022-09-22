@@ -77,7 +77,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+//				messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
