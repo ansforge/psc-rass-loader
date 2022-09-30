@@ -47,7 +47,7 @@ public class Prenom extends fr.ans.psc.model.FirstName {
      * @return list of FirstName objects
      */
     public static List<FirstName> stringToList(String string) {
-        String[] firstNameStrings = string.split("'");
+        String[] firstNameStrings = string.split("'", -1);
         List<FirstName> firstNames = new ArrayList<>();
         for (int i = 0; i < firstNameStrings.length; i++) {
             firstNames.add(new FirstName(firstNameStrings[i], i));

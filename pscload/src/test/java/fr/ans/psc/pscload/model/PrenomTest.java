@@ -55,7 +55,7 @@ public class PrenomTest {
 
         String rassFNames = "KADER''";
         List<FirstName> actual = Prenom.stringToList(rassFNames);
-        assertEquals(1, actual.size());
+        assertEquals(3, actual.size());
 
         // creates empty first Name if middle one is missing
         String middleEmpty = "KADER''TOTO";
