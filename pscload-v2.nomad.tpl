@@ -22,13 +22,6 @@ job "pscload" {
       value     = "data"
     }
 
-    update {
-      max_parallel = 1
-      min_healthy_time = "30s"
-      progress_deadline = "5m"
-      healthy_deadline = "2m"
-    }
-
     network {
       port "http" {
         to = 8080
@@ -71,7 +64,7 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms1g -Xmx10g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/files-repo/ -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts} -Dkryo.unsafe=false -Dlogging.level.root=${log_level}"
+JAVA_TOOL_OPTIONS="-Xms1g -Xmx11g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/files-repo/ -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts} -Dkryo.unsafe=false -Dlogging.level.root=${log_level}"
 EOH
       }
       template {
@@ -116,7 +109,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 11216
+        memory = 13312
       }
       service {
         name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
