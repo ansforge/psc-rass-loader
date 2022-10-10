@@ -104,3 +104,8 @@ variable "log_level" {
   type = string
   default = "INFO"
 }
+
+variable "disable_messages" {
+  type = string
+  default = "false"
+}
