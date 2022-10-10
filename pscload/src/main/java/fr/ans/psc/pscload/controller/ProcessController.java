@@ -22,6 +22,7 @@ import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.ProcessInfo;
 import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.service.MessageProducer;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.SerializationInterrupted;
@@ -56,11 +57,12 @@ public class ProcessController {
 
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private MessageProducer messageProducer;
 
     private final ProcessRegistry registry;
 
-    @Value("${rabbitmq.enabled:false}")
-    private boolean isRabbitMqEnabled;
 
     /**
      * Instantiates a new process controller.
@@ -116,7 +118,7 @@ public class ProcessController {
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
                 process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl,
-                        excludedOperations, isRabbitMqEnabled));
+                        excludedOperations, messageProducer));
                 runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 return response;

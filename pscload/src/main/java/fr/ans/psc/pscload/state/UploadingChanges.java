@@ -9,6 +9,7 @@ import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.service.MessageProducer;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.LockedMapException;
 import fr.ans.psc.pscload.state.exception.UploadException;
@@ -31,7 +32,7 @@ public class UploadingChanges extends ProcessState {
 
     private List<String> excludedOperations;
 
-    private boolean isRabbitMqEnabled;
+    private MessageProducer messageProducer;
 
     /**
      * Instantiates a new Uploading Changes.
@@ -40,15 +41,15 @@ public class UploadingChanges extends ProcessState {
      * @param apiBaseUrl          the api base url
      */
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
-        this(excludedProfessions, apiBaseUrl, null, false);
+        this(excludedProfessions, apiBaseUrl, null, null);
     }
 
     public UploadingChanges(String[] excludedProfessions, String apiBaseUrl,
-                            List<String> excludedOperations, boolean isRabbitMqEnabled) {
+                            List<String> excludedOperations, MessageProducer messageProducer) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
         this.excludedOperations = excludedOperations;
-        this.isRabbitMqEnabled = isRabbitMqEnabled;
+        this.messageProducer = messageProducer;
     }
 
     /**
@@ -62,7 +63,7 @@ public class UploadingChanges extends ProcessState {
     public void nextStep() throws LoadProcessException {
         log.info("calling API...");
     	
-		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, isRabbitMqEnabled);
+		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, messageProducer);
 
         List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
         if (excludedOperations != null) {
@@ -87,7 +88,6 @@ public class UploadingChanges extends ProcessState {
 	public void write(Kryo kryo, Output output) {
     	kryo.writeClassAndObject(output, excludedProfessions);
     	kryo.writeClassAndObject(output, excludedOperations);
-    	output.writeBoolean(isRabbitMqEnabled);
     	output.writeString(apiBaseUrl);
     }
 
@@ -96,7 +96,6 @@ public class UploadingChanges extends ProcessState {
 	public void read(Kryo kryo, Input input) {
         excludedProfessions = (String[]) kryo.readClassAndObject(input);
         excludedOperations = (List<String>) kryo.readClassAndObject(input);
-        isRabbitMqEnabled = input.readBoolean();
         apiBaseUrl = input.readString();
     }
 
