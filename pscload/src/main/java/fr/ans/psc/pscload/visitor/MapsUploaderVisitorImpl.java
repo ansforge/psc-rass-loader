@@ -123,7 +123,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
 				map.remove(item.getInternalId());
-				if (messagesEnabled) {
+				if (messagesEnabled && deletable.get()) {
 					messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
 				}
 			} catch (RestClientResponseException e) {
