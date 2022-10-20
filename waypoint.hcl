@@ -49,6 +49,7 @@ app "prosanteconnect/pscload-v2" {
         non_proxy_hosts = var.non_proxy_hosts
         log_level = var.log_level
         registry_path = var.registry_username
+        disable_messages = var.disable_messages
       })
     }
   }
@@ -103,4 +104,9 @@ variable "dockerfile_path" {
 variable "log_level" {
   type = string
   default = "INFO"
+}
+
+variable "disable_messages" {
+  type = string
+  default = "false"
 }

@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
-//import fr.ans.psc.pscload.service.MessageProducer;
+import fr.ans.psc.pscload.service.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -51,8 +51,8 @@ public class Runner {
     @Autowired
     private EmailService emailService;
 
-//    @Autowired
-//    private MessageProducer messageProducer;
+    @Autowired
+    private MessageProducer messageProducer;
 
     @Value("${enable.scheduler:true}")
     private boolean enabled;
@@ -89,9 +89,6 @@ public class Runner {
 
     @Value("${process.expiration.delay}")
     private Long expirationDelay;
-
-    @Value("${rabbitmq.enabled:false}")
-    private boolean isRabbitMqEnabled;
 
     /**
      * Run.
@@ -180,7 +177,7 @@ public class Runner {
         try {
             // upload changes
             log.info("Received request to process in Runner.runContinue()");
-            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations, isRabbitMqEnabled));
+            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations, messageProducer));
             customMetrics.resetSizeMetrics();
             customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             process.nextStep();
