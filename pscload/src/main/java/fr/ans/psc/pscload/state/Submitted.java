@@ -171,15 +171,15 @@ public class Submitted extends ProcessState {
 		URL url = new URL(extractDownloadUrl);
 		log.info("try to download file from " + extractDownloadUrl);
 		HttpURLConnection httpConn;
-		httpConn.setConnectTimeout(CONNECT_TIMEOUT);
-		httpConn.setReadTimeout(READ_TIMEOUT);
+
 		// Check if connection is https
 		if ("https".equals(url.getProtocol())) {
 			httpConn = (HttpsURLConnection) url.openConnection();
 		} else {
 			httpConn = (HttpURLConnection) url.openConnection();
 		}
-
+		httpConn.setConnectTimeout(CONNECT_TIMEOUT);
+		httpConn.setReadTimeout(READ_TIMEOUT);
 		int responseCode = httpConn.getResponseCode();
 
 		// always check HTTP response code first
