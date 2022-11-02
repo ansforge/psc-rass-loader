@@ -61,6 +61,12 @@ public class Submitted extends ProcessState {
 	private String filesDirectory;
 
 	private String extractDownloadUrl;
+	
+	// 3 seconds max for connection
+	private final int CONNECT_TIMEOUT = 3000;
+	
+	// 5 minutes max to download file
+	private final int READ_TIMEOUT = 300000;
 
 	/**
 	 * Instantiates a new Submitted.
@@ -165,13 +171,15 @@ public class Submitted extends ProcessState {
 		URL url = new URL(extractDownloadUrl);
 		log.info("try to download file from " + extractDownloadUrl);
 		HttpURLConnection httpConn;
+
 		// Check if connection is https
 		if ("https".equals(url.getProtocol())) {
 			httpConn = (HttpsURLConnection) url.openConnection();
 		} else {
 			httpConn = (HttpURLConnection) url.openConnection();
 		}
-
+		httpConn.setConnectTimeout(CONNECT_TIMEOUT);
+		httpConn.setReadTimeout(READ_TIMEOUT);
 		int responseCode = httpConn.getResponseCode();
 
 		// always check HTTP response code first
