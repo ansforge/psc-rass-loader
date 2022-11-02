@@ -17,9 +17,7 @@ import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
 import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The Class UploadingChanges.
@@ -32,9 +30,9 @@ public class UploadingChanges extends ProcessState {
 
     private String apiBaseUrl;
 
-    private MessageProducer messageProducer;
-
     private List<String> excludedOperations;
+
+    private MessageProducer messageProducer;
 
     /**
      * Instantiates a new Uploading Changes.
@@ -42,15 +40,16 @@ public class UploadingChanges extends ProcessState {
      * @param excludedProfessions the excluded professions
      * @param apiBaseUrl          the api base url
      */
-    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer) {
-        this(excludedProfessions, apiBaseUrl, messageProducer, null);
+    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl) {
+        this(excludedProfessions, apiBaseUrl, null, null);
     }
 
-    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl, MessageProducer messageProducer, List<String> excludedOperations) {
+    public UploadingChanges(String[] excludedProfessions, String apiBaseUrl,
+                            List<String> excludedOperations, MessageProducer messageProducer) {
         this.excludedProfessions = excludedProfessions;
         this.apiBaseUrl = apiBaseUrl;
-        this.messageProducer = messageProducer;
         this.excludedOperations = excludedOperations;
+        this.messageProducer = messageProducer;
     }
 
     /**

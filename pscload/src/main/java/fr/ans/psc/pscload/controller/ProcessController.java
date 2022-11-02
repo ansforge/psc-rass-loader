@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.ans.psc.pscload.service.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,7 @@ import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.ProcessInfo;
 import fr.ans.psc.pscload.service.EmailService;
+import fr.ans.psc.pscload.service.MessageProducer;
 import fr.ans.psc.pscload.state.ChangesApplied;
 import fr.ans.psc.pscload.state.DiffComputed;
 import fr.ans.psc.pscload.state.SerializationInterrupted;
@@ -53,15 +53,16 @@ public class ProcessController {
     private Runner runner;
 
     @Autowired
-    private MessageProducer messageProducer;
-
-    @Autowired
     private CustomMetrics customMetrics;
 
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private MessageProducer messageProducer;
 
     private final ProcessRegistry registry;
+
 
     /**
      * Instantiates a new process controller.
@@ -116,7 +117,8 @@ public class ProcessController {
 
         if (process != null) {
             if (process.getState().getClass().equals(UploadInterrupted.class)) {
-                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, messageProducer, excludedOperations));
+                process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl,
+                        excludedOperations, messageProducer));
                 runner.runContinue(process, excludedOperations);
                 response = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 return response;

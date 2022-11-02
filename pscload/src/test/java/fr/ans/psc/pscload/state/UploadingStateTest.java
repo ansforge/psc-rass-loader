@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import fr.ans.psc.pscload.service.MessageProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,9 +60,6 @@ public class UploadingStateTest {
 
 	@Autowired
 	private EmailService emailService;
-
-    @Autowired
-    private MessageProducer messageProducer;
 
     /**
      * The http api mock server.
@@ -134,7 +130,7 @@ public class UploadingStateTest {
         p.getState().setProcess(p);
         p.nextStep();
         String[] exclusions = {"90"};
-        p.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl(), messageProducer));
+        p.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p.getState().setProcess(p);
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), emailService));
@@ -153,7 +149,7 @@ public class UploadingStateTest {
         p2.getState().setProcess(p2);
         p2.nextStep();
         // Day 2 : upload changes (1 delete)
-        p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl(), messageProducer));
+        p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p2.getState().setProcess(p2);
         p2.nextStep();
 		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
@@ -190,7 +186,7 @@ public class UploadingStateTest {
         p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
         String[] exclusions = {"90"};
-        p.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl(), messageProducer));
+        p.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p.getState().setProcess(p);
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpApiMockServer.baseUrl(), emailService));
@@ -211,7 +207,7 @@ public class UploadingStateTest {
         p2.nextStep();
         // Day 2 : upload changes (1 delete)
 
-        p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl(), messageProducer));
+        p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p2.nextStep();
 		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();

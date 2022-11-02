@@ -1,4 +1,4 @@
-project = "prosanteconnect/pscload-v2"
+project = "prosanteconnect/${workspace.name}/pscload-v2"
 
 # Labels can be specified for organizational purposes.
 labels = {
@@ -7,12 +7,13 @@ labels = {
 
 runner {
   enabled = true
+  profile = "secpsc-${workspace.name}"
   data_source "git" {
     url = "https://github.com/prosanteconnect/pscload-v2.git"
-    ref = var.datacenter
+    ref = "${workspace.name}"
   }
   poll {
-    enabled = true
+    enabled = false
   }
 }
 
@@ -28,9 +29,11 @@ app "prosanteconnect/pscload-v2" {
     # Uncomment below to use a remote docker registry to push your built images.
     registry {
       use "docker" {
-        image = "${var.registry_path}/pscload-v2"
+        image = "${var.registry_username}/pscload-v2"
         tag = gitrefpretty()
-        encoded_auth = filebase64("/secrets/dockerAuth.json")
+        username = var.registry_username
+        password = var.registry_password
+	      local = true
       }
     }
   }
@@ -40,11 +43,13 @@ app "prosanteconnect/pscload-v2" {
     use "nomad-jobspec" {
       jobspec = templatefile("${path.app}/pscload-v2.nomad.tpl", {
         datacenter = var.datacenter
+        nomad_namespace = var.nomad_namespace
         proxy_port = var.proxy_port
         proxy_host = var.proxy_host
         non_proxy_hosts = var.non_proxy_hosts
         log_level = var.log_level
-        registry_path = var.registry_path
+        registry_path = var.registry_username
+        disable_messages = var.disable_messages
       })
     }
   }
@@ -52,25 +57,36 @@ app "prosanteconnect/pscload-v2" {
 
 variable "datacenter" {
   type = string
-  default = "dc1"
+  default = ""
+  env = ["NOMAD_DATACENTER"]
+}
+
+variable "nomad_namespace" {
+  type = string
+  default = ""
+  env = ["NOMAD_NAMESPACE"]
 }
 
 variable "registry_username" {
   type    = string
   default = ""
+  env     = ["REGISTRY_USERNAME"]
+  sensitive = true
 }
 
 variable "registry_password" {
   type    = string
   default = ""
+  env     = ["REGISTRY_PASSWORD"]
+  sensitive = true
 }
 
-variable "proxy_port" {
+variable "proxy_host" {
   type = string
   default = ""
 }
 
-variable "proxy_host" {
+variable "proxy_port" {
   type = string
   default = ""
 }
@@ -82,15 +98,15 @@ variable "non_proxy_hosts" {
 
 variable "dockerfile_path" {
   type = string
-  default = "Dockerfile"
-}
-
-variable "registry_path" {
-  type = string
-  default = "registry.repo.proxy-dev-forge.asip.hst.fluxus.net/prosanteconnect"
+  default = "Dockerfile.ext"
 }
 
 variable "log_level" {
   type = string
   default = "INFO"
+}
+
+variable "disable_messages" {
+  type = string
+  default = "false"
 }

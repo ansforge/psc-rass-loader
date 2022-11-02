@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 
-import fr.ans.psc.pscload.service.MessageProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,8 +62,6 @@ public class ChangesAppliedTest {
 	@Autowired
 	private EmailService emailService;
 
-    @Autowired
-    private MessageProducer messageProducer;
 
     /**
      * The http api mock server.
@@ -134,7 +131,7 @@ public class ChangesAppliedTest {
         p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
         String[] exclusions = {"90"};
-        p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl(), messageProducer));
+        p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
         p.getState().setProcess(p);
         p.nextStep();
         p.setState(new ChangesApplied(customMetrics, httpMockServer.baseUrl(), emailService) );
@@ -158,7 +155,7 @@ public class ChangesAppliedTest {
         p2.nextStep();
         // Day 2 : upload changes
 
-        p2.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl(), messageProducer));
+        p2.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
         p2.getState().setProcess(p2);
         p2.nextStep();
 

@@ -90,7 +90,6 @@ public class Runner {
     @Value("${process.expiration.delay}")
     private Long expirationDelay;
 
-
     /**
      * Run.
      *
@@ -178,7 +177,7 @@ public class Runner {
         try {
             // upload changes
             log.info("Received request to process in Runner.runContinue()");
-            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, messageProducer, excludedOperations));
+            process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations, messageProducer));
             customMetrics.resetSizeMetrics();
             customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             process.nextStep();

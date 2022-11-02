@@ -10,9 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import fr.ans.psc.pscload.model.operations.OperationType;
-import fr.ans.psc.pscload.service.MessageProducer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -21,9 +18,11 @@ import fr.ans.psc.api.PsApi;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import fr.ans.psc.pscload.model.operations.PsCreateMap;
 import fr.ans.psc.pscload.model.operations.PsDeleteMap;
 import fr.ans.psc.pscload.model.operations.PsUpdateMap;
+import fr.ans.psc.pscload.service.MessageProducer;
 import fr.ans.psc.pscload.state.exception.LockedMapException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +39,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private MessageProducer messageProducer;
 
-	@Value("${snitch}")
-	private boolean debug;
+	private boolean messagesEnabled = !Boolean.getBoolean("disable.messages");
 
 	/**
 	 * Instantiates a new maps uploader visitor impl.
@@ -59,6 +57,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void visit(PsCreateMap map) {
 		Collection<RassEntity> items = map.values();
@@ -77,7 +76,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+				if (messagesEnabled) {
+					messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -91,6 +92,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void visit(PsDeleteMap map) {
 		Collection<RassEntity> items = map.values();
@@ -121,7 +123,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
 				map.remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+				if (messagesEnabled && deletable.get()) {
+					messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
@@ -135,6 +139,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void visit(PsUpdateMap map) {
 		Collection<RassEntity> items = map.values();
@@ -154,7 +159,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				psApi.updatePs((Professionnel) item);
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
-				messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
+				if (messagesEnabled) {
+					messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
+				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
