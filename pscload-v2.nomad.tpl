@@ -26,6 +26,9 @@ job "pscload" {
       port "http" {
         to = 8080
       }
+      port "filebeat" {
+        to = 5066
+      }
     }
 
     task "pscload" {
@@ -131,8 +134,8 @@ EOF
       restart {
         interval = "30m"
         attempts = 5
-        delay    = "15s"
-        mode     = "delay"
+        delay = "15s"
+        mode = "delay"
       }
       meta {
         INSTANCE = "$\u007BNOMAD_ALLOC_NAME\u007D"
@@ -146,7 +149,19 @@ EOH
         env = true
       }
       config {
-        image = "${registry_path}/filebeat:7.14.2"
+        image = "prosanteconnect/filebeat:7.17.0"
+        ports = [
+          "filebeat"]
+      }
+        service {
+        name = "log-shipper"
+        port = "filebeat"
+        check {
+          type = "tcp"
+          port = "filebeat"
+          interval = "30s"
+          timeout = "2s"
+        }
       }
     }
   }
