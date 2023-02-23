@@ -33,7 +33,7 @@ app "prosanteconnect/pscload-v2" {
         tag = gitrefpretty()
         username = var.registry_username
         password = var.registry_password
-	      local = true
+        local = var.is_local_registry
       }
     }
   }
@@ -65,6 +65,12 @@ variable "nomad_namespace" {
   type = string
   default = ""
   env = ["NOMAD_NAMESPACE"]
+}
+
+variable "is_local_registry" {
+  type = boolean
+  default = true
+  env = ["LOCAL_REGISTRY"]
 }
 
 variable "registry_username" {

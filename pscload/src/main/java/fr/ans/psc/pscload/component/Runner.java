@@ -133,7 +133,7 @@ public class Runner {
                 customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
                 // Step 4 : Load maps and compute diff
                 process.nextStep();
-                // check if differences exists
+                // check if differences exist
                 if (process.isRemainingPsOrStructuresInMaps()) {
                     process.setState(new DiffComputed(customMetrics));
                     // Step 3 : publish metrics
