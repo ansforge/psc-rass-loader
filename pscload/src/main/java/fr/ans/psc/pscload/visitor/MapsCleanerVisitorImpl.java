@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MapsCleanerVisitorImpl implements MapsVisitor {
 
-	private MapsHandler maps;
+//	private MapsHandler maps;
 	
 	private List<String> report;
 
@@ -33,9 +33,9 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 	 *
 	 * @param maps the maps
 	 */
-	public MapsCleanerVisitorImpl(MapsHandler maps, List<String> report) {
+	public MapsCleanerVisitorImpl(List<String> report) {
 		super();
-		this.maps = maps;
+//		this.maps = maps;
 		this.report = report;
 	}
 
@@ -55,9 +55,9 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
-			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				maps.getPsMap().remove(item.getInternalId());
-			}
+//			if (isInconsistentWithDatabase(item.getReturnStatus())) {
+//				maps.getPsMap().remove(item.getInternalId());
+//			}
 		});
 	}
 
@@ -77,9 +77,9 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
-			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
-			}
+//			if (isInconsistentWithDatabase(item.getReturnStatus())) {
+//				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
+//			}
 		});
 	}
 
@@ -99,9 +99,9 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
-			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
-			}
+//			if (isInconsistentWithDatabase(item.getReturnStatus())) {
+//				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
+//			}
 		});
 	}
 

@@ -95,7 +95,7 @@ class ReadyToComputeDiffTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
@@ -121,7 +121,7 @@ class ReadyToComputeDiffTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
@@ -133,7 +133,7 @@ class ReadyToComputeDiffTest {
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
@@ -163,7 +163,7 @@ class ReadyToComputeDiffTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112140852.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();

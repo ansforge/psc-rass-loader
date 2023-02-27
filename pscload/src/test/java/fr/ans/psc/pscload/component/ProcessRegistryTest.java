@@ -3,9 +3,7 @@
  */
 package fr.ans.psc.pscload.component;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -98,7 +97,7 @@ class ProcessRegistryTest {
 				() -> httpMockServer.baseUrl() + "/V300/services/extraction/Extraction_ProSanteConnect");
 		propertiesRegistry.add("files.directory",
 				() -> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
-		propertiesRegistry.add("api.base.url", () -> httpMockServer.baseUrl());
+		propertiesRegistry.add("api.base.url", () -> httpMockServer.baseUrl() + "/psc-api-maj/api");
 		propertiesRegistry.add("use.x509.auth", () -> "false");
 		propertiesRegistry.add("enable.scheduler", () -> "true");
 		propertiesRegistry.add("scheduler.cron", () -> "0 0 1 15 * ?");
@@ -265,7 +264,7 @@ class ProcessRegistryTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace(fileName1);
 		p.setExtractedFilename(extractFile.getPath());
 		p.nextStep();
@@ -277,7 +276,7 @@ class ProcessRegistryTest {
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile2 = FileUtils.copyFileToWorkspace(fileName2);
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);

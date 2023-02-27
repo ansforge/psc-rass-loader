@@ -57,25 +57,25 @@ public class MapsHandlerTest {
      * @throws IOException Signals that an I/O exception has occurred.
      * @throws ClassNotFoundException the class not found exception
      */
-    @Test
-    @DisplayName("Serialize and deserialize file")
-    public void serializerTest() throws IOException, ClassNotFoundException {
-    	//Log.TRACE();
-        File initialFile = new File(Thread.currentThread().getContextClassLoader()
-                .getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
-
-        MapsHandler initialMaps = new MapsHandler();
-        initialMaps.loadMapsFromFile(initialFile);
-        assertEquals(5, initialMaps.getPsMap().size());
-
-        File serializedFile = new File(Thread.currentThread().getContextClassLoader()
-                .getResource("work").getPath() + File.separator + "maps.ser");
-        initialMaps.serializeMaps(serializedFile.getAbsolutePath());
-
-        MapsHandler deserializedMaps = new MapsHandler();
-        deserializedMaps.deserializeMaps(serializedFile.getAbsolutePath());
-        assertEquals(initialMaps, deserializedMaps);
-    }
+//    @Test
+//    @DisplayName("Serialize and deserialize file")
+//    public void serializerTest() throws IOException, ClassNotFoundException {
+//    	//Log.TRACE();
+//        File initialFile = new File(Thread.currentThread().getContextClassLoader()
+//                .getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
+//
+//        MapsHandler initialMaps = new MapsHandler();
+//        initialMaps.loadMapsFromFile(initialFile);
+//        assertEquals(5, initialMaps.getPsMap().size());
+//
+//        File serializedFile = new File(Thread.currentThread().getContextClassLoader()
+//                .getResource("work").getPath() + File.separator + "maps.ser");
+//        initialMaps.serializeMaps(serializedFile.getAbsolutePath());
+//
+//        MapsHandler deserializedMaps = new MapsHandler();
+//        deserializedMaps.deserializeMaps(serializedFile.getAbsolutePath());
+//        assertEquals(initialMaps, deserializedMaps);
+//    }
 
     /**
      * Line generator.

@@ -57,6 +57,9 @@ public class TestingController {
 	@Value("${keystore.password:mysecret}")
 	private String kspwd;
 
+	@Value("${api.base.url}")
+	private String apiBaseUrl;
+
 	@Autowired
 	private CustomMetrics customMetrics;
 
@@ -136,7 +139,7 @@ public class TestingController {
 			} else if (States.READY_TO_EXTRACT.classname.equals(state)) {
 				processState = new ReadyToExtract();
 			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)) {
-				processState = new ReadyToComputeDiff(customMetrics);
+				processState = new ReadyToComputeDiff(customMetrics, apiBaseUrl);
 			} else if (States.DIFF_COMPUTED.classname.equals(state)){
 				processState = new DiffComputed(customMetrics);
 			} else {

@@ -156,12 +156,12 @@ public class MapsHandler implements KryoSerializable {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws ClassNotFoundException the class not found exception
 	 */
-	public void deserializeMaps(String filename) throws IOException, ClassNotFoundException {
-		FileInputStream fileInputStream = new FileInputStream(filename);
-		Input input = new Input(fileInputStream);
-		read(kryo, input);
-		input.close();
-	}
+//	public void deserializeMaps(String filename) throws IOException, ClassNotFoundException {
+//		FileInputStream fileInputStream = new FileInputStream(filename);
+//		Input input = new Input(fileInputStream);
+//		read(kryo, input);
+//		input.close();
+//	}
 
 
 	/**

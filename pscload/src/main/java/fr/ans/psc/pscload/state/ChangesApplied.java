@@ -108,19 +108,19 @@ public class ChangesApplied extends ProcessState {
 
 	private void processRemainingPS() throws SerFileGenerationException {
         log.info("processing remaining Ps after changes loading...");
-		MapsHandler newMaps = new MapsHandler();
-        String lockedFilePath = process.getTmpMapsPath();
-        String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
-        File lockedSerFile = new File(lockedFilePath);
-        File serFile = new File(serFileName);
+//		MapsHandler newMaps = new MapsHandler();
+//        String lockedFilePath = process.getTmpMapsPath();
+//        String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
+//        File lockedSerFile = new File(lockedFilePath);
+//        File serFile = new File(serFileName);
 
-        try {
-            newMaps.deserializeMaps(lockedFilePath);
-        } catch (IOException | ClassNotFoundException e) {
-            String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
-            log.error(msgLogged, e.getLocalizedMessage());
-            throw new SerFileGenerationException(e);
-        }
+//        try {
+//            newMaps.deserializeMaps(lockedFilePath);
+//        } catch (IOException | ClassNotFoundException e) {
+//            String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
+//            log.error(msgLogged, e.getLocalizedMessage());
+//            throw new SerFileGenerationException(e);
+//        }
 
         try {
             StringBuilder message = new StringBuilder();
@@ -129,7 +129,7 @@ public class ChangesApplied extends ProcessState {
             message.append("Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
                     " a été traité.\n\n");
 
-            MapsVisitor cleaner = new MapsCleanerVisitorImpl(newMaps, dataLines);
+            MapsVisitor cleaner = new MapsCleanerVisitorImpl(dataLines);
             // Clean all maps and collect reports infos
             process.getMaps().stream().forEach(map -> {
                 message.append(String.format("%s en échec : %s\n", map.getOperation().toString(), map.size()));
@@ -139,7 +139,7 @@ public class ChangesApplied extends ProcessState {
             message.append("\n\n" + reportMailBody);
             DateFormat df = new SimpleDateFormat("yyyMMddhhmm");
             String now = df.format(new Date());
-            File csvOutputFile = new File(serFile.getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
+            File csvOutputFile = new File(new File(process.getExtractedFilename()).getParent(), FAILURE_REPORT_FILENAME + now + ".csv");
             File zipFile = generateReport(csvOutputFile, dataLines);
 
             customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
@@ -148,10 +148,10 @@ public class ChangesApplied extends ProcessState {
             csvOutputFile.delete();
             zipFile.delete();
 
-            serFile.delete();
-            newMaps.serializeMaps(serFileName);
-            boolean deleted = lockedSerFile.delete();
-            log.info("Lock file deleted ? {}", deleted);
+//            serFile.delete();
+//            newMaps.serializeMaps(serFileName);
+//            boolean deleted = lockedSerFile.delete();
+//            log.info("Lock file deleted ? {}", deleted);
             customMetrics.setStageMetric(Stage.CURRENT_MAP_SERIALIZED);
 
         } catch (IOException e) {

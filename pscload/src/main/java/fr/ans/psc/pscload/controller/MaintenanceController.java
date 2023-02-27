@@ -43,29 +43,29 @@ public class MaintenanceController {
      * @param restoreFile the restore file
      * @return the response entity
      */
-    @PostMapping(value = "/maintenance/regen-ser-file")
-    public ResponseEntity<Void> generateSerFile(@RequestParam MultipartFile restoreFile) {
-
-        try {
-            InputStream initialStream = restoreFile.getInputStream();
-            byte[] buffer = new byte[initialStream.available()];
-            initialStream.read(buffer);
-
-            File origin = File.createTempFile(filesDirectory + File.separator + "restore_extract_RASS", "tmp");
-            try (OutputStream out = new FileOutputStream(origin)) {
-                out.write(buffer);
-            }
-
-            MapsHandler mapsToSerialize = new MapsHandler();
-            mapsToSerialize.loadMapsFromFile(origin);
-            mapsToSerialize.serializeMaps(filesDirectory + File.separator + "maps.ser");
-
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (IOException e) {
-            log.error("Error while generating serialized file");
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping(value = "/maintenance/regen-ser-file")
+//    public ResponseEntity<Void> generateSerFile(@RequestParam MultipartFile restoreFile) {
+//
+//        try {
+//            InputStream initialStream = restoreFile.getInputStream();
+//            byte[] buffer = new byte[initialStream.available()];
+//            initialStream.read(buffer);
+//
+//            File origin = File.createTempFile(filesDirectory + File.separator + "restore_extract_RASS", "tmp");
+//            try (OutputStream out = new FileOutputStream(origin)) {
+//                out.write(buffer);
+//            }
+//
+//            MapsHandler mapsToSerialize = new MapsHandler();
+//            mapsToSerialize.loadMapsFromFile(origin);
+//            mapsToSerialize.serializeMaps(filesDirectory + File.separator + "maps.ser");
+//
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        } catch (IOException e) {
+//            log.error("Error while generating serialized file");
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**
      * Generate txt file.
@@ -73,47 +73,47 @@ public class MaintenanceController {
      * @param serFile the ser file
      * @return the response entity
      */
-    @PostMapping(value = "/maintenance/from-ser-to-txt")
-    public ResponseEntity<String> generateTxtFile(@RequestParam MultipartFile serFile) {
-        InputStream initialStream = null;
-        try {
-            initialStream = serFile.getInputStream();
-            byte[] buffer = new byte[initialStream.available()];
-            initialStream.read(buffer);
-            File origin = File.createTempFile(filesDirectory + File.separator + "origin_ser_file", "");
-            try (OutputStream out = new FileOutputStream(origin)) {
-                out.write(buffer);
-            }
-            initialStream.close();
-
-            MapsHandler mapsToDeserialize = new MapsHandler();
-            mapsToDeserialize.deserializeMaps(origin.getAbsolutePath());
-            File txtFile = mapsToDeserialize.generateTxtFile(filesDirectory + File.separator + "generated_txt_file");
-
-            InputStream fileContent = new FileInputStream(txtFile);
-
-            ZipEntry zipEntry = new ZipEntry("generated.txt");
-            zipEntry.setTime(System.currentTimeMillis());
-            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(filesDirectory + "/" + "generated.zip"));
-            zos.putNextEntry(zipEntry);
-            StreamUtils.copy(fileContent, zos);
-
-            fileContent.close();
-            zos.closeEntry();
-            zos.finish();
-            zos.closeEntry();
-            boolean deleted = txtFile.delete();
-            assert deleted;
-
-            return new ResponseEntity<>("new txt file generated", HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("IO Exception", HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("error during deserialization", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping(value = "/maintenance/from-ser-to-txt")
+//    public ResponseEntity<String> generateTxtFile(@RequestParam MultipartFile serFile) {
+//        InputStream initialStream = null;
+//        try {
+//            initialStream = serFile.getInputStream();
+//            byte[] buffer = new byte[initialStream.available()];
+//            initialStream.read(buffer);
+//            File origin = File.createTempFile(filesDirectory + File.separator + "origin_ser_file", "");
+//            try (OutputStream out = new FileOutputStream(origin)) {
+//                out.write(buffer);
+//            }
+//            initialStream.close();
+//
+//            MapsHandler mapsToDeserialize = new MapsHandler();
+//            mapsToDeserialize.deserializeMaps(origin.getAbsolutePath());
+//            File txtFile = mapsToDeserialize.generateTxtFile(filesDirectory + File.separator + "generated_txt_file");
+//
+//            InputStream fileContent = new FileInputStream(txtFile);
+//
+//            ZipEntry zipEntry = new ZipEntry("generated.txt");
+//            zipEntry.setTime(System.currentTimeMillis());
+//            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(filesDirectory + "/" + "generated.zip"));
+//            zos.putNextEntry(zipEntry);
+//            StreamUtils.copy(fileContent, zos);
+//
+//            fileContent.close();
+//            zos.closeEntry();
+//            zos.finish();
+//            zos.closeEntry();
+//            boolean deleted = txtFile.delete();
+//            assert deleted;
+//
+//            return new ResponseEntity<>("new txt file generated", HttpStatus.OK);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>("IO Exception", HttpStatus.INTERNAL_SERVER_ERROR);
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>("error during deserialization", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @GetMapping(value = "maintenance/get-new-txt")
     public ResponseEntity<FileSystemResource> getGeneratedTxtFile() {

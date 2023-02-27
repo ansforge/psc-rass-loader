@@ -124,7 +124,7 @@ public class UploadingStateTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpApiMockServer.baseUrl()));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
         p.setExtractedFilename(extractFile1.getPath());
         p.getState().setProcess(p);
@@ -142,7 +142,7 @@ public class UploadingStateTest {
                 .willReturn(aResponse().withStatus(200)));
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         // Day 2 : Compute diff (1 delete)
-        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpApiMockServer.baseUrl()));
         registry.register(Integer.toString(registry.nextId()), p2);
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120514.txt");
         p2.setExtractedFilename(extractFile2.getPath());
@@ -181,7 +181,7 @@ public class UploadingStateTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpApiMockServer.baseUrl()));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
         p.setExtractedFilename(extractFile1.getPath());
         p.nextStep();
@@ -198,7 +198,7 @@ public class UploadingStateTest {
                 .willReturn(aResponse().withStatus(410)));
         httpApiMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         // Day 2 : Compute diff (1 delete)
-        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpApiMockServer.baseUrl()));
         registry.register(Integer.toString(registry.nextId()), p2);
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120514.txt");
         p2.setExtractedFilename(extractFile2.getPath());

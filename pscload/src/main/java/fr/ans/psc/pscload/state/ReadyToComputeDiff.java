@@ -5,6 +5,8 @@ package fr.ans.psc.pscload.state;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -22,6 +25,9 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 
+import fr.ans.psc.ApiClient;
+import fr.ans.psc.api.PsApi;
+import fr.ans.psc.model.Ps;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
@@ -30,6 +36,8 @@ import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * The Class ReadyToComputeDiff.
@@ -38,15 +46,20 @@ import lombok.extern.slf4j.Slf4j;
 public class ReadyToComputeDiff extends ProcessState {
 
 	private MapsHandler newMaps = new MapsHandler();
-	private MapsHandler oldMaps = new MapsHandler();
+//	private MapsHandler oldMaps = new MapsHandler();
+	private Map<String, Professionnel> oldPsMap = new HashMap<>();
+	private PsApi psApi;
 
 	private CustomMetrics customMetrics;
 
 	/**
 	 * Instantiates a new ready to compute diff state.
 	 */
-	public ReadyToComputeDiff(CustomMetrics customMetrics) {
+	public ReadyToComputeDiff(CustomMetrics customMetrics, String apiBaseUrl) {
 		super();
+		ApiClient apiClient = new ApiClient();
+		apiClient.setBasePath(apiBaseUrl);
+		this.psApi = new PsApi(apiClient);
 		this.customMetrics = customMetrics;
 	}
 
@@ -70,23 +83,53 @@ public class ReadyToComputeDiff extends ProcessState {
 			process.setTmpMapsPath(tmpmaps.getAbsolutePath());
 			newMaps.serializeMaps(tmpmaps.getPath());
 			// deserialize the old file if exists
-			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
-			if (maps.exists()) {
-				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
-				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap());
-			}
+//			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
+//			if (maps.exists()) {
+//				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
+//				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap());
+//			}
+			oldPsMap = loadMapFromBase();
+
 			// Launch diff
-			MapDifference<String, Professionnel> diffPs = Maps.difference(oldMaps.getPsMap(), newMaps.getPsMap());
+			MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newMaps.getPsMap());
 			fillChangesMaps(diffPs);
 
 		} catch (IOException e) {
 			throw new DiffException("I/O Error when deserializing file", e);
-		} catch (ClassNotFoundException e) {
-			throw new DiffException(".ser file not compatible with model", e);
 		} catch (RuntimeException e) {
 			throw new DiffException("RunTimeException has occurred", e);
 		}
 
+	}
+
+	private Map<String, Professionnel> loadMapFromBase() {
+		int page = 0;
+		BigDecimal size = BigDecimal.valueOf(100000);
+		boolean outOfPages = false;
+		List<Ps> psList = new ArrayList<>();
+
+		while (!outOfPages) {
+			try {
+				List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
+				List<Ps> adeliFiltered = psPage.stream().filter(ps -> !ps.getIdType().equals(ID_TYPE.ADELI.value)).collect(Collectors.toList());
+				psList.addAll(adeliFiltered);
+				page++;
+			} catch (HttpStatusCodeException e) {
+				if (e.getStatusCode().equals(HttpStatus.GONE)) {
+					outOfPages = true;
+				} else {
+					log.error("Unexpected error while loading existing Ps Map. Aborting process...");
+					throw new DiffException("Error when loading existing Ps Map", e);
+				}
+			}
+		}
+
+		//TODO : remove additional fields : otherIds, activated, deactivated
+
+		Map<String, Professionnel> psMap = new HashMap<>();
+		psList.stream().map(ps -> psMap.put(ps.getNationalId(), (Professionnel) ps)).close();
+
+		return psMap;
 	}
 
 	@Override
@@ -96,8 +139,8 @@ public class ReadyToComputeDiff extends ProcessState {
 
 	@Override
 	public void read(Kryo kryo, Input input) {
-		oldMaps = (MapsHandler) kryo.readObject(input, MapsHandler.class);
-
+		// TODO check this
+//		oldMaps = (MapsHandler) kryo.readObject(input, MapsHandler.class);
 	}
 
 	private void fillChangesMaps(MapDifference<String, Professionnel> diffPs) {

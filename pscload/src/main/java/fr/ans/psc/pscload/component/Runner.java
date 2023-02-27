@@ -129,7 +129,7 @@ public class Runner {
                 customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 // Step 2 : Extract
                 process.nextStep();
-                process.setState(new ReadyToComputeDiff(customMetrics));
+                process.setState(new ReadyToComputeDiff(customMetrics, apiBaseUrl));
                 customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
                 // Step 4 : Load maps and compute diff
                 process.nextStep();
