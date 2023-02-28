@@ -66,6 +66,34 @@ public class Structure extends fr.ans.psc.model.Structure implements RassEntity 
 		setOldStructureId(items[RassItems.OLD_STRUCTURE_ID.column]);
 	}
 
+	public Structure(fr.ans.psc.model.Structure structure) {
+		super();
+		setSiteSIRET(structure.getSiteSIRET());
+		setSiteSIREN(structure.getSiteSIREN());
+		setSiteFINESS(structure.getSiteFINESS());
+		setLegalEstablishmentFINESS(structure.getLegalEstablishmentFINESS());
+		setStructureTechnicalId(structure.getStructureTechnicalId());
+		setLegalCommercialName(structure.getLegalCommercialName());
+		setPublicCommercialName(structure.getPublicCommercialName());
+		setRecipientAdditionalInfo(structure.getRecipientAdditionalInfo());
+		setGeoLocationAdditionalInfo(structure.getGeoLocationAdditionalInfo());
+		setStreetNumber(structure.getStreetNumber());
+		setStreetNumberRepetitionIndex(structure.getStreetNumberRepetitionIndex());
+		setStreetCategoryCode(structure.getStreetCategoryCode());
+		setStreetLabel(structure.getStreetLabel());
+		setDistributionMention(structure.getDistributionMention());
+		setCedexOffice(structure.getCedexOffice());
+		setPostalCode(structure.getPostalCode());
+		setCommuneCode(structure.getCommuneCode());
+		setCountryCode(structure.getCountryCode());
+		setPhone(structure.getPhone());
+		setPhone2(structure.getPhone2());
+		setFax(structure.getFax());
+		setEmail(structure.getEmail());
+		setDepartmentCode(structure.getDepartmentCode());
+		setOldStructureId(structure.getOldStructureId());
+	}
+
 	public void setStructureItems(String[] items) {
 		items[RassItems.SITE_SIRET.column] = getSiteSIRET();
 		items[RassItems.SITE_SIREN.column] = getSiteSIREN();

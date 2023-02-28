@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -88,7 +89,7 @@ public class ReadyToComputeDiff extends ProcessState {
 //				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
 //				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap());
 //			}
-            oldPsMap = loadMapFromBase();
+            oldPsMap = loadMapFromDB();
 
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newMaps.getPsMap());
@@ -102,14 +103,16 @@ public class ReadyToComputeDiff extends ProcessState {
 
     }
 
-    private Map<String, Professionnel> loadMapFromBase() {
+    private Map<String, Professionnel> loadMapFromDB() {
+        log.debug("retrieving all Ps");
         int page = 0;
-        BigDecimal size = BigDecimal.valueOf(100000);
+        BigDecimal size = BigDecimal.valueOf(50000);
         boolean outOfPages = false;
         List<Ps> psList = new ArrayList<>();
 
         while (!outOfPages) {
             try {
+                log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
                 List<Ps> adeliFiltered = psPage.stream().filter(ps -> !
 						(ps.getIdType().equals(ID_TYPE.ADELI.value) && ps.getProfessions().stream()
@@ -126,11 +129,10 @@ public class ReadyToComputeDiff extends ProcessState {
                 }
             }
         }
-
-        //TODO : remove additional fields : otherIds, activated, deactivated
-
         Map<String, Professionnel> psMap = new HashMap<>();
-        psList.stream().map(ps -> psMap.put(ps.getNationalId(), (Professionnel) ps)).close();
+        psMap = psList.stream().map(Professionnel::new).collect(
+//                Collectors.toList());
+                Collectors.toMap(Professionnel::getNationalId, Function.identity()));
 
         return psMap;
     }

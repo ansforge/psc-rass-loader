@@ -39,6 +39,29 @@ public class ExerciceProfessionnel extends Profession {
 		addWorkSituationsItem(new SituationExercice(items));
 	}
 
+	public ExerciceProfessionnel(Profession profession) {
+		super();
+		setCode(profession.getCode());
+		setCategoryCode(profession.getCategoryCode());
+		setSalutationCode(profession.getSalutationCode());
+		setLastName(profession.getLastName());
+		setFirstName(profession.getFirstName());
+		if (profession.getExpertises() != null) {
+			List<Expertise> expertises = new ArrayList<>();
+			for (Expertise expertise : profession.getExpertises()) {
+				expertises.add(new SavoirFaire(expertise));
+			}
+			setExpertises(expertises);
+		}
+		if (profession.getWorkSituations() != null) {
+			List<WorkSituation> workSituations = new ArrayList<>();
+			for (WorkSituation workSituation : profession.getWorkSituations()) {
+				workSituations.add(new SituationExercice(workSituation));
+			}
+			setWorkSituations(workSituations);
+		}
+	}
+
 	public void setExerciceProfessionnelItems(String[] items) {
 		items[RassItems.EX_PRO_CODE.column] = getCode();
 		items[RassItems.CATEGORY_CODE.column] = getCategoryCode();

@@ -166,7 +166,7 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<configuration>
 					<argLine>
-						--illegal-access=permit
+						--illegal-access=permit -Ddisable.messages=true
 					</argLine>
 				</configuration>
 			</plugin>

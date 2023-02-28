@@ -8,7 +8,11 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.nio.file.Files;
 
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +50,17 @@ class ReadyToComputeDiffTest {
 	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
-			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
+			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock").extensions(new PostServeAction() {
+				@Override
+				public String getName() {
+					return "something";
+				}
+				@Override
+				public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
+//					log.error(serveEvent.getRequest().toString());
+//					log.error(serveEvent.getResponse().toString());
+				}
+			})).build();
 
 	/**
 	 * Register pg properties.
@@ -91,13 +105,17 @@ class ReadyToComputeDiffTest {
 	@DisplayName("Initial diff with no old ser file and 5 ps")
 	void initialDiffTaskTest() throws Exception {
 		String rootpath = Thread.currentThread().getContextClassLoader().getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
+
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
+
 		p.nextStep();
 		OperationMap<String, RassEntity> psToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
@@ -124,6 +142,8 @@ class ReadyToComputeDiffTest {
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		p.nextStep();
 		String[] exclusions = {"90"};
 		p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
@@ -137,6 +157,12 @@ class ReadyToComputeDiffTest {
 		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
+		File dayOneFile = new File(Thread.currentThread().getContextClassLoader().getResource("day-one.json").getPath());
+		String dayOneJSON = Files.readString(dayOneFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayOneJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
 		p2.nextStep();
 		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
