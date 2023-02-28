@@ -159,6 +159,9 @@
 						<exclude>**/RegistrySerializationTest.java</exclude>
 						<exclude>**/RegistryDeserializationTest.java</exclude>
 					</excludes>
+					<argLine>
+						-Ddisable.messages=true
+					</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -166,7 +169,7 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<configuration>
 					<argLine>
-						--illegal-access=permit -Ddisable.messages=true
+						--illegal-access=permit
 					</argLine>
 				</configuration>
 			</plugin>

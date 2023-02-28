@@ -3,17 +3,13 @@
  */
 package fr.ans.psc.pscload.state;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +31,6 @@ import fr.ans.psc.pscload.component.DuplicateKeyException;
 import fr.ans.psc.pscload.component.ProcessRegistry;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.LoadProcess;
-import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
@@ -129,6 +124,8 @@ public class ChangesAppliedTest {
         LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
         p.setExtractedFilename(extractFile1.getPath());
+        httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
         p.nextStep();
         String[] exclusions = {"90"};
         p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
@@ -150,6 +147,12 @@ public class ChangesAppliedTest {
         registry.register(Integer.toString(registry.nextId()), p2);
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
         p2.setExtractedFilename(extractFile2.getPath());
+        File dayOneFile = new File(Thread.currentThread().getContextClassLoader().getResource("day-one.json").getPath());
+        String dayOneJSON = Files.readString(dayOneFile.toPath());
+        httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayOneJSON)));
+        httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+                .willReturn(aResponse().withStatus(410)));
         p2.nextStep();
         p2.setState(new DiffComputed(customMetrics));
         p2.nextStep();

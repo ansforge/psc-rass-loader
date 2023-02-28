@@ -267,6 +267,8 @@ class ProcessRegistryTest {
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace(fileName1);
 		p.setExtractedFilename(extractFile.getPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		p.nextStep();
 		String[] exclusions = {"90"};
 		p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
@@ -280,6 +282,12 @@ class ProcessRegistryTest {
 		File extractFile2 = FileUtils.copyFileToWorkspace(fileName2);
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
+		File dayOneFile = new File(Thread.currentThread().getContextClassLoader().getResource("day-one.json").getPath());
+		String dayOneJSON = Files.readString(dayOneFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayOneJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
 		p2.nextStep();
 
 		return p2;

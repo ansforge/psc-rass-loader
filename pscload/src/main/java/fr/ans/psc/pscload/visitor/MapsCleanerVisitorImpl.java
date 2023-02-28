@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
-import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.model.operations.PsCreateMap;

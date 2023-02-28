@@ -8,12 +8,20 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.entities.Professionnel;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -133,12 +141,12 @@ class ReadyToComputeDiffTest {
 	@Test
 	@DisplayName(" diff with 1 supp, 2 modifs and 1 add")
 	void diffTaskTest() throws Exception {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
+//		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+//		String rootpath = cl.getResource("work").getPath();
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
@@ -183,18 +191,41 @@ class ReadyToComputeDiffTest {
 	@Test
 	@DisplayName("initial diff from large file (100000 lines)")
 	public void diffFromLargeFile() throws Exception {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
+//		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+//		String rootpath = cl.getResource("work").getPath();
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112140852.txt");
 		p.setExtractedFilename(extractFile.getPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		p.nextStep();
 		OperationMap<String, RassEntity> psToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
 		assertEquals(psToCreate.size(), 99171);
+	}
+
+	@Test
+	@Disabled
+	@DisplayName("check order impact on hashCode and equals methods")
+	public void checkDifferentOrderForPs() throws IOException {
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		File file1 = FileUtils.copyFileToWorkspace("2WorkSituationsOrder1");
+		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();
+		Map<String, Professionnel> order1Map = state.loadMapsFromFile(file1);
+
+		File file2 = FileUtils.copyFileToWorkspace("2WorkSituationsOrder2");
+		Map<String, Professionnel> order2Map = state.loadMapsFromFile(file2);
+
+		assertEquals(1,order1Map.size());
+		assertEquals(1, order2Map.size());
+
+		MapDifference<String, Professionnel> diffPs = Maps.difference(order1Map, order2Map);
+		assertEquals(0, diffPs.entriesDiffering().size());
+		assertEquals(order1Map.get("810107592544").hashCode(), order2Map.get("810107592544").hashCode());
+		assertEquals(order1Map.get("810107592544"), order2Map.get("810107592544"));
 	}
 }

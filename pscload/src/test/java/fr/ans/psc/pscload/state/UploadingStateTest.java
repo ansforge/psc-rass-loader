@@ -3,15 +3,13 @@
  */
 package fr.ans.psc.pscload.state;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -112,22 +110,15 @@ public class UploadingStateTest {
     @Test
     @DisplayName("Call delete API with return code 200")
     void uploadChangesDeletePS() throws Exception {
-
-
-
         httpApiMockServer.stubFor(any(anyUrl()).willReturn(aResponse().withStatus(200)));
-        //Test
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String rootpath = cl.getResource("work").getPath();
-        File mapser = new File(rootpath + File.separator + "maps.ser");
-        if (mapser.exists()) {
-            mapser.delete();
-        }
+
         //Day 1 : Generate old ser file
         LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpApiMockServer.baseUrl()));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
         p.setExtractedFilename(extractFile1.getPath());
         p.getState().setProcess(p);
+        httpApiMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withStatus(410)));
         p.nextStep();
         String[] exclusions = {"90"};
         p.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
@@ -147,6 +138,12 @@ public class UploadingStateTest {
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120514.txt");
         p2.setExtractedFilename(extractFile2.getPath());
         p2.getState().setProcess(p2);
+        File dayOneFile = new File(Thread.currentThread().getContextClassLoader().getResource("day-one.json").getPath());
+        String dayOneJSON = Files.readString(dayOneFile.toPath());
+        httpApiMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayOneJSON)));
+        httpApiMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+                .willReturn(aResponse().withStatus(410)));
         p2.nextStep();
         // Day 2 : upload changes (1 delete)
         p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
@@ -184,6 +181,8 @@ public class UploadingStateTest {
         LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpApiMockServer.baseUrl()));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120513.txt");
         p.setExtractedFilename(extractFile1.getPath());
+        httpApiMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withStatus(410)));
         p.nextStep();
         String[] exclusions = {"90"};
         p.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
@@ -202,6 +201,12 @@ public class UploadingStateTest {
         registry.register(Integer.toString(registry.nextId()), p2);
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120514.txt");
         p2.setExtractedFilename(extractFile2.getPath());
+        File dayOneFile = new File(Thread.currentThread().getContextClassLoader().getResource("day-one.json").getPath());
+        String dayOneJSON = Files.readString(dayOneFile.toPath());
+        httpApiMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayOneJSON)));
+        httpApiMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+                .willReturn(aResponse().withStatus(410)));
         p2.nextStep();
         p2.setState(new DiffComputed(customMetrics));
         p2.nextStep();
@@ -219,6 +224,5 @@ public class UploadingStateTest {
         assertEquals(1, psToDelete2.size());
         assertEquals(0, psToUpdate2.size());
         assertEquals(HttpStatus.GONE.value(), psToDelete2.get("810107592544").getReturnStatus());
-
     }
 }

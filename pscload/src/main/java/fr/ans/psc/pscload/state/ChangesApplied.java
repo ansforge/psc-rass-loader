@@ -31,7 +31,6 @@ import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.model.EmailTemplate;
-import fr.ans.psc.pscload.model.MapsHandler;
 import fr.ans.psc.pscload.model.Stage;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;

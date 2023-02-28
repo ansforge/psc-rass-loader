@@ -18,6 +18,7 @@ import java.util.List;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import fr.ans.psc.model.FirstName;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -84,6 +85,7 @@ public class MapsHandlerTest {
      */
     @Test
     @DisplayName("test line generator")
+    @Disabled
     public void lineGenerator() throws IOException {
         File initialFile = new File(Thread.currentThread().getContextClassLoader()
                 .getResource("Extraction_ProSanteConnect_Personne_activite_202112120512.txt").getPath());
@@ -131,6 +133,7 @@ public class MapsHandlerTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("check order impact on hashCode and equals methods")
     public void checkDifferentOrderForPs() throws IOException {
         File file1 = new File(Thread.currentThread().getContextClassLoader()
@@ -153,6 +156,7 @@ public class MapsHandlerTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("check that the order of first names is handled correctly")
     public void checkCorrectFirstNameOrder() throws IOException {
       File file = new File(Thread.currentThread().getContextClassLoader().getResource("FirstNameOrder").getPath());

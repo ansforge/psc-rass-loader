@@ -3,18 +3,12 @@
  */
 package fr.ans.psc.pscload.state;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,17 +20,26 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 
+import com.univocity.parsers.common.DataProcessingException;
+import com.univocity.parsers.common.ParsingContext;
+import com.univocity.parsers.common.processor.ObjectRowProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.PsApi;
+import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
-import fr.ans.psc.pscload.model.MapsHandler;
+import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassItems;
+import fr.ans.psc.pscload.model.entities.SituationExercice;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.any23.encoding.TikaEncodingDetector;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
@@ -45,9 +48,8 @@ import org.springframework.web.client.HttpStatusCodeException;
  */
 @Slf4j
 public class ReadyToComputeDiff extends ProcessState {
-
-    private MapsHandler newMaps = new MapsHandler();
-    //	private MapsHandler oldMaps = new MapsHandler();
+    private static final int ROW_LENGTH = RassItems.values().length + 1;
+    private Map<String, Professionnel> newPsMap = new HashMap<>();
     private Map<String, Professionnel> oldPsMap = new HashMap<>();
     private PsApi psApi;
 
@@ -77,12 +79,13 @@ public class ReadyToComputeDiff extends ProcessState {
         cleanup(fileToLoad.getParent());
 
         try {
-            newMaps.loadMapsFromFile(fileToLoad);
+//            newMaps.loadMapsFromFile(fileToLoad);
+            newPsMap = loadMapsFromFile(fileToLoad);
             // we serialize new map now in a temp file (maps.{timestamp}.lock
-            File tmpmaps = new File(
-                    fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
-            process.setTmpMapsPath(tmpmaps.getAbsolutePath());
-            newMaps.serializeMaps(tmpmaps.getPath());
+//            File tmpmaps = new File(
+//                    fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
+//            process.setTmpMapsPath(tmpmaps.getAbsolutePath());
+//            newMaps.serializeMaps(tmpmaps.getPath());
             // deserialize the old file if exists
 //			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
 //			if (maps.exists()) {
@@ -90,9 +93,13 @@ public class ReadyToComputeDiff extends ProcessState {
 //				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap());
 //			}
             oldPsMap = loadMapFromDB();
+            if (!oldPsMap.isEmpty()) {
+                setReferenceSizeMetricsAfterDeserializing(oldPsMap);
+            }
+
 
             // Launch diff
-            MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newMaps.getPsMap());
+            MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
             fillChangesMaps(diffPs);
 
         } catch (IOException e) {
@@ -137,15 +144,75 @@ public class ReadyToComputeDiff extends ProcessState {
         return psMap;
     }
 
+    public Map<String, Professionnel> loadMapsFromFile(File file) throws IOException, IllegalArgumentException, DataProcessingException {
+        log.info("loading {} into list of Ps", file.getName());
+        Map<String, Professionnel> psMap = new HashMap<>();
+
+        // ObjectRowProcessor converts the parsed values and gives you the resulting
+        // row.
+        ObjectRowProcessor rowProcessor = new ObjectRowProcessor() {
+            @Override
+            public void rowProcessed(Object[] objects, ParsingContext parsingContext) {
+
+                String[] items = Arrays.asList(objects).toArray(new String[ROW_LENGTH]);
+                // test if exists by nationalId (item 2)
+                Professionnel psMapped = psMap.get(items[RassItems.NATIONAL_ID.column]);
+                if (psMapped == null) {
+                    // create PS and add to map
+                    Professionnel psRow = new Professionnel(items, true);
+                    psMap.put(psRow.getNationalId(), psRow);
+                } else {
+                    // if ps exists then add expro and situ exe.
+                    Optional<Profession> p = psMapped.getProfessionByCodeAndCategory(
+                            items[RassItems.EX_PRO_CODE.column], items[RassItems.CATEGORY_CODE.column]);
+                    if (p.isPresent()) {
+                        // add worksituation : it can't exists, otherwise it is a duplicate entry.
+                        SituationExercice situ = new SituationExercice(items);
+                        p.get().addWorkSituationsItem(situ);
+                    } else {
+                        // Add profession and worksituation
+                        ExerciceProfessionnel exepro = new ExerciceProfessionnel(items);
+                        psMapped.addProfessionsItem(exepro);
+
+                    }
+                }
+            }
+        };
+
+        CsvParserSettings parserSettings = new CsvParserSettings();
+        parserSettings.getFormat().setLineSeparator("\n");
+        parserSettings.getFormat().setDelimiter('|');
+        parserSettings.setProcessor(rowProcessor);
+        parserSettings.setHeaderExtractionEnabled(true);
+        parserSettings.setNullValue("");
+
+        CsvParser parser = new CsvParser(parserSettings);
+
+        // get file charset to secure data encoding
+        try (InputStream is = new FileInputStream(file)) {
+            Charset detectedCharset = Charset.forName(new TikaEncodingDetector().guessEncoding(is));
+            log.debug("detected charset is : " + detectedCharset.displayName());
+            parser.parse(new BufferedReader(new FileReader(file, detectedCharset)));
+        } catch (IOException e) {
+            throw new IOException("Encoding detection failure", e);
+        }
+        log.info("loading complete!");
+
+        return psMap;
+    }
+
+
     @Override
     public void write(Kryo kryo, Output output) {
-        kryo.writeObject(output, newMaps);
+        kryo.writeObject(output, newPsMap);
+        kryo.writeObject(output, oldPsMap);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(Kryo kryo, Input input) {
-        // TODO check this
-//		oldMaps = (MapsHandler) kryo.readObject(input, MapsHandler.class);
+        newPsMap = (Map<String, Professionnel>) kryo.readObject(input, HashMap.class);
+        oldPsMap = (Map<String, Professionnel>) kryo.readObject(input, HashMap.class);
     }
 
     private void fillChangesMaps(MapDifference<String, Professionnel> diffPs) {
