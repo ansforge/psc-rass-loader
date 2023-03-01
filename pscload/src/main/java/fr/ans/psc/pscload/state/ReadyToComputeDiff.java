@@ -97,7 +97,7 @@ public class ReadyToComputeDiff extends ProcessState {
     }
 
     private Map<String, Professionnel> loadMapFromDB() {
-        log.debug("retrieving all Ps");
+        log.info("retrieving all Ps");
         int page = 0;
         BigDecimal size = BigDecimal.valueOf(50000);
         boolean outOfPages = false;
@@ -105,12 +105,14 @@ public class ReadyToComputeDiff extends ProcessState {
 
         while (!outOfPages) {
             try {
-                log.debug("get all Ps, page {}", page);
+                log.info("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
+                log.info("page {} received", page);
                 List<Ps> adeliFiltered = psPage.stream().filter(ps -> !
 						(ps.getIdType().equals(ID_TYPE.ADELI.value) && ps.getProfessions().stream()
 								.anyMatch(profession -> profession.getCode().equals("60")))
                 ).collect(Collectors.toList());
+                log.info("filtering successful for page {}", page);
                 psList.addAll(adeliFiltered);
                 page++;
             } catch (HttpStatusCodeException e) {
@@ -120,11 +122,11 @@ public class ReadyToComputeDiff extends ProcessState {
                     log.error("Unexpected error while loading existing Ps Map. Aborting process...");
                     throw new DiffException("Error when loading existing Ps Map", e);
                 }
+            } catch (Exception e) {
+                log.error("something wrong happened", e);
             }
         }
-        Map<String, Professionnel> psMap = new HashMap<>();
-        psMap = psList.stream().map(Professionnel::new).collect(
-//                Collectors.toList());
+        Map<String, Professionnel> psMap = psList.stream().map(Professionnel::new).collect(
                 Collectors.toMap(Professionnel::getNationalId, Function.identity()));
 
         return psMap;
@@ -214,10 +216,10 @@ public class ReadyToComputeDiff extends ProcessState {
                     });
                     break;
                 case DELETE:
-                    diffPs.entriesOnlyOnLeft().forEach(map::put);
+                    map.putAll(diffPs.entriesOnlyOnLeft());
                     break;
                 case CREATE:
-                    diffPs.entriesOnlyOnRight().forEach(map::put);
+                    map.putAll(diffPs.entriesOnlyOnRight());
                     break;
                 default:
                     break;
@@ -250,7 +252,7 @@ public class ReadyToComputeDiff extends ProcessState {
             filesList.sort(this::compare);
             if (filesList.size() > 0) {
                 filesList.remove(filesList.size() - 1);
-                filesList.forEach(file -> file.delete());
+                filesList.forEach(File::delete);
             }
         });
     }
