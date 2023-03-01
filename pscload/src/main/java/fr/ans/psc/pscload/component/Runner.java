@@ -143,8 +143,6 @@ public class Runner {
                 } else {
                     File txtfile = new File(process.getExtractedFilename());
                     txtfile.delete();
-                    File lockfile = new File(process.getTmpMapsPath());
-                    lockfile.delete();
                     log.info("No differences with previous upload, unregistering process...");
                     processRegistry.unregister(id);
                 }
