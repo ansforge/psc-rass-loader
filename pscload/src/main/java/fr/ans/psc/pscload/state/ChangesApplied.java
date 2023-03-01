@@ -107,19 +107,6 @@ public class ChangesApplied extends ProcessState {
 
 	private void processRemainingPS() throws SerFileGenerationException {
         log.info("processing remaining Ps after changes loading...");
-//		MapsHandler newMaps = new MapsHandler();
-//        String lockedFilePath = process.getTmpMapsPath();
-//        String serFileName = new File(lockedFilePath).getParent() + File.separator + "maps.ser";
-//        File lockedSerFile = new File(lockedFilePath);
-//        File serFile = new File(serFileName);
-
-//        try {
-//            newMaps.deserializeMaps(lockedFilePath);
-//        } catch (IOException | ClassNotFoundException e) {
-//            String msgLogged = e.getClass().equals(IOException.class) ? "Error during deserialization" : "Serialized file not found";
-//            log.error(msgLogged, e.getLocalizedMessage());
-//            throw new SerFileGenerationException(e);
-//        }
 
         try {
             StringBuilder message = new StringBuilder();
@@ -147,18 +134,11 @@ public class ChangesApplied extends ProcessState {
             csvOutputFile.delete();
             zipFile.delete();
 
-//            serFile.delete();
-//            newMaps.serializeMaps(serFileName);
-//            boolean deleted = lockedSerFile.delete();
-//            log.info("Lock file deleted ? {}", deleted);
-            customMetrics.setStageMetric(Stage.CURRENT_MAP_SERIALIZED);
-
         } catch (IOException e) {
-            log.error("Error during serialization");
-            throw new SerFileGenerationException("Error during serialization");
+            log.error("Error during Changes Applied step");
+            throw new SerFileGenerationException("Error during Changes Applied step");
         } catch (LockedMapException e) {
-            log.error("Shutdown was initiated during Changes Applied stage. " +
-                    "No serialized file will be generated before complete shutdown.");
+            log.error("Shutdown was initiated during Changes Applied stage. ");
             throw new SerFileGenerationException("Shutdown initiated during Changes Applied stage, will mutate in SerializationInterrupted");
         }
     }

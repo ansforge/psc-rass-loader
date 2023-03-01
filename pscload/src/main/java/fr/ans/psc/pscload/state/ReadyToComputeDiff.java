@@ -79,25 +79,11 @@ public class ReadyToComputeDiff extends ProcessState {
         cleanup(fileToLoad.getParent());
 
         try {
-//            newMaps.loadMapsFromFile(fileToLoad);
             newPsMap = loadMapsFromFile(fileToLoad);
-            // we serialize new map now in a temp file (maps.{timestamp}.lock
-//            File tmpmaps = new File(
-//                    fileToLoad.getParent() + File.separator + "maps." + process.getTimestamp() + ".lock");
-//            process.setTmpMapsPath(tmpmaps.getAbsolutePath());
-//            newMaps.serializeMaps(tmpmaps.getPath());
-            // deserialize the old file if exists
-//			File maps = new File(fileToLoad.getParent() + File.separator + "maps.ser");
-//			if (maps.exists()) {
-//				oldMaps.deserializeMaps(fileToLoad.getParent() + File.separator + "maps.ser");
-//				setReferenceSizeMetricsAfterDeserializing(oldMaps.getPsMap());
-//			}
             oldPsMap = loadMapFromDB();
             if (!oldPsMap.isEmpty()) {
                 setReferenceSizeMetricsAfterDeserializing(oldPsMap);
             }
-
-
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
             fillChangesMaps(diffPs);
