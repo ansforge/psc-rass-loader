@@ -99,7 +99,7 @@ public class ReadyToComputeDiff extends ProcessState {
     private Map<String, Professionnel> loadMapFromDB() {
         log.info("retrieving all Ps");
         int page = 0;
-        BigDecimal size = BigDecimal.valueOf(50000);
+        BigDecimal size = BigDecimal.valueOf(2700000);
         boolean outOfPages = false;
         List<Ps> psList = new ArrayList<>();
 
