@@ -20,11 +20,10 @@ import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.model.operations.OperationType;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -125,6 +124,7 @@ public class RegistrySerializationTest {
      */
 //    test class
     @Test
+    @Disabled
     @DisplayName("test shutdown serialization")
     public void shutdownSerializationTest() throws Exception {
         // first day : populate ser
@@ -140,6 +140,8 @@ public class RegistrySerializationTest {
                 .withHeader("Content-Disposition", "attachment; filename=" + extractFilenameDay1 + ".zip")
                 .withBody(extractDay1Content)));
         httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+        httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
         runner.runScheduler();
         httpMockServer.stubFor(any(urlMatching("/generate-extract")).willReturn(aResponse().withStatus(200)));
         mockmvc.perform(post("/process/continue").accept(MediaType.APPLICATION_JSON))

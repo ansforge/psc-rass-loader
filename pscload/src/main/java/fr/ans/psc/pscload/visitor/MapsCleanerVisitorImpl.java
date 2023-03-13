@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
-import fr.ans.psc.pscload.model.MapsHandler;
-import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.model.operations.PsCreateMap;
@@ -24,18 +22,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MapsCleanerVisitorImpl implements MapsVisitor {
 
-	private MapsHandler maps;
-	
 	private List<String> report;
 
 	/**
 	 * Instantiates a new maps cleaner visitor impl.
 	 *
-	 * @param maps the maps
 	 */
-	public MapsCleanerVisitorImpl(MapsHandler maps, List<String> report) {
+	public MapsCleanerVisitorImpl(List<String> report) {
 		super();
-		this.maps = maps;
 		this.report = report;
 	}
 
@@ -55,9 +49,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
-			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				maps.getPsMap().remove(item.getInternalId());
-			}
 		});
 	}
 
@@ -77,9 +68,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
-			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				maps.getPsMap().replace(item.getInternalId(), (Professionnel) map.getOldValue(item.getInternalId()));
-			}
 		});
 	}
 
@@ -99,9 +87,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
-			if (isInconsistentWithDatabase(item.getReturnStatus())) {
-				maps.getPsMap().put(item.getInternalId(), (Professionnel) item);
-			}
 		});
 	}
 
@@ -115,7 +100,6 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 			return !status.equals(HttpStatus.GONE);
 		}
 	}
-
 	private void generateReportLine(OperationMap<String, RassEntity> map, List<String> report, RassEntity item) {
 		String[] dataItems = new String[] { map.getOperation().toString(), item.getInternalId(),
 				String.valueOf(item.getReturnStatus()), };

@@ -68,7 +68,7 @@ variable "nomad_namespace" {
 }
 
 variable "is_local_registry" {
-  type = boolean
+  type = bool
   default = true
   env = ["LOCAL_REGISTRY"]
 }
