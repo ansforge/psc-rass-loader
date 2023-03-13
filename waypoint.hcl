@@ -23,7 +23,6 @@ app "prosanteconnect/pscload-v2" {
   # we'll build using a Dockerfile and keeping it in a local registry.
   build {
     use "docker" {
-      dockerfile = "${path.app}/${var.dockerfile_path}"
       disable_entrypoint = true
     }
     # Uncomment below to use a remote docker registry to push your built images.
@@ -68,7 +67,7 @@ variable "nomad_namespace" {
 }
 
 variable "is_local_registry" {
-  type = boolean
+  type = bool
   default = true
   env = ["LOCAL_REGISTRY"]
 }

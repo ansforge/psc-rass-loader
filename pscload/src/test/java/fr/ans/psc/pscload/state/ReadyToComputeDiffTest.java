@@ -8,8 +8,21 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
 
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import fr.ans.psc.model.FirstName;
+import fr.ans.psc.pscload.model.entities.Professionnel;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -46,7 +59,17 @@ class ReadyToComputeDiffTest {
 	/** The http mock server. */
 	@RegisterExtension
 	static WireMockExtension httpMockServer = WireMockExtension.newInstance()
-			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock")).build();
+			.options(wireMockConfig().dynamicPort().usingFilesUnderClasspath("wiremock").extensions(new PostServeAction() {
+				@Override
+				public String getName() {
+					return "something";
+				}
+				@Override
+				public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
+//					log.error(serveEvent.getRequest().toString());
+//					log.error(serveEvent.getResponse().toString());
+				}
+			})).build();
 
 	/**
 	 * Register pg properties.
@@ -91,13 +114,17 @@ class ReadyToComputeDiffTest {
 	@DisplayName("Initial diff with no old ser file and 5 ps")
 	void initialDiffTaskTest() throws Exception {
 		String rootpath = Thread.currentThread().getContextClassLoader().getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
+
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
+
 		p.nextStep();
 		OperationMap<String, RassEntity> psToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
@@ -115,15 +142,17 @@ class ReadyToComputeDiffTest {
 	@Test
 	@DisplayName(" diff with 1 supp, 2 modifs and 1 add")
 	void diffTaskTest() throws Exception {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+//		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+//		String rootpath = cl.getResource("work").getPath();
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		p.nextStep();
 		String[] exclusions = {"90"};
 		p.setState(new UploadingChanges(exclusions, httpMockServer.baseUrl()));
@@ -133,10 +162,16 @@ class ReadyToComputeDiffTest {
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
+		File dayOneFile = new File(Thread.currentThread().getContextClassLoader().getResource("day-one.json").getPath());
+		String dayOneJSON = Files.readString(dayOneFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayOneJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
 		p2.nextStep();
 		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
@@ -157,18 +192,69 @@ class ReadyToComputeDiffTest {
 	@Test
 	@DisplayName("initial diff from large file (100000 lines)")
 	public void diffFromLargeFile() throws Exception {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		String rootpath = cl.getResource("work").getPath();
-		File mapser = new File(rootpath + File.separator + "maps.ser");
-		if (mapser.exists()) {
-			mapser.delete();
-		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics));
+//		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+//		String rootpath = cl.getResource("work").getPath();
+//		File mapser = new File(rootpath + File.separator + "maps.ser");
+//		if (mapser.exists()) {
+//			mapser.delete();
+//		}
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112140852.txt");
 		p.setExtractedFilename(extractFile.getPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		p.nextStep();
 		OperationMap<String, RassEntity> psToCreate = p.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
 				.findFirst().get();
 		assertEquals(psToCreate.size(), 99171);
+	}
+
+	@Test
+	@Disabled
+	@DisplayName("check order impact on hashCode and equals methods")
+	public void checkDifferentOrderForPs() throws IOException {
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		File file1 = FileUtils.copyFileToWorkspace("2WorkSituationsOrder1");
+		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();
+		Map<String, Professionnel> order1Map = state.loadMapsFromFile(file1);
+
+		File file2 = FileUtils.copyFileToWorkspace("2WorkSituationsOrder2");
+		Map<String, Professionnel> order2Map = state.loadMapsFromFile(file2);
+
+		assertEquals(1,order1Map.size());
+		assertEquals(1, order2Map.size());
+
+		MapDifference<String, Professionnel> diffPs = Maps.difference(order1Map, order2Map);
+		assertEquals(0, diffPs.entriesDiffering().size());
+		assertEquals(order1Map.get("810107592544").hashCode(), order2Map.get("810107592544").hashCode());
+		assertEquals(order1Map.get("810107592544"), order2Map.get("810107592544"));
+	}
+
+	@Test
+	@Disabled
+	@DisplayName("check that the order of first names is handled correctly")
+	public void checkCorrectFirstNameOrder() throws IOException {
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		File file1 = FileUtils.copyFileToWorkspace("FirstNameOrder");
+		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();
+		Map<String, Professionnel> nameOrderMap = state.loadMapsFromFile(file1);
+
+		assertEquals(3, nameOrderMap.size());
+
+		Professionnel professionnel123 = nameOrderMap.get("1");
+		Professionnel professionnel231 = nameOrderMap.get("2");
+		Professionnel professionnel31 = nameOrderMap.get("3");
+
+		professionnel123.getFirstNames().sort((Comparator.comparing(FirstName::getOrder)));
+		professionnel231.getFirstNames().sort((Comparator.comparing(FirstName::getOrder)));
+		professionnel31.getFirstNames().sort((Comparator.comparing(FirstName::getOrder)));
+
+		for (Professionnel professionnel : Arrays.asList(professionnel123, professionnel231, professionnel31)) {
+			System.out.println("\nChecking the order of first names in "+professionnel.getFirstNames());
+			for (int i = 0; i < professionnel.getFirstNames().size(); i++) {
+				assertEquals(i, professionnel.getFirstNames().get(i).getOrder());
+				System.out.println("Order of "+professionnel.getFirstNames().get(i)+" is "+professionnel.getFirstNames().get(i).getOrder());
+			}
+		}
 	}
 }

@@ -47,6 +47,19 @@ public class SituationExercice extends WorkSituation {
 		}
 	}
 
+	public SituationExercice(WorkSituation workSituation) {
+		super();
+		setModeCode(workSituation.getModeCode());
+		setActivitySectorCode(workSituation.getActivitySectorCode());
+		setPharmacistTableSectionCode(workSituation.getPharmacistTableSectionCode());
+		setRoleCode(workSituation.getRoleCode());
+		setActivityKindCode(workSituation.getActivityKindCode());
+		setRegistrationAuthority(workSituation.getRegistrationAuthority());
+		if (workSituation.getStructure() != null) {
+			setStructure(new Structure(workSituation.getStructure()));
+		}
+	}
+
 	public void setSituationExerciceItems(String[] items) {
 		items[RassItems.SITUATION_MODE_CODE.column] = getModeCode();
 		items[RassItems.ACTIVITY_SECTOR_CODE.column] = getActivitySectorCode();
