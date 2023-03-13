@@ -43,9 +43,6 @@ app "prosanteconnect/pscload-v2" {
       jobspec = templatefile("${path.app}/pscload-v2.nomad.tpl", {
         datacenter = var.datacenter
         nomad_namespace = var.nomad_namespace
-        proxy_port = var.proxy_port
-        proxy_host = var.proxy_host
-        non_proxy_hosts = var.non_proxy_hosts
         log_level = var.log_level
         registry_path = var.registry_username
         disable_messages = var.disable_messages
@@ -84,26 +81,6 @@ variable "registry_password" {
   default = ""
   env     = ["REGISTRY_PASSWORD"]
   sensitive = true
-}
-
-variable "proxy_host" {
-  type = string
-  default = ""
-}
-
-variable "proxy_port" {
-  type = string
-  default = ""
-}
-
-variable "non_proxy_hosts" {
-  type = string
-  default = "10.0.0.0/8"
-}
-
-variable "dockerfile_path" {
-  type = string
-  default = "Dockerfile.ext"
 }
 
 variable "log_level" {
