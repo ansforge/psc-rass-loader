@@ -23,7 +23,6 @@ app "prosanteconnect/pscload-v2" {
   # we'll build using a Dockerfile and keeping it in a local registry.
   build {
     use "docker" {
-      dockerfile = "${path.app}/${var.dockerfile_path}"
       disable_entrypoint = true
     }
     # Uncomment below to use a remote docker registry to push your built images.
@@ -33,7 +32,7 @@ app "prosanteconnect/pscload-v2" {
         tag = gitrefpretty()
         username = var.registry_username
         password = var.registry_password
-	      local = true
+        local = var.is_local_registry
       }
     }
   }
@@ -44,9 +43,6 @@ app "prosanteconnect/pscload-v2" {
       jobspec = templatefile("${path.app}/pscload-v2.nomad.tpl", {
         datacenter = var.datacenter
         nomad_namespace = var.nomad_namespace
-        proxy_port = var.proxy_port
-        proxy_host = var.proxy_host
-        non_proxy_hosts = var.non_proxy_hosts
         log_level = var.log_level
         registry_path = var.registry_username
         disable_messages = var.disable_messages
@@ -67,6 +63,12 @@ variable "nomad_namespace" {
   env = ["NOMAD_NAMESPACE"]
 }
 
+variable "is_local_registry" {
+  type = bool
+  default = true
+  env = ["LOCAL_REGISTRY"]
+}
+
 variable "registry_username" {
   type    = string
   default = ""
@@ -79,26 +81,6 @@ variable "registry_password" {
   default = ""
   env     = ["REGISTRY_PASSWORD"]
   sensitive = true
-}
-
-variable "proxy_host" {
-  type = string
-  default = ""
-}
-
-variable "proxy_port" {
-  type = string
-  default = ""
-}
-
-variable "non_proxy_hosts" {
-  type = string
-  default = "10.0.0.0/8"
-}
-
-variable "dockerfile_path" {
-  type = string
-  default = "Dockerfile.ext"
 }
 
 variable "log_level" {

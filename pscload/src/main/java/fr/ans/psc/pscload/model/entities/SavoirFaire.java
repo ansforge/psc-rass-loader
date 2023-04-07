@@ -38,6 +38,12 @@ public class SavoirFaire extends Expertise {
         setCode(items[RassItems.EXPERTISE_CODE.column]);
     }
 
+    public SavoirFaire(Expertise expertise) {
+        super();
+        setTypeCode(expertise.getTypeCode());
+        setCode(expertise.getCode());
+    }
+
     public void setSavoirFaireItems(String[] items) {
 		items[RassItems.EXPERTISE_TYPE_CODE.column] = getTypeCode();
 		items[RassItems.EXPERTISE_CODE.column] = getCode();

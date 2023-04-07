@@ -129,11 +129,11 @@ public class Runner {
                 customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 // Step 2 : Extract
                 process.nextStep();
-                process.setState(new ReadyToComputeDiff(customMetrics));
+                process.setState(new ReadyToComputeDiff(customMetrics, apiBaseUrl));
                 customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
                 // Step 4 : Load maps and compute diff
                 process.nextStep();
-                // check if differences exists
+                // check if differences exist
                 if (process.isRemainingPsOrStructuresInMaps()) {
                     process.setState(new DiffComputed(customMetrics));
                     // Step 3 : publish metrics
@@ -143,8 +143,6 @@ public class Runner {
                 } else {
                     File txtfile = new File(process.getExtractedFilename());
                     txtfile.delete();
-                    File lockfile = new File(process.getTmpMapsPath());
-                    lockfile.delete();
                     log.info("No differences with previous upload, unregistering process...");
                     processRegistry.unregister(id);
                 }

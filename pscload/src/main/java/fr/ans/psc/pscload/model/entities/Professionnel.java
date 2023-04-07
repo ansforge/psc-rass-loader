@@ -57,6 +57,30 @@ public class Professionnel extends Ps implements RassEntity {
 		}
 	}
 
+	public Professionnel(Ps ps) {
+		super();
+		setIdType(ps.getIdType());
+		setId(ps.getId());
+		setNationalId(ps.getNationalId());
+		setLastName(ps.getLastName());
+		setFirstNames(ps.getFirstNames());
+		setDateOfBirth(ps.getDateOfBirth());
+		setBirthAddressCode(ps.getBirthAddressCode());
+		setBirthCountryCode(ps.getBirthCountryCode());
+		setBirthAddress(ps.getBirthAddress());
+		setGenderCode(ps.getGenderCode());
+		setPhone(ps.getPhone());
+		setEmail(ps.getEmail());
+		setSalutationCode(ps.getSalutationCode());
+		if (ps.getProfessions() != null) {
+			List<Profession> professions = new ArrayList<>();
+			for (Profession profession : ps.getProfessions()) {
+				professions.add(new ExerciceProfessionnel(profession));
+			}
+			setProfessions(professions);
+		}
+	}
+
 	public void setProfessionnelItems(String[] items) {
 		items[RassItems.ID_TYPE.column] = getIdType();
 		items[RassItems.ID.column] = getId();

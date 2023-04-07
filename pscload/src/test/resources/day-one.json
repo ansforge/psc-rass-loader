@@ -1,0 +1,542 @@
+[
+  {
+    "_id": "63220eb9ca0fd7188e6996a4",
+    "idType": "0",
+    "id": "012800736",
+    "nationalId": "0012800736",
+    "lastName": "PIERRE",
+    "firstNames": [
+      {
+        "firstName": "Bernadette",
+        "order": 0
+      },
+      {
+        "firstName": "",
+        "order": 1
+      },
+      {
+        "firstName": "",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "04/01/1963",
+    "birthAddressCode": "",
+    "birthCountryCode": "",
+    "birthAddress": "",
+    "genderCode": "",
+    "phone": "",
+    "email": "",
+    "salutationCode": "MME",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "28",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "EVRARD",
+        "firstName": "Bernadette",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "",
+            "structure": null
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "0012800736"
+    ],
+    "activated": 1663176377,
+    "deactivated": null
+  },
+  {
+    "_id": "63220eb9ca0fd7188e6996b3",
+    "idType": "0",
+    "id": "012800728",
+    "nationalId": "0012800728",
+    "lastName": "SAUNIER",
+    "firstNames": [
+      {
+        "firstName": "Patrice",
+        "order": 0
+      },
+      {
+        "firstName": "",
+        "order": 1
+      },
+      {
+        "firstName": "",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "10/03/1958",
+    "birthAddressCode": "",
+    "birthCountryCode": "",
+    "birthAddress": "",
+    "genderCode": "",
+    "phone": "",
+    "email": "",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "28",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "SAUNIER",
+        "firstName": "PATRICE",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA42",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "ARS/CPAM/CPAM",
+            "structure": {
+              "siteSIRET": "39806996300062",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "C39806996300062",
+              "legalCommercialName": "SARL PATRICE SAUNIER-OPTICIEN KRYS",
+              "publicCommercialName": "",
+              "recipientAdditionalInfo": "SARL PATRICE SAUNIER-OPTICIEN KRYS",
+              "geoLocationAdditionalInfo": "",
+              "streetNumber": "13",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "R",
+              "streetLabel": "PASTEUR",
+              "distributionMention": "",
+              "cedexOffice": "01000 BOURG EN BRESSE",
+              "postalCode": "01000",
+              "communeCode": "",
+              "countryCode": "",
+              "phone": "",
+              "phone2": "",
+              "fax": "",
+              "email": "",
+              "departmentCode": "",
+              "oldStructureId": "339806996300062"
+            }
+          },
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA42",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "ARS/CPAM/CPAM",
+            "structure": {
+              "siteSIRET": "39806996300013",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "C39806996300013",
+              "legalCommercialName": "SARL PATRICE SAUNIER",
+              "publicCommercialName": "",
+              "recipientAdditionalInfo": "SARL PATRICE SAUNIER",
+              "geoLocationAdditionalInfo": "",
+              "streetNumber": "",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "BD",
+              "streetLabel": "CHARLES DE GAULLE",
+              "distributionMention": "CENTRE COMMERCIAL CARREFOUR",
+              "cedexOffice": "01000 BOURG EN BRESSE",
+              "postalCode": "01000",
+              "communeCode": "",
+              "countryCode": "",
+              "phone": "",
+              "phone2": "",
+              "fax": "",
+              "email": "",
+              "departmentCode": "",
+              "oldStructureId": "339806996300013"
+            }
+          },
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA42",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "ARS/CPAM/CPAM",
+            "structure": {
+              "siteSIRET": "39806996300070",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "C39806996300070",
+              "legalCommercialName": "SARL PATRICE SAUNIER - VISION PLUS",
+              "publicCommercialName": "",
+              "recipientAdditionalInfo": "SARL PATRICE SAUNIER - VISION PLUS",
+              "geoLocationAdditionalInfo": "",
+              "streetNumber": "114",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "R",
+              "streetLabel": "DU 19 MARS 1962",
+              "distributionMention": "",
+              "cedexOffice": "01540 VONNAS",
+              "postalCode": "01540",
+              "communeCode": "",
+              "countryCode": "",
+              "phone": "",
+              "phone2": "",
+              "fax": "",
+              "email": "",
+              "departmentCode": "",
+              "oldStructureId": "339806996300070"
+            }
+          },
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA42",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "ARS/CPAM/CPAM",
+            "structure": {
+              "siteSIRET": "39806996300054",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "C39806996300054",
+              "legalCommercialName": "SARL PATRICE SAUNIER",
+              "publicCommercialName": "",
+              "recipientAdditionalInfo": "SARL PATRICE SAUNIER",
+              "geoLocationAdditionalInfo": "",
+              "streetNumber": "64",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "R",
+              "streetLabel": "COMMERSON",
+              "distributionMention": "",
+              "cedexOffice": "01400 CHATILLON SUR CHALARONNE",
+              "postalCode": "01400",
+              "communeCode": "",
+              "countryCode": "",
+              "phone": "",
+              "phone2": "",
+              "fax": "",
+              "email": "",
+              "departmentCode": "",
+              "oldStructureId": "339806996300054"
+            }
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "0012800728"
+    ],
+    "activated": 1663176377,
+    "deactivated": null
+  },
+  {
+    "_id": "6321efc3ca0fd7188e4df301",
+    "idType": "0",
+    "id": "010000206",
+    "nationalId": "0010000206",
+    "lastName": "PINGOT",
+    "firstNames": [
+      {
+        "firstName": "Louis",
+        "order": 0
+      },
+      {
+        "firstName": "",
+        "order": 1
+      },
+      {
+        "firstName": "",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "22/07/1971",
+    "birthAddressCode": "",
+    "birthCountryCode": "",
+    "birthAddress": "",
+    "genderCode": "",
+    "phone": "",
+    "email": "",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "71",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "PINGOT",
+        "firstName": "Louis",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "S",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "",
+            "structure": null
+          },
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "",
+            "structure": null
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "0010000206"
+    ],
+    "activated": 1663168451,
+    "deactivated": null
+  },
+  {
+    "_id": "6331a7af305bb65268682d8b",
+    "idType": "8",
+    "id": "10107592585",
+    "nationalId": "810107592585",
+    "lastName": "ROLEAU",
+    "firstNames": [
+      {
+        "firstName": "PIERRE",
+        "order": 0
+      },
+      {
+        "firstName": "DANIEL",
+        "order": 1
+      },
+      {
+        "firstName": "PATRICK",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "26/08/1987",
+    "birthAddressCode": "56260",
+    "birthCountryCode": "99000",
+    "birthAddress": "VANNES",
+    "genderCode": "M",
+    "phone": "+33 222222222",
+    "email": "roleau@outlook.fr",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "70",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "ROLEAU",
+        "firstName": "PIERRE",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "CNOMK//",
+            "structure": {
+              "siteSIRET": "",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "",
+              "legalCommercialName": "",
+              "publicCommercialName": "",
+              "recipientAdditionalInfo": "",
+              "geoLocationAdditionalInfo": "",
+              "streetNumber": "",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "",
+              "streetLabel": "",
+              "distributionMention": "",
+              "cedexOffice": "",
+              "postalCode": "",
+              "communeCode": "",
+              "countryCode": "",
+              "phone": "",
+              "phone2": "",
+              "fax": "",
+              "email": "",
+              "departmentCode": "",
+              "oldStructureId": ""
+            }
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "810107592585"
+    ],
+    "activated": 1664198575,
+    "deactivated": null
+  },
+  {
+    "_id": "6331a7af305bb65268682dd3",
+    "idType": "8",
+    "id": "10107592544",
+    "nationalId": "810107592544",
+    "lastName": "HIRE",
+    "firstNames": [
+      {
+        "firstName": "BRICE",
+        "order": 0
+      },
+      {
+        "firstName": "HENRI",
+        "order": 1
+      },
+      {
+        "firstName": "ALAIN",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "31/10/1992",
+    "birthAddressCode": "2B033",
+    "birthCountryCode": "99000",
+    "birthAddress": "BASTIA",
+    "genderCode": "M",
+    "phone": "+33 111111111",
+    "email": "monkine@gmail.com",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "70",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "HIRE",
+        "firstName": "BRICE",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA07",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "CNOMK/CNOMK/CNOMK",
+            "structure": {
+              "siteSIRET": "",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "R10100000240453",
+              "legalCommercialName": "ROULEAU ANGELE",
+              "publicCommercialName": "Cabinet individuel",
+              "recipientAdditionalInfo": "CABINET DE KINESITHERAPIE",
+              "geoLocationAdditionalInfo": "",
+              "streetNumber": "",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "PLN",
+              "streetLabel": "DE SAN JUVAN",
+              "distributionMention": "LIEU-DIT CORATO",
+              "cedexOffice": "20117 ECCICA SUARELLA",
+              "postalCode": "20117",
+              "communeCode": "2A104",
+              "countryCode": "99000",
+              "phone": "",
+              "phone2": "0678980325",
+              "fax": "",
+              "email": "rouleau@gmail.com",
+              "departmentCode": "",
+              "oldStructureId": "410005929293016"
+            }
+          },
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA07",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "CNOMK/CNOMK/CNOMK",
+            "structure": {
+              "siteSIRET": "",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "R10000000833997",
+              "legalCommercialName": "PERRIER BERNARD",
+              "publicCommercialName": "Cabinet individuel",
+              "recipientAdditionalInfo": "",
+              "geoLocationAdditionalInfo": "SANT GRISEO",
+              "streetNumber": "",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "LD",
+              "streetLabel": "MORCHITTAJA",
+              "distributionMention": "",
+              "cedexOffice": "20117 ECCIEA SUARELLA",
+              "postalCode": "20117",
+              "communeCode": "2A104",
+              "countryCode": "99000",
+              "phone": "",
+              "phone2": "0681390506",
+              "fax": "",
+              "email": "perrier@gmail.com",
+              "departmentCode": "",
+              "oldStructureId": "410005888853066"
+            }
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "810107592544"
+    ],
+    "activated": 1664198575,
+    "deactivated": null
+  }
+]

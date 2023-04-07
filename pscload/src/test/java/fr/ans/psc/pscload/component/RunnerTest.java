@@ -129,6 +129,8 @@ public class RunnerTest {
 				.withHeader("Content-Type", "application/zip")
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
 		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
 		mockmvc.perform(MockMvcRequestBuilders.get("/process/info?details=true")
@@ -160,6 +162,8 @@ public class RunnerTest {
 				.withHeader("Content-Type", "application/zip")
 				.withHeader("Content-Disposition", "attachment; filename=" + filename + ".zip").withBody(content)));
 		httpMockServer.stubFor(any(urlMatching("/v2/ps")).willReturn(aResponse().withStatus(200)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(410)));
 		runner.runScheduler();
 		assertFalse(registry.isEmpty());
 

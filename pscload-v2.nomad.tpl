@@ -26,6 +26,12 @@ job "pscload" {
       port "http" {
         to = 8080
       }
+      port "filebeat" {
+        to = 5066
+      }
+      port "exporter" {
+        to = 8088
+      }
     }
 
     task "pscload" {
@@ -64,7 +70,7 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms1g -Xmx11g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/files-repo/ -Dspring.config.location=/secrets/application.properties -Dhttps.proxyHost=${proxy_host} -Dhttps.proxyPort=${proxy_port} -Dhttps.nonProxyHosts=${non_proxy_hosts} -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
+JAVA_TOOL_OPTIONS="-Xms1g -Xmx11g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/files-repo/ -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
 EOH
       }
       template {
@@ -131,8 +137,8 @@ EOF
       restart {
         interval = "30m"
         attempts = 5
-        delay    = "15s"
-        mode     = "delay"
+        delay = "15s"
+        mode = "delay"
       }
       meta {
         INSTANCE = "$\u007BNOMAD_ALLOC_NAME\u007D"
@@ -146,7 +152,55 @@ EOH
         env = true
       }
       config {
-        image = "${registry_path}/filebeat:7.14.2"
+        image = "prosanteconnect/filebeat:7.17.0"
+        ports = [
+          "filebeat"]
+      }
+        service {
+        name = "log-shipper"
+        port = "filebeat"
+        check {
+          type = "tcp"
+          port = "filebeat"
+          interval = "30s"
+          timeout = "2s"
+        }
+      }
+    }
+    task "beats-exporter" {
+      lifecycle {
+        hook = "poststart"
+        sidecar = true
+      }
+      driver = "docker"
+      config {
+        image = "prosanteconnect/beats-exporter"
+        args = [
+          "-m=8088"
+        ]
+        ports = [
+          "exporter"
+        ]
+      }
+      env {
+        ADDRESSES_TO_SCRAPE = "$\u007BNOMAD_ADDR_filebeat\u007D"
+      }
+      resources {
+        cpu    = 100
+        memory = 32
+      }
+
+      service {
+        name = "$\u007BNOMAD_TASK_NAME\u007D"
+        port = "exporter"
+        check {
+          name     = "log-exporter alive"
+          type     = "http"
+          path     = "/metrics"
+          interval = "30s"
+          timeout  = "2s"
+          failures_before_critical = 5
+        }
       }
     }
   }
