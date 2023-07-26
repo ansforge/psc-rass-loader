@@ -105,15 +105,15 @@ public class ReadyToComputeDiff extends ProcessState {
 
         while (!outOfPages) {
             try {
-                log.info("get all Ps, page {}", page);
+                log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
-                log.info("page {} received", page);
+                log.debug("page {} received", page);
                 List<Ps> adeliFiltered = psPage.stream()
                         .filter(ps -> ps.getDeactivated() == null || ps.getDeactivated() < ps.getActivated())
                         .filter(ps -> !(ps.getIdType().equals(ID_TYPE.ADELI.value)
                                 && ps.getProfessions().stream().anyMatch(profession -> profession.getCode().equals("60")))
                 ).collect(Collectors.toList());
-                log.info("filtering successful for page {}", page);
+                log.debug("filtering successful for page {}", page);
                 psList.addAll(adeliFiltered);
                 page++;
             } catch (HttpStatusCodeException e) {
