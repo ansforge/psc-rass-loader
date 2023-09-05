@@ -23,6 +23,7 @@ app "prosanteconnect/pscload-v2" {
   # we'll build using a Dockerfile and keeping it in a local registry.
   build {
     use "docker" {
+      build_args = {"PROSANTECONNECT_PACKAGE_GITHUB_TOKEN"="${var.github_token}"}
       disable_entrypoint = true
       build_args = {"PROSANTECONNECT_PACKAGE_GITHUB_TOKEN"="${var.github_token}"}
     }
