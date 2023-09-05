@@ -194,7 +194,7 @@
 <!--			</snapshots>-->
 <!--		</repository>-->
 		<repository>
-			<id>github-prosanteconnect</id>
+			<id>github</id>
 			<url>https://maven.pkg.github.com/prosanteconnect/psc-ecosystem-components</url>
 		</repository>
 	</repositories>
