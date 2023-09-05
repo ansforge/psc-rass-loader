@@ -185,13 +185,17 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
+<!--		<repository>-->
+<!--			<id>psc-rabbitmq-mvn-repo</id>-->
+<!--			<url>https://github.com/prosanteconnect/psc-ecosystem-components/raw/rabbitmq-mvn-repo/</url>-->
+<!--			<snapshots>-->
+<!--				<enabled>true</enabled>-->
+<!--				<updatePolicy>always</updatePolicy>-->
+<!--			</snapshots>-->
+<!--		</repository>-->
 		<repository>
-			<id>psc-rabbitmq-mvn-repo</id>
-			<url>https://github.com/prosanteconnect/psc-ecosystem-components/raw/rabbitmq-mvn-repo/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
+			<id>github-prosanteconnect</id>
+			<url>https://maven.pkg.github.com/prosanteconnect/psc-ecosystem-components</url>
 		</repository>
 	</repositories>
 

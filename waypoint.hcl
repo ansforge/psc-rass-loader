@@ -25,6 +25,7 @@ app "prosanteconnect/pscload-v2" {
     use "docker" {
       build_args = {"PROSANTECONNECT_PACKAGE_GITHUB_TOKEN"="${var.github_token}"}
       disable_entrypoint = true
+      build_args = {"PROSANTECONNECT_PACKAGE_GITHUB_TOKEN"="${var.github_token}"}
     }
     # Uncomment below to use a remote docker registry to push your built images.
     registry {

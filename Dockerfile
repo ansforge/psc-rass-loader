@@ -1,7 +1,7 @@
 FROM maven:3-jdk-11 AS build
+COPY settings-docker.xml /usr/share/maven/ref/
 COPY pom.xml /usr/src/app/pom.xml
 COPY pscload /usr/src/app/pscload
-COPY settings-docker.xml /usr/share/maven/ref/
 ARG PROSANTECONNECT_PACKAGE_GITHUB_TOKEN
 RUN mvn -f /usr/src/app/pom.xml -gs /usr/share/maven/ref/settings-docker.xml -Dinternal.repo.username=${PROSANTECONNECT_PACKAGE_GITHUB_TOKEN} clean package
 FROM openjdk:11-slim-buster
