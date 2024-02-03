@@ -27,9 +27,9 @@ job "pscload" {
       mode = "fail"
     }
 
-    constraint {
+    affinity {
       attribute = "$\u007Bnode.class\u007D"
-      value     = "data"
+      value     = "compute"
     }
 
     network {
