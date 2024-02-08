@@ -9,7 +9,7 @@ runner {
   enabled = true
   profile = "secpsc-${workspace.name}"
   data_source "git" {
-    url = "https://github.com/prosanteconnect/pscload-v2.git"
+    url = "https://github.com/ansforge/psc-rass-loader.git"
     ref = "${workspace.name}"
   }
   poll {
