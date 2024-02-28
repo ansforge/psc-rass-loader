@@ -10,6 +10,16 @@ job "pscload" {
 
   group "pscload-services" {
     count = "1"
+
+    // Volume portworx CSI
+    volume "pscload" {
+      attachment_mode = "file-system"
+      access_mode     = "single-node-writer"
+      type            = "csi"
+      read_only       = false
+      source          = "vs-${nomad_namespace}-pscload-data"
+    }
+
     restart {
       attempts = 3
       delay = "60s"
@@ -17,9 +27,9 @@ job "pscload" {
       mode = "fail"
     }
 
-    constraint {
+    affinity {
       attribute = "$\u007Bnode.class\u007D"
-      value     = "data"
+      value     = "compute"
     }
 
     network {
@@ -32,13 +42,17 @@ job "pscload" {
       kill_timeout = "90s"
       kill_signal = "SIGTERM"
       driver = "docker"
+
+      // Monter le volume portworx CSI 
+      volume_mount {
+        volume      = "pscload"
+        destination = "/app/files-repo"
+        read_only   = false
+      }
+
       config {
         extra_hosts = [ "psc-api-maj.internal:$\u007BNOMAD_IP_http\u007D" ]
         image = "${artifact.image}:${artifact.tag}"
-        volumes = [
-          "name=${nomad_namespace}-pscload-data,io_priority=high,size=10,repl=2:/app/files-repo"
-        ]
-        volume_driver = "pxd"
         ports = ["http"]
       }
       template {
