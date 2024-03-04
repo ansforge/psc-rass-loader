@@ -98,7 +98,7 @@
             </properties>
             <excludes>
               <exclude>LICENSE.txt</exclude>
-              <exclude>src/test/resources/**</exclude>
+              <exclude>src/test/resources/**/Extraction_*.txt</exclude>
               <exclude>settings-docker.xml</exclude>
             </excludes>
             <aggregate>false</aggregate>
