@@ -7,7 +7,7 @@
   <artifactId>pscload-root</artifactId>
   <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  <inceptionYear>2022-2023</inceptionYear>
 
   <name>pscload-root</name>
   
@@ -68,7 +68,44 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+        <!-- license  mvn license:format -->
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>2.11</version>
+          <configuration>
+            <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+            <properties>
+              <owner>Agence du Numérique en Santé (ANS)</owner>
+              <email>https://esante.gouv.fr</email>
+            </properties>
+            <excludes>
+              <exclude>LICENSE.txt</exclude>
+              <exclude>src/test/resources/**</exclude>
+              <exclude>src/main/resources/**</exclude>
+              <exclude>settings-docker.xml</exclude>
+            </excludes>
+            <aggregate>false</aggregate>
+          </configuration>
+        </plugin>
+        <!-- END license -->
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.11</version>
+        <executions>
+          <execution>
+            <id>license-check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
