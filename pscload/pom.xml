@@ -203,9 +203,9 @@
                         <exclude>**/RegistrySerializationTest.java</exclude>
                         <exclude>**/RegistryDeserializationTest.java</exclude>
                     </excludes>
-                    <argLine>
-                        -Ddisable.messages=true
-                    </argLine>
+                    <systemPropertyVariables>
+                      <disable.messages>true</disable.messages>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
