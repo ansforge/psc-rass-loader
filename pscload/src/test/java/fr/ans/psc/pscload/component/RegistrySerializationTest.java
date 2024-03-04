@@ -123,18 +123,21 @@ public class RegistrySerializationTest {
     }
 
 
-//    CAUTION
-//    This method tests that the registry serialization ends properly when context shuts down.
-//    So there isn't any assertion but if this tests failed, a KryoException would be thrown, then failing the test
-//
-//    Because of the Spring context destruction at the end of the test, this method MUST be placed alone in its own
+/*
+ *    CAUTION
+ *    This method tests that the registry serialization ends properly when context shuts down.
+ *    So there isn't any assertion but if this tests failed, a KryoException would be thrown, 
+ *    then failing the test
+ *
+ *    Because of the Spring context destruction at the end of the test, this method MUST be placed alone in its own
+ *    test class
+ */
 
     /**
      * Shutdown serialization test.
      *
      * @throws Exception the exception
      */
-//    test class
     @Test
     @Disabled
     @DisplayName("test shutdown serialization")
