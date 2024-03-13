@@ -29,7 +29,6 @@
     <version>1.0.1-SNAPSHOT</version>
     <name>pscload</name>
     <description>psc loader</description>
-    <inceptionYear>2022-2023</inceptionYear>
 
     <dependencies>
         <dependency>
@@ -145,34 +144,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- license  mvn license:format -->
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>2.11</version>
-                <configuration>
-                    <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
-                    <properties>
-                        <owner>Agence du Numérique en Santé (ANS)</owner>
-                        <email>https://esante.gouv.fr</email>
-                    </properties>
-                    <excludes>
-                        <exclude>LICENSE.txt</exclude>
-                        <exclude>Dockerfile</exclude>
-                        <exclude>**/README</exclude>
-                        <exclude>src/main/packaging/**</exclude>
-                        <exclude>src/test/resources/**</exclude>
-                        <exclude>src/main/resources/**</exclude>
-                        <exclude>src/main/webapp/**</exclude>
-                        <exclude>node_modules/**</exclude>
-                        <exclude>dist/**</exclude>
-                        <exclude>.tmp/**</exclude>
-                        <exclude>settings-docker.xml</exclude>
-                        <exclude>**/*.properties</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <!-- END license -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
