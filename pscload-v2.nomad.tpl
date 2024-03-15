@@ -78,7 +78,7 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms1g -Xmx11g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/files-repo/ -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
+JAVA_TOOL_OPTIONS="-Xms1g -Xmx13g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
 EOH
       }
       template {
@@ -123,7 +123,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 13312
+        memory = 15312
       }
       service {
         name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
