@@ -64,18 +64,20 @@ public class ReadyToComputeDiff extends ProcessState {
     private Map<String, Professionnel> newPsMap = new HashMap<>();
     private Map<String, Professionnel> oldPsMap = new HashMap<>();
     private PsApi psApi;
+    private List<String> excludedProfessionCodes=Collections.emptyList();
 
     private CustomMetrics customMetrics;
 
     /**
      * Instantiates a new ready to compute diff state.
      */
-    public ReadyToComputeDiff(CustomMetrics customMetrics, String apiBaseUrl) {
+    public ReadyToComputeDiff(List<String> excludedProfessionCodes, CustomMetrics customMetrics, String apiBaseUrl) {
         super();
         ApiClient apiClient = new ApiClient();
         apiClient.setBasePath(apiBaseUrl);
         this.psApi = new PsApi(apiClient);
         this.customMetrics = customMetrics;
+        this.excludedProfessionCodes=Objects.requireNonNull(excludedProfessionCodes,"excludedProfessionCodes cannot be null");
     }
 
     /**
@@ -122,8 +124,10 @@ public class ReadyToComputeDiff extends ProcessState {
                 log.debug("page {} received", page);
                 List<Ps> adeliFiltered = psPage.stream()
                         .filter(ps -> ps.getDeactivated() == null || ps.getDeactivated() < ps.getActivated())
-                        .filter(ps -> !(ps.getIdType().equals(ID_TYPE.ADELI.value)
-                                && ps.getProfessions().stream().anyMatch(profession -> profession.getCode().equals("60")))
+                        .filter(ps -> !(
+                                ps.getIdType().equals(ID_TYPE.ADELI.value)
+                                && ps.getProfessions().stream().anyMatch(profession -> this.excludedProfessionCodes.contains(profession.getCode()))
+                            )
                 ).collect(Collectors.toList());
                 log.debug("filtering successful for page {}", page);
                 psList.addAll(adeliFiltered);

@@ -45,6 +45,7 @@ import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.UploadException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -141,8 +142,11 @@ public class Runner {
                 customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 // Step 2 : Extract
                 process.nextStep();
-                process.setState(new ReadyToComputeDiff(customMetrics, apiBaseUrl));
+                
+                final List<String> excludedProfessionList = List.of(Objects.requireNonNullElse(excludedProfessions, new String[]{}));
+                process.setState(new ReadyToComputeDiff(excludedProfessionList, customMetrics, apiBaseUrl));
                 customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
+                
                 // Step 4 : Load maps and compute diff
                 process.nextStep();
                 // check if differences exist
