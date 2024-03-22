@@ -73,6 +73,7 @@ public class TestingController {
 	@Value("${api.base.url}")
 	private String apiBaseUrl;
   
+	// TODO : refactor this and the Runner component to define common parameters once for both.
 	@Value("${deactivation.excluded.profession.codes:}")
 	private String[] excludedProfessions;
 
