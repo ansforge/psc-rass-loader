@@ -72,6 +72,9 @@ public class TestingController {
 
 	@Value("${api.base.url}")
 	private String apiBaseUrl;
+  
+	@Value("${deactivation.excluded.profession.codes:}")
+	private String[] excludedProfessions;
 
 	@Autowired
 	private CustomMetrics customMetrics;
@@ -152,7 +155,7 @@ public class TestingController {
 			} else if (States.READY_TO_EXTRACT.classname.equals(state)) {
 				processState = new ReadyToExtract();
 			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)) {
-        processState = new ReadyToComputeDiff(List.of("60"), customMetrics, apiBaseUrl);
+        processState = new ReadyToComputeDiff(List.of(excludedProfessions), customMetrics, apiBaseUrl);
 			} else if (States.DIFF_COMPUTED.classname.equals(state)){
 				processState = new DiffComputed(customMetrics);
 			} else {
