@@ -39,6 +39,7 @@ import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.LoadProcess;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.utils.FileUtils;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -111,7 +112,7 @@ public class DiffComputedStateTest {
         if (mapser.exists()) {
             mapser.delete();
         }
-        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
         File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
         p.setExtractedFilename(extractFile.getPath());
         httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
@@ -136,7 +137,7 @@ public class DiffComputedStateTest {
         p.getState().setProcess(p);
         p.nextStep();
 
-        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
         p2.setExtractedFilename(extractFile2.getPath());
         p2.getState().setProcess(p2);

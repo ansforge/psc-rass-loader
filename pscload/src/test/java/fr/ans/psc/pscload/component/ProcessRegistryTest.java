@@ -65,6 +65,7 @@ import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.model.operations.OperationType;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -276,7 +277,7 @@ class ProcessRegistryTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace(fileName1);
 		p.setExtractedFilename(extractFile.getPath());
 		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
@@ -290,7 +291,7 @@ class ProcessRegistryTest {
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile2 = FileUtils.copyFileToWorkspace(fileName2);
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);

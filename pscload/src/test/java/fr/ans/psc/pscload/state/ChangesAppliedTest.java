@@ -48,6 +48,7 @@ import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.model.operations.OperationType;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -133,7 +134,7 @@ public class ChangesAppliedTest {
             mapser.delete();
         }
         //Day 1 : Generate old ser file
-        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+        LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
         File extractFile1 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
         p.setExtractedFilename(extractFile1.getPath());
         httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
@@ -155,7 +156,7 @@ public class ChangesAppliedTest {
         httpMockServer.stubFor(delete("/v2/ps/810107592585")
                 .willReturn(aResponse().withStatus(410)));
         // Day 2 : Compute diff
-        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+        LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
         registry.register(Integer.toString(registry.nextId()), p2);
         File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
         p2.setExtractedFilename(extractFile2.getPath());
