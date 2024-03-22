@@ -117,6 +117,7 @@ public class ReadyToComputeDiff extends ProcessState {
         boolean outOfPages = false;
         List<Ps> psList = new ArrayList<>();
 
+        log.debug("Excluding the following profession from delete : {}",excludedProfessionCodes);
         while (!outOfPages) {
             try {
                 log.debug("get all Ps, page {}", page);
