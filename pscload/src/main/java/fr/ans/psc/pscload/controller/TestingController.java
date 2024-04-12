@@ -38,6 +38,8 @@ import fr.ans.psc.pscload.state.ProcessState;
 import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 import fr.ans.psc.pscload.state.ReadyToExtract;
 import fr.ans.psc.pscload.state.Submitted;
+import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -71,6 +73,10 @@ public class TestingController {
 
 	@Value("${api.base.url}")
 	private String apiBaseUrl;
+  
+	// TODO : refactor this and the Runner component to define common parameters once for both.
+	@Value("${deactivation.excluded.profession.codes:}")
+	private String[] excludedProfessions;
 
 	@Autowired
 	private CustomMetrics customMetrics;
@@ -151,7 +157,8 @@ public class TestingController {
 			} else if (States.READY_TO_EXTRACT.classname.equals(state)) {
 				processState = new ReadyToExtract();
 			} else if (States.READY_TO_COMPUTE_DIFF.classname.equals(state)) {
-				processState = new ReadyToComputeDiff(customMetrics, apiBaseUrl);
+				final List<String> excludedProfessionList = List.of( Objects.requireNonNullElse(excludedProfessions,new String[]{}));
+				processState = new ReadyToComputeDiff(excludedProfessionList, customMetrics, apiBaseUrl);
 			} else if (States.DIFF_COMPUTED.classname.equals(state)){
 				processState = new DiffComputed(customMetrics);
 			} else {
