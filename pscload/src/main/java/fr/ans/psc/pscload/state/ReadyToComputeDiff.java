@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2022-2023 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
+/*
+ * Copyright © 2022-2024 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,18 +64,20 @@ public class ReadyToComputeDiff extends ProcessState {
     private Map<String, Professionnel> newPsMap = new HashMap<>();
     private Map<String, Professionnel> oldPsMap = new HashMap<>();
     private PsApi psApi;
+    private List<String> excludedProfessionCodes=Collections.emptyList();
 
     private CustomMetrics customMetrics;
 
     /**
      * Instantiates a new ready to compute diff state.
      */
-    public ReadyToComputeDiff(CustomMetrics customMetrics, String apiBaseUrl) {
+    public ReadyToComputeDiff(List<String> excludedProfessionCodes, CustomMetrics customMetrics, String apiBaseUrl) {
         super();
         ApiClient apiClient = new ApiClient();
         apiClient.setBasePath(apiBaseUrl);
         this.psApi = new PsApi(apiClient);
         this.customMetrics = customMetrics;
+        this.excludedProfessionCodes=Objects.requireNonNull(excludedProfessionCodes,"excludedProfessionCodes cannot be null");
     }
 
     /**
@@ -115,6 +117,7 @@ public class ReadyToComputeDiff extends ProcessState {
         boolean outOfPages = false;
         List<Ps> psList = new ArrayList<>();
 
+        log.debug("Excluding the following profession from delete : {}",excludedProfessionCodes);
         while (!outOfPages) {
             try {
                 log.debug("get all Ps, page {}", page);
@@ -122,8 +125,10 @@ public class ReadyToComputeDiff extends ProcessState {
                 log.debug("page {} received", page);
                 List<Ps> adeliFiltered = psPage.stream()
                         .filter(ps -> ps.getDeactivated() == null || ps.getDeactivated() < ps.getActivated())
-                        .filter(ps -> !(ps.getIdType().equals(ID_TYPE.ADELI.value)
-                                && ps.getProfessions().stream().anyMatch(profession -> profession.getCode().equals("60")))
+                        .filter(ps -> !(
+                                ps.getIdType().equals(ID_TYPE.ADELI.value)
+                                && ps.getProfessions().stream().anyMatch(profession -> this.excludedProfessionCodes.contains(profession.getCode()))
+                            )
                 ).collect(Collectors.toList());
                 log.debug("filtering successful for page {}", page);
                 psList.addAll(adeliFiltered);

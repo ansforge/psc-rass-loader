@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2022-2023 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
+/*
+ * Copyright © 2022-2024 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,6 +52,7 @@ import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.EmailService;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.model.operations.OperationType;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -130,7 +131,7 @@ class ReadyToComputeDiffTest {
 //		if (mapser.exists()) {
 //			mapser.delete();
 //		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
 
@@ -160,7 +161,7 @@ class ReadyToComputeDiffTest {
 //		if (mapser.exists()) {
 //			mapser.delete();
 //		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120512.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
@@ -174,7 +175,7 @@ class ReadyToComputeDiffTest {
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile2 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);
@@ -210,7 +211,7 @@ class ReadyToComputeDiffTest {
 //		if (mapser.exists()) {
 //			mapser.delete();
 //		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112140852.txt");
 		p.setExtractedFilename(extractFile.getPath());
 		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
@@ -225,7 +226,7 @@ class ReadyToComputeDiffTest {
 	@Disabled
 	@DisplayName("check order impact on hashCode and equals methods")
 	public void checkDifferentOrderForPs() throws IOException {
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File file1 = FileUtils.copyFileToWorkspace("2WorkSituationsOrder1");
 		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();
 		Map<String, Professionnel> order1Map = state.loadMapsFromFile(file1);
@@ -246,7 +247,7 @@ class ReadyToComputeDiffTest {
 	@Disabled
 	@DisplayName("check that the order of first names is handled correctly")
 	public void checkCorrectFirstNameOrder() throws IOException {
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File file1 = FileUtils.copyFileToWorkspace("FirstNameOrder");
 		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();
 		Map<String, Professionnel> nameOrderMap = state.loadMapsFromFile(file1);
