@@ -25,6 +25,11 @@
   <packaging>pom</packaging>
   <inceptionYear>2022-2024</inceptionYear>
 
+  <scm>
+    <connection>scm:git:${project.basedir}</connection>
+    <tag>HEAD</tag>
+  </scm>
+
   <name>pscload-root</name>
   
   	<parent>
