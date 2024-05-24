@@ -30,3 +30,7 @@ mvn release:prepare -DautoVersionSubmodules=true -DtagNameFormat=@{version}
 git push
 git push origin 1.0.1
 ```
+
+## Troubleshooting
+
+For trouble shooting see the [DEBUG](DEBUG.md) section.
