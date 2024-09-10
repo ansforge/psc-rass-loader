@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2022-2023 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
+/*
+ * Copyright © 2022-2024 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,6 +65,7 @@ import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.utils.FileUtils;
 import fr.ans.psc.pscload.model.operations.OperationType;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -276,7 +277,7 @@ class ProcessRegistryTest {
 		if (mapser.exists()) {
 			mapser.delete();
 		}
-		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils.copyFileToWorkspace(fileName1);
 		p.setExtractedFilename(extractFile.getPath());
 		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
@@ -290,7 +291,7 @@ class ProcessRegistryTest {
 		p.getState().setProcess(p);
 		p.nextStep();
 
-		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(customMetrics, httpMockServer.baseUrl()));
+		LoadProcess p2 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile2 = FileUtils.copyFileToWorkspace(fileName2);
 		p2.setExtractedFilename(extractFile2.getPath());
 		p2.getState().setProcess(p2);

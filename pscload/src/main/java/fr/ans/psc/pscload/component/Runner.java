@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2022-2023 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
+/*
+ * Copyright © 2022-2024 Agence du Numérique en Santé (ANS) (https://esante.gouv.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,6 +45,7 @@ import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.UploadException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -93,6 +94,7 @@ public class Runner {
     @Value("${api.base.url}")
     private String apiBaseUrl;
 
+    // TODO : refactor this and the Runner component to define common parameters once for both.
     @Value("${deactivation.excluded.profession.codes:}")
     private String[] excludedProfessions;
 
@@ -141,8 +143,11 @@ public class Runner {
                 customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 // Step 2 : Extract
                 process.nextStep();
-                process.setState(new ReadyToComputeDiff(customMetrics, apiBaseUrl));
+                
+                final List<String> excludedProfessionList = List.of(Objects.requireNonNullElse(excludedProfessions, new String[]{}));
+                process.setState(new ReadyToComputeDiff(excludedProfessionList, customMetrics, apiBaseUrl));
                 customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
+                
                 // Step 4 : Load maps and compute diff
                 process.nextStep();
                 // check if differences exist
