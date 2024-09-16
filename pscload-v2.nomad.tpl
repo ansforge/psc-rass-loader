@@ -97,7 +97,8 @@ spring.rabbitmq.username={{ with secret "psc-ecosystem/${nomad_namespace}/rabbit
 spring.rabbitmq.password={{ .Data.data.password }}{{ end }}
 extract.download.url={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.extract_download_url }}{{ end }}
 test.download.url={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.test_download_url }}{{ end }}
-use.x509.auth=true
+# Only in dev : no x509auth
+use.x509.auth=false
 keystore.password={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.keystore_password }}{{ end }}
 enable.scheduler={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.enable_scheduler }}{{ end }}
 schedule.cron.expression = 0 0 12,15,18,21 * * ?
