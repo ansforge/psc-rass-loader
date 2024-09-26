@@ -37,7 +37,10 @@ For trouble shooting see the [DEBUG](DEBUG.md) section.
 
 ## Qualification
 
-To help qualification, two test datasets have been added.
+To help qualification, two test datasets have been added (see below).
+
+To use extract files from these datasets, set the psload key `extract_download_url` in Vault for the instance to `https://raw.githubusercontent.com/ansforge/psc-rass-loader/main/pscload/src/test/resources/<dataset_name>/<extract name>`. For example, to use the `BaseExtract.zip` extract from dataset **qualif-extracts**, use : https://raw.githubusercontent.com/ansforge/psc-rass-loader/main/pscload/src/test/resources/qualif-extracts/BaseExtract.zip
+![Where is download URL](src/main/doc/extract_download_url.png)
 
 ### qualif-extracts
 
