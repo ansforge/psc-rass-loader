@@ -4,6 +4,14 @@ Component to load RASS data in psc db
 
 ## Developement
 
+### Tool versions
+
+Please note that `psc-rass-loader` depends on deprecated JDK APIs, and the build
+breaks from JDK 21 on.
+This can be addressed by :
+*  Installing a JDK-11 or 17 version (this can be done locally instead of system-wide)
+*  Setting up  the JAVA_HOME variable to this JDK version.
+
 ### Distribution history
 
 This ecosystem uses many independant components, some of which live an independant life in distinct repositories.
