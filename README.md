@@ -49,6 +49,7 @@ around 100,000 data lines :
 
 *   **BaseExtract.zip** : full 100,000 dataset to use as reference.
 *   **Extract_20.000_deletes.zip** : BaseExtract.zip with 20.000 les identities. This will trigger 20.000 deletes (and siwtching back to `BaseExtract.zip` will trigger 20000 creates). 20.000 dletes are 20% deleted lines and will trigger an alert (but 20000 creates won't)
+*   **Extract_20.000_changes.zip** : BaseExtract.zip with 20.000 changed identities. This will trigger 20.000 updates (and switching back to `BaseExtract.zip` will trigger 20000 more updates). 20.000 deletes are 20% updated lines and willtrigger an alert.
 *   **Extract_400_changes.zip** : this will trigger 400 updates (no alert as this is less than 5% change)
 *   **Extract_400_deletes.zip** : this will trigger 400 deletes (no alert as this is less than 5% change)
 
