@@ -52,7 +52,7 @@ To use extract files from these datasets, set the psload key `extract_download_u
 
 ### qualif-extracts
 
-This datasets consists in 3 extracts (see the [qualif-extracts directory](pscload/src/test/resources/qualif-extracts))
+This datasets consists in 5 extracts + 1 toggle file (see the [qualif-extracts directory](pscload/src/test/resources/qualif-extracts))
 around 100,000 data lines :
 
 *   **BaseExtract.zip** : full 100,000 dataset to use as reference.
@@ -60,6 +60,7 @@ around 100,000 data lines :
 *   **Extract_20.000_deletes.zip** : BaseExtract.zip with 20.000 less identities. This will trigger 20.000 deletes (and siwtching back to `BaseExtract.zip` will trigger 20000 creates). 20.000 deletes are 20% deleted lines and will trigger an alert (but 20000 creates won't)
 *   **Extract_400_changes.zip** : this will trigger 400 updates (no alert as this is less than 5% change)
 *   **Extract_400_deletes.zip** : this will trigger 400 deletes (no alert as this is less than 5% change)
+*   **toggle-1.csv**: this is a toggle file to be uploaded to add or remove toggles. Of course, subsets can be used too.
 
 ### CT-AMAR
 
