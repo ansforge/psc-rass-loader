@@ -4,6 +4,14 @@ Component to load RASS data in psc db
 
 ## Developement
 
+### Tool versions
+
+Please note that `psc-rass-loader` depends on deprecated JDK APIs, and the build
+breaks from JDK 21 on.
+This can be addressed by :
+*  Installing a JDK-11 or 17 version (this can be done locally instead of system-wide)
+*  Setting up  the JAVA_HOME variable to this JDK version.
+
 ### Distribution history
 
 This ecosystem uses many independant components, some of which live an independant life in distinct repositories.
@@ -44,13 +52,15 @@ To use extract files from these datasets, set the psload key `extract_download_u
 
 ### qualif-extracts
 
-This datasets consists in 3 extracts (see the [qualif-extracts directory](pscload/src/test/resources/qualif-extracts))
+This datasets consists in 5 extracts + 1 toggle file (see the [qualif-extracts directory](pscload/src/test/resources/qualif-extracts))
 around 100,000 data lines :
 
 *   **BaseExtract.zip** : full 100,000 dataset to use as reference.
-*   **Extract_20.000_deletes.zip** : BaseExtract.zip with 20.000 les identities. This will trigger 20.000 deletes (and siwtching back to `BaseExtract.zip` will trigger 20000 creates). 20.000 dletes are 20% deleted lines and will trigger an alert (but 20000 creates won't)
-*   **Extract_400Changes.zip** : this will trigger 400 updates (no alert as this is less than 5% change)
-*   **Extract_400Deletes.zip** : this will trigger 400 deletes (no alert as this is less than 5% change)
+*   **Extract_20.000_changes.zip** : BaseExtract.zip with 20.000 changed identities. This will trigger 20.000 updates (and switching back to `BaseExtract.zip` will trigger 20000 more updates). 20.000 deletes are 20% updated lines and willtrigger an alert.
+*   **Extract_20.000_deletes.zip** : BaseExtract.zip with 20.000 less identities. This will trigger 20.000 deletes (and siwtching back to `BaseExtract.zip` will trigger 20000 creates). 20.000 deletes are 20% deleted lines and will trigger an alert (but 20000 creates won't)
+*   **Extract_400_changes.zip** : this will trigger 400 updates (no alert as this is less than 5% change)
+*   **Extract_400_deletes.zip** : this will trigger 400 deletes (no alert as this is less than 5% change)
+*   **toggle-1.csv**: this is a toggle file to be uploaded to add or remove toggles. Of course, subsets can be used too.
 
 ### CT-AMAR
 
