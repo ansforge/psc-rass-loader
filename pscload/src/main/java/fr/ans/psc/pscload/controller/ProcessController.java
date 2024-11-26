@@ -16,13 +16,16 @@
 package fr.ans.psc.pscload.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,7 +72,7 @@ public class ProcessController {
 
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private MessageProducer messageProducer;
 
@@ -204,5 +207,23 @@ public class ProcessController {
             response = new ResponseEntity<Void>(HttpStatus.TOO_EARLY);
         }
         return response;
+    }
+
+    @DeleteMapping(value = "/process/clear-files")
+    public ResponseEntity<Void> clearFilesDirectory() {
+        LoadProcess process = registry.getCurrentProcess();
+
+        if (process == null) {
+            try {
+                FileUtils.cleanDirectory(new File(filesDirectory));
+                log.info("cleaning directory {}", filesDirectory);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } catch (IOException e) {
+                log.error("cleaning directory failed", e);
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 }
