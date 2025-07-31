@@ -170,7 +170,17 @@ public enum RassItems {
     /**
      * The activity kind code
      */
-    ACTIVITY_KIND_CODE(49);
+    ACTIVITY_KIND_CODE(49),
+	
+    /**
+     * The origin
+     */
+    ORIGIN(50),
+    
+    /**
+     * The quaity
+     */
+    QUALITY(51);
 
     /** The column. */
     public int column;
