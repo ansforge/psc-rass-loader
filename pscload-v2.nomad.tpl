@@ -138,7 +138,7 @@ EOF
     		failures_before_critical = 5
   	      }
       }
-
+}
     task "log-shipper" {
       driver = "docker"
       restart {
