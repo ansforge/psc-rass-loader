@@ -126,19 +126,18 @@ EOF
         memory = 15312
       }
       service {
-        name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
-        tags = ["urlprefix-$\u007BPUBLIC_HOSTNAME\u007D/pscload/v2/"]
-        port = "http"
-        check {
-          type = "http"
-          path = "/pscload/v2/check"
-          port = "http"
-          interval = "30s"
-          timeout = "2s"
-          failures_before_critical = 5
-        }
+ 	 name = "${NOMAD_NAMESPACE}-${NOMAD_JOB_NAME}"
+  	tags = ["urlprefix-${PUBLIC_HOSTNAME}/pscload/v2/ proto=http"]
+  	port = "http"
+  	check {
+    		type = "http"
+    		path = "/pscload/v2/check"
+    		port = "http"
+    		interval = "30s"
+    		timeout = "2s"
+    		failures_before_critical = 5
+  	      }
       }
-    }
 
     task "log-shipper" {
       driver = "docker"
