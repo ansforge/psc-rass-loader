@@ -127,7 +127,7 @@ EOF
       }
       service {
  	 name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
-  	tags = ["urlprefix-$\u007BPUBLIC_HOSTNAME\u007D/pscload/v2/proto=http"]
+  	tags = ["urlprefix-$\u007BPUBLIC_HOSTNAME\u007D/pscload/v2/ proto=http"]
   	port = "http"
   	check {
     		type = "http"
