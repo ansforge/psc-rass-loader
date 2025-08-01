@@ -126,8 +126,8 @@ EOF
         memory = 15312
       }
       service {
- 	 name = "${NOMAD_NAMESPACE}-${NOMAD_JOB_NAME}"
-  	tags = ["urlprefix-${PUBLIC_HOSTNAME}/pscload/v2/ proto=http"]
+ 	 name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
+  	tags = ["urlprefix-${PUBLIC_HOSTNAME}/pscload/v2/proto=http"]
   	port = "http"
   	check {
     		type = "http"
