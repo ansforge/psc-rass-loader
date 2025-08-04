@@ -90,6 +90,11 @@ public class ReadyToComputeDiff extends ProcessState {
     @Override
     public void nextStep() throws LoadProcessException {
         File fileToLoad = new File(process.getExtractedFilename());
+        log.info("getName" + fileToLoad.getName());
+        log.info("getPath" + fileToLoad.getPath());
+        log.info("getAbsolutePath" + fileToLoad.getAbsolutePath());
+        log.info("getParent" + fileToLoad.getParent());
+        log.info("" + fileToLoad.toString());
         cleanup(fileToLoad.getParent());
 
         try {

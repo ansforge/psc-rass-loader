@@ -143,7 +143,7 @@ public class Runner {
 //                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 
                 // Step 2 : Extract
-                process.setExtractedFilename("Extraction_ProSanteConnect_Personne_activite_202508040803.txt");
+                process.setExtractedFilename("/app/files-repo/Extraction_ProSanteConnect_Personne_activite_202508040803.txt");
                 process.nextStep();
                 
                 final List<String> excludedProfessionList = List.of(Objects.requireNonNullElse(excludedProfessions, new String[]{}));
