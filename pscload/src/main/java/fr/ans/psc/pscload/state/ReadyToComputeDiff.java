@@ -124,8 +124,24 @@ public class ReadyToComputeDiff extends ProcessState {
 
         log.debug("Excluding the following profession from delete : {}",excludedProfessionCodes);
         while (!outOfPages) {
-        	log.info("ReadyToComputeDiff.loadMapFromDB - psList : "
+        	log.info("ReadyToComputeDiff.loadMapFromDB / Début boucle");
+        	
+        	log.info(psList != null ? "psList != null" : "psList == null");
+        	if(psList != null) {
+        		log.info(psList.get(page) != null ? "psList.get(page) != null" : "psList.get(page) == null");
+        		
+        		if(psList.get(page) != null) {
+        			log.info(psList.get(page).getId() != null ? "psList.get(page).getId() != null" : "psList.get(page).getId() == null");
+        		}
+        	}
+        	
+        	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getId(): "
+        			+ psList != null ? (psList.get(page) != null ? psList.get(page).getId() : "psList.get(page) == null") : "psList == null");
+        	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getIdType(): "
+        			+ psList != null ? (psList.get(page) != null ? psList.get(page).getIdType() : "psList.get(page) == null") : "psList == null");
+        	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getOrigin() : "
         			+ psList != null ? (psList.get(page) != null ? psList.get(page).getOrigin() : "psList.get(page) == null") : "psList == null");
+        	
             try {
                 log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
@@ -151,6 +167,9 @@ public class ReadyToComputeDiff extends ProcessState {
                 log.error("something wrong happened", e);
             }
         }
+        
+        log.info("ReadyToComputeDiff.loadMapFromDB / Fin de boucle");
+        
         Map<String, Professionnel> psMap = psList.stream().map(Professionnel::new).collect(
                 Collectors.toMap(Professionnel::getNationalId, Function.identity()));
 
@@ -255,6 +274,9 @@ public class ReadyToComputeDiff extends ProcessState {
     }
 
     private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
+    	
+    	log.info("ReadyToComputeDiff.setReferenceSizeMetricsAfterDeserializing / début de méthode");
+    	
         Arrays.stream(ID_TYPE.values()).forEach(id_type -> {
         	
         	log.info("ReadyToComputeDiff.setReferenceSizeMetricsAfterDeserializing - id_type : " + id_type.name());
@@ -265,6 +287,8 @@ public class ReadyToComputeDiff extends ProcessState {
             customMetrics.setPsMetricSize(metric, Math.toIntExact(psMap.values().stream().filter(
                     professionnel -> id_type.value.equals(professionnel.getIdType())).count()));
         });
+        
+        log.info("ReadyToComputeDiff.setReferenceSizeMetricsAfterDeserializing / fin de boucle");
     }
 
     /**
