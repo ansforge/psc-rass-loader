@@ -138,9 +138,9 @@ public class Runner {
             processRegistry.register(id, process);
             try {
                 // Step 1 : Download
-                process.nextStep();
-                process.setState(new ReadyToExtract());
-                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
+//                process.nextStep();
+//                process.setState(new ReadyToExtract());
+//                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 // Step 2 : Extract
                 process.nextStep();
                 
