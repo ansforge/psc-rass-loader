@@ -126,22 +126,6 @@ public class ReadyToComputeDiff extends ProcessState {
         while (!outOfPages) {
         	log.info("ReadyToComputeDiff.loadMapFromDB / Début boucle");
         	
-        	log.info(psList != null ? "psList != null" : "psList == null");
-        	if(psList != null) {
-        		log.info(psList.get(page) != null ? "psList.get(page) != null" : "psList.get(page) == null");
-        		
-        		if(psList.get(page) != null) {
-        			log.info(psList.get(page).getId() != null ? "psList.get(page).getId() != null" : "psList.get(page).getId() == null");
-        		}
-        	}
-        	
-        	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getId(): "
-        			+ psList != null ? (psList.get(page) != null ? psList.get(page).getId() : "psList.get(page) == null") : "psList == null");
-        	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getIdType(): "
-        			+ psList != null ? (psList.get(page) != null ? psList.get(page).getIdType() : "psList.get(page) == null") : "psList == null");
-        	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getOrigin() : "
-        			+ psList != null ? (psList.get(page) != null ? psList.get(page).getOrigin() : "psList.get(page) == null") : "psList == null");
-        	
             try {
                 log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
@@ -154,6 +138,19 @@ public class ReadyToComputeDiff extends ProcessState {
                             )
                 ).collect(Collectors.toList());
                 log.debug("filtering successful for page {}", page);
+                
+
+            	
+            	log.info(psList != null ? "psList != null" : "psList == null");
+            	
+            	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getId(): "
+            			+ psList != null && !psList.isEmpty() ? (psList.get(page) != null ? psList.get(page).getId() : "psList.get(page) == null") : "psList == null");
+            	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getIdType(): "
+            			+ psList != null && !psList.isEmpty() ? (psList.get(page) != null ? psList.get(page).getIdType() : "psList.get(page) == null") : "psList == null");
+            	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getOrigin() : "
+            			+ psList != null && !psList.isEmpty() ? (psList.get(page) != null ? psList.get(page).getOrigin() : "psList.get(page) == null") : "psList == null");
+            	
+                
                 psList.addAll(adeliFiltered);
                 page++;
             } catch (HttpStatusCodeException e) {
