@@ -137,11 +137,13 @@ public class Runner {
             LoadProcess process = new LoadProcess(idle);
             processRegistry.register(id, process);
             try {
-                // Step 1 : Download
-//                process.nextStep();
-//                process.setState(new ReadyToExtract());
-//                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
+//                // Step 1 : Download
+                process.nextStep();
+                process.setState(new ReadyToExtract());
+                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
+                
                 // Step 2 : Extract
+                process.setExtractedFilename("Extraction_ProSanteConnect_Personne_activite_202508040803.txt");
                 process.nextStep();
                 
                 final List<String> excludedProfessionList = List.of(Objects.requireNonNullElse(excludedProfessions, new String[]{}));
