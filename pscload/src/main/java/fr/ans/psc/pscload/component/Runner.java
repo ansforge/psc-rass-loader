@@ -137,12 +137,14 @@ public class Runner {
             LoadProcess process = new LoadProcess(idle);
             processRegistry.register(id, process);
             try {
-//                // Step 1 : Download
+                // Step 1 : Download
+            	log.info("Step 1 : Download");
 //                process.nextStep();
 //                process.setState(new ReadyToExtract());
 //                customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
                 
                 // Step 2 : Extract
+            	log.info("Step 2 : Extract");
                 process.setExtractedFilename("/app/files-repo/test.txt");
                 process.nextStep();
                 
@@ -151,11 +153,13 @@ public class Runner {
                 customMetrics.setStageMetric(Stage.READY_TO_COMPUTE);
                 
                 // Step 4 : Load maps and compute diff
+                log.info("Step 4 : Load maps and compute diff");
                 process.nextStep();
                 // check if differences exist
                 if (process.isRemainingPsOrStructuresInMaps()) {
                     process.setState(new DiffComputed(customMetrics));
                     // Step 3 : publish metrics
+                    log.info("Step 3 : publish metrics");
                     process.nextStep();
                     customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
                     // End of scheduled steps

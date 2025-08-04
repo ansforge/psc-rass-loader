@@ -90,11 +90,11 @@ public class ReadyToComputeDiff extends ProcessState {
     @Override
     public void nextStep() throws LoadProcessException {
         File fileToLoad = new File(process.getExtractedFilename());
-        log.info("getName" + fileToLoad.getName());
-        log.info("getPath" + fileToLoad.getPath());
-        log.info("getAbsolutePath" + fileToLoad.getAbsolutePath());
-        log.info("getParent" + fileToLoad.getParent());
-        log.info("" + fileToLoad.toString());
+        log.info("ReadyToComputeDiff.LoadProcessException - fileToLoad.getName : " + fileToLoad.getName());
+        log.info("ReadyToComputeDiff.LoadProcessException - fileToLoad.getPath : " + fileToLoad.getPath());
+        log.info("ReadyToComputeDiff.LoadProcessException - fileToLoad.getAbsolutePath : " + fileToLoad.getAbsolutePath());
+        log.info("ReadyToComputeDiff.LoadProcessException - fileToLoad.getParent : " + fileToLoad.getParent());
+        log.info("ReadyToComputeDiff.LoadProcessException - fileToLoad.toString : " + fileToLoad.toString());
         cleanup(fileToLoad.getParent());
 
         try {
@@ -124,6 +124,8 @@ public class ReadyToComputeDiff extends ProcessState {
 
         log.debug("Excluding the following profession from delete : {}",excludedProfessionCodes);
         while (!outOfPages) {
+        	log.info("ReadyToComputeDiff.loadMapFromDB - psList : "
+        			+ psList != null ? (psList.get(page) != null ? psList.get(page).getOrigin() : "psList.get(page) == null") : "psList == null");
             try {
                 log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
@@ -254,6 +256,9 @@ public class ReadyToComputeDiff extends ProcessState {
 
     private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
         Arrays.stream(ID_TYPE.values()).forEach(id_type -> {
+        	
+        	log.info("ReadyToComputeDiff.setReferenceSizeMetricsAfterDeserializing - id_type : " + id_type.name());
+        	
             String metricKey = String.join("_", "REFERENCE", id_type.name(), "SIZE");
             SizeMetric metric = SizeMetric.valueOf(metricKey);
 
