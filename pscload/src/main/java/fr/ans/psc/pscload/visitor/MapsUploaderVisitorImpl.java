@@ -63,7 +63,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		super();
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();
-		apiClient.setBasePath(apiBaseUrl);
+		
+		log.info("MapsUploaderVisitorImpl - apiBaseUrl : " + apiBaseUrl);
+        log.info("MapsUploaderVisitorImpl - apiBaseUrl / Remplacer : " + "http://172.16.0.4:23886/psc-api-maj/api");
+        
+        apiClient.setBasePath("http://172.16.0.4:23886/psc-api-maj/api");//"http://172.16.0.4:23886/psc-api-maj/api"
 		this.psApi = new PsApi(apiClient);
 		this.messageProducer = messageProducer;
 
