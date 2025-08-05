@@ -76,6 +76,8 @@ public class UploadingChanges extends ProcessState {
         log.info("calling API...");
     	
 		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, messageProducer);
+		
+		log.info("--- 1");
 
         List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
         if (excludedOperations != null) {
@@ -83,9 +85,12 @@ public class UploadingChanges extends ProcessState {
             log.info("these operations won't be processed : {}", ops);
             processMaps.removeIf(map -> excludedOperations.contains(map.getOperation().name()));
         }
+        
+        log.info("--- 2");
 
 		try {
             for (OperationMap<String, RassEntity> map : processMaps) {
+            	log.info("--- 3");
                 map.accept(visitor);
             }
             log.info("API operations done.");

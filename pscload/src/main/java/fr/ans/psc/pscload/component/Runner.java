@@ -205,6 +205,7 @@ public class Runner {
             customMetrics.resetSizeMetrics();
             customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             process.nextStep();
+            log.info("--- 5");
             process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
             // Step 5 : call pscload
             process.nextStep();

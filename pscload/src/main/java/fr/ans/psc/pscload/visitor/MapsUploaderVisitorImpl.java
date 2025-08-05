@@ -70,7 +70,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
         apiClient.setBasePath("http://172.16.0.4:23886/psc-api-maj/api");//"http://172.16.0.4:23886/psc-api-maj/api"
 		this.psApi = new PsApi(apiClient);
 		this.messageProducer = messageProducer;
-
+		log.info("--- 0");
 	}
 
 	@SuppressWarnings("deprecation")
