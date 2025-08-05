@@ -103,7 +103,28 @@ public class ReadyToComputeDiff extends ProcessState {
 
         try {
             newPsMap = loadMapsFromFile(fileToLoad);
+            log.info("content newPsMap");
+            newPsMap.forEach((key, value) -> {
+              
+                if (value != null) {
+                	log.info("key : " + key + " ====> " + value.toString());
+                }
+            });
+            log.info("end of content newPsMap");
+            
+            log.info(" ---------------------------------------------------- ");
+            
             oldPsMap = loadMapFromDB();
+            log.info("content oldPsMap");
+            oldPsMap.forEach((key, value) -> {
+              
+                if (value != null) {
+                	log.info("key : " + key + " ====> " + value.toString());
+                }
+            });
+            log.info("end of content oldPsMap");
+            
+            
             if (!oldPsMap.isEmpty()) {
                 setReferenceSizeMetricsAfterDeserializing(oldPsMap);
             }

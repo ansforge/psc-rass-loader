@@ -179,6 +179,8 @@ public class Runner {
         } else {
             log.warn("A process is already running !");
         }
+        
+        log.info("runProcess() : End");
     }
 
     /**
