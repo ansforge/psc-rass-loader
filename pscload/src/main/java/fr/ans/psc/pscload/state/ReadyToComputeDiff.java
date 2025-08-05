@@ -74,6 +74,9 @@ public class ReadyToComputeDiff extends ProcessState {
     public ReadyToComputeDiff(List<String> excludedProfessionCodes, CustomMetrics customMetrics, String apiBaseUrl) {
         super();
         ApiClient apiClient = new ApiClient();
+        
+        log.info("ReadyToComputeDiff - apiBaseUrl : " + apiBaseUrl);
+        
         apiClient.setBasePath(apiBaseUrl);
         this.psApi = new PsApi(apiClient);
         this.customMetrics = customMetrics;
