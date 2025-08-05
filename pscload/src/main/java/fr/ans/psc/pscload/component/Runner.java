@@ -161,6 +161,7 @@ public class Runner {
                     // Step 3 : publish metrics
                     log.info("Step 3 : publish metrics");
                     process.nextStep();
+                    log.info("Step 3 : End");
                     customMetrics.setStageMetric(Stage.DIFF_COMPUTED);
                     // End of scheduled steps
                 } else {

@@ -143,9 +143,9 @@ public class ReadyToComputeDiff extends ProcessState {
                 ).collect(Collectors.toList());
                 log.debug("filtering successful for page {}", page);
                 
-
+                log.info("Debut Affichage Log");
             	
-            	log.info(psList != null ? "psList != null" : "psList == null");
+            	log.info(psList != null && !psList.isEmpty() ? "psList != null" : "psList == null");
             	
             	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getId(): "
             			+ psList != null && !psList.isEmpty() ? (psList.get(page) != null ? psList.get(page).getId() : "psList.get(page) == null") : "psList == null");
@@ -154,6 +154,7 @@ public class ReadyToComputeDiff extends ProcessState {
             	log.info("ReadyToComputeDiff.loadMapFromDB - psList.get(page).getOrigin() : "
             			+ psList != null && !psList.isEmpty() ? (psList.get(page) != null ? psList.get(page).getOrigin() : "psList.get(page) == null") : "psList == null");
             	
+            	log.info("Fin Affichage Log");
                 
                 psList.addAll(adeliFiltered);
                 page++;

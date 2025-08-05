@@ -70,5 +70,7 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
             );
             log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());
         });
+        
+        log.info("End Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {");
     }
 }
