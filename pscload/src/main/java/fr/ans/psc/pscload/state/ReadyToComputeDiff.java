@@ -78,7 +78,7 @@ public class ReadyToComputeDiff extends ProcessState {
         log.info("ReadyToComputeDiff - apiBaseUrl : " + apiBaseUrl);
         log.info("ReadyToComputeDiff - apiBaseUrl / Remplacer : " + "http://172.16.0.4:23886/psc-api-maj/api");
         
-        apiClient.setBasePath("http://172.16.0.4:23886/psc-api-maj/api");//"http://172.16.0.4:23886/psc-api-maj/api"
+        apiClient.setBasePath(apiBaseUrl);//"http://172.16.0.4:23886/psc-api-maj/api"
         this.psApi = new PsApi(apiClient);
         this.customMetrics = customMetrics;
         this.excludedProfessionCodes=Objects.requireNonNull(excludedProfessionCodes,"excludedProfessionCodes cannot be null");
