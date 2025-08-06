@@ -104,7 +104,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
 			} catch (Throwable e) {
-	        	log.info(e.getMessage(), e);
+				if (e != null) {
+					log.info(e.getMessage(), e);
+				} else {
+					log.info("visit(PsDeleteMap map) : Throwable e");
+				}
 	        }
 		});
 
@@ -153,7 +157,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
 			} catch (Throwable e) {
-	        	log.info(e.getMessage(), e);
+				if (e != null) {
+					log.info(e.getMessage(), e);
+				} else {
+					log.info("visit(PsDeleteMap map) : Throwable e");
+				}
 	        }
 		});
 
@@ -191,7 +199,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
 			} catch (Throwable e) {
-	        	log.info(e.getMessage(), e);
+				if (e != null) {
+					log.info(e.getMessage(), e);
+				} else {
+					log.info("visit(PsDeleteMap map) : Throwable e");
+				}
 	        }
 		});
 
