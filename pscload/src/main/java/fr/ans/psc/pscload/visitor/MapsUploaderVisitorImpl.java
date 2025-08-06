@@ -103,7 +103,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
-			}
+			} catch (Throwable e) {
+	        	log.info(e.getMessage(), e);
+	        }
 		});
 
 	}
@@ -150,7 +152,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
-			}
+			} catch (Throwable e) {
+	        	log.info(e.getMessage(), e);
+	        }
 		});
 
 	}
@@ -186,7 +190,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
-			}
+			} catch (Throwable e) {
+	        	log.info(e.getMessage(), e);
+	        }
 		});
 
 	}

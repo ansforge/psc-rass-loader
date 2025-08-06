@@ -57,7 +57,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 					Thread.currentThread().stop();
 				} catch (ThreadDeath ignore) {
 					log.info("Thread {} is stopped", id);
-				}
+				} 
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);
@@ -76,7 +76,9 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 					Thread.currentThread().stop();
 				} catch (ThreadDeath ignore) {
 					log.info("Thread {} is stopped", id);
-				}
+				} catch (Throwable e) {
+		        	log.info(e.getMessage(), e);
+		        }
 				throw new LockedMapException();
 			}
 			generateReportLine(map, report, item);

@@ -97,8 +97,9 @@ public class UploadingChanges extends ProcessState {
         } catch (LockedMapException e) {
             log.error("Shutdown was initiated during Uploading Changes stage.");
             throw new UploadException("Shutdown was initiated during Uploading Changes stage.");
+        } catch (Throwable e) {
+        	log.info(e.getMessage(), e);
         }
-
     }
 
     @Override

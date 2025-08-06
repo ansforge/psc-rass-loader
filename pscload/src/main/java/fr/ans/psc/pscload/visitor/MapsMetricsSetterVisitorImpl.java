@@ -60,16 +60,20 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
 
 
     private void setPsMetricFromPsMap(OperationMap<String, RassEntity> map) {
-        Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
-            String metricKey = String.join("_", map.getOperation().name(), id_type.name(), "SIZE");
-            SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
-
-            customMetrics.setPsMetricSize(
-                    metric,
-                    Math.toIntExact(map.values().stream().filter(item -> item.getIdType().equals(id_type.value)).count())
-            );
-            log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());
-        });
+    	try {
+	        Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
+	            String metricKey = String.join("_", map.getOperation().name(), id_type.name(), "SIZE");
+	            SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
+	
+	            customMetrics.setPsMetricSize(
+	                    metric,
+	                    Math.toIntExact(map.values().stream().filter(item -> item.getIdType().equals(id_type.value)).count())
+	            );
+	            log.info("{} --- {}", metricKey, customMetrics.getAppSizeGauges().get(metric).get());
+	        });
+    	} catch (Throwable e) {
+        	log.info(e.getMessage(), e);
+        }
         
         log.info("End Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {");
     }
