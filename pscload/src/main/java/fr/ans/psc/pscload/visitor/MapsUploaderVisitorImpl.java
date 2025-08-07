@@ -160,6 +160,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void visit(PsUpdateMap map) {
+		log.info("MapsUploaderVisitorImpl.visit(PsUpdateMap map)");
+		log.info("map.size()" + map.size());
 		Collection<RassEntity> items = map.values();
 		items.stream().forEach(item -> {
 			try {
