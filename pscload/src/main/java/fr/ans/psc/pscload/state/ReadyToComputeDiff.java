@@ -74,7 +74,7 @@ public class ReadyToComputeDiff extends ProcessState {
     public ReadyToComputeDiff(List<String> excludedProfessionCodes, CustomMetrics customMetrics, String apiBaseUrl) {
         super();
         ApiClient apiClient = new ApiClient();
-        apiClient.setBasePath(apiBaseUrl);
+        apiClient.setBasePath("http://172.16.0.4:23886/psc-api-maj/api");
         this.psApi = new PsApi(apiClient);
         this.customMetrics = customMetrics;
         this.excludedProfessionCodes=Objects.requireNonNull(excludedProfessionCodes,"excludedProfessionCodes cannot be null");
