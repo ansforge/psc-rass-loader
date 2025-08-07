@@ -63,7 +63,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		super();
 		this.excludedProfessions = excludedProfessions;
 		ApiClient apiClient = new ApiClient();
-		apiClient.setBasePath("http://172.16.0.4:23886/psc-api-maj/api");
+		apiClient.setBasePath(apiBaseUrl);
 		this.psApi = new PsApi(apiClient);
 		this.messageProducer = messageProducer;
 
@@ -99,6 +99,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException();
 			}
 		});
 
@@ -146,6 +149,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException();
 			}
 		});
 
@@ -182,6 +188,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException();
 			}
 		});
 
