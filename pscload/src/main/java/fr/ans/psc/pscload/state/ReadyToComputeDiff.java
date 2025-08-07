@@ -246,6 +246,16 @@ public class ReadyToComputeDiff extends ProcessState {
 
         log.info("operation maps filled.");
     }
+    
+    
+    public static boolean isValidUUID(String str) {
+        try {
+            UUID.fromString(str);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 
     private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
         Arrays.stream(ID_TYPE.values()).forEach(id_type -> {

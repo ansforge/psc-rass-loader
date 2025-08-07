@@ -18,6 +18,7 @@ package fr.ans.psc.pscload.model.entities;
 import fr.ans.psc.model.FirstName;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
+import fr.ans.psc.pscload.state.ReadyToComputeDiff;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class Professionnel extends Ps implements RassEntity {
 	 */
 	public Professionnel() {
 		super();
-		setOrigin("RASS");
+		setOrigin(calculateOrigin(getNationalId()));
 		setQuality(1);
 	}
 
@@ -66,7 +67,7 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(items[RassItems.PHONE.column]);
 		setEmail(items[RassItems.EMAIL.column]);
 		setSalutationCode(items[RassItems.SALUTATION_CODE.column]);
-		setOrigin("RASS");
+		setOrigin(calculateOrigin(items[RassItems.NATIONAL_ID.column]));
 		setQuality(1);
 		if (deep) {
 			addProfessionsItem(new ExerciceProfessionnel(items));
@@ -88,7 +89,7 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(ps.getPhone());
 		setEmail(ps.getEmail());
 		setSalutationCode(ps.getSalutationCode());
-		setOrigin("RASS");
+		setOrigin(calculateOrigin(ps.getNationalId()));
 		setQuality(1);
 		if (ps.getProfessions() != null) {
 			List<Profession> professions = new ArrayList<>();
@@ -128,6 +129,28 @@ public class Professionnel extends Ps implements RassEntity {
 		return getProfessions().stream()
 				.filter(exo -> exo.getCode().concat(exo.getCategoryCode()).equals(code.concat(category))).findAny();
 
+	}
+	
+	private String calculateOrigin(String idNat) {
+		String origin = "RASS";
+		if (idNat != null && !ReadyToComputeDiff.isValidUUID(idNat)) {
+			if (idNat.startsWith("0")) {
+				origin = "ADELI";
+			} else if (idNat.startsWith("1")) {
+				origin = "CAB_ADELI";
+			} else if (idNat.startsWith("3")) {
+				origin = "FINESS";
+			} else if (idNat.startsWith("4")) {
+				origin = "SIREN";
+			} else if (idNat.startsWith("5")) {
+				origin = "SIRET";
+			} else if (idNat.startsWith("6")) {
+				origin = "CAB_RPPS";
+			} else if (idNat.startsWith("8")) {
+				origin = "RPPS";
+			}
+		}
+		return origin;
 	}
 
 	@Override

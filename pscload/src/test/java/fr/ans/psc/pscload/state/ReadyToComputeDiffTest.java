@@ -195,7 +195,42 @@ class ReadyToComputeDiffTest {
 		assertEquals(1,psToDelete2.size());
 		assertEquals(1,psToCreate2.size());
 		assertEquals(2, psToUpdate2.size());
+
 	}
+	
+	
+	@Test
+	@DisplayName(" Test origin")
+	void originTest() throws Exception {
+		LoadProcess process = new LoadProcess(
+				new ReadyToComputeDiff(List.of("60"), customMetrics, httpMockServer.baseUrl()));
+		File extractFile3 = FileUtils
+				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+		process.setExtractedFilename(extractFile3.getPath());
+		process.getState().setProcess(process);
+		File dayTwoFile = new File(
+				Thread.currentThread().getContextClassLoader().getResource("test-origin.json").getPath());
+		String dayTwoJSON = Files.readString(dayTwoFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0")).willReturn(
+				aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayTwoJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
+		process.nextStep();
+
+		OperationMap<String, RassEntity> psToDelete3 = process.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get();
+
+		Map<Character, String> origin = Map.of('0', "ADELI", '1', "CAB_ADELI", '3', "FINESS", '4', "SIREN", '5',
+				"SIRET", '6', "CAB_RPPS", '8', "RPPS");
+
+		for (RassEntity entity : psToDelete3.values()) {
+			assertEquals(((Professionnel) entity).getOrigin(),
+					origin.get(((Professionnel) entity).getNationalId().charAt(0)));
+			assertEquals(1, ((Professionnel) entity).getQuality());
+		}
+
+	}
+	
 
 	/**
 	 * Diff from large file.
