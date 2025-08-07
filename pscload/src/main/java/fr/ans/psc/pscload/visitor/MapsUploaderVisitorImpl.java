@@ -174,7 +174,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
+				log.info("MapsUploaderVisitorImpl.visit(PsUpdateMap map) : Début");
 				psApi.updatePs((Professionnel) item);
+				log.info("MapsUploaderVisitorImpl.visit(PsUpdateMap map) : Fin");
+				log.info(item.getIdType());
+				log.info(item.getInternalId());
+				log.info(((Professionnel) item).toString());
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 				if (messagesEnabled) {
