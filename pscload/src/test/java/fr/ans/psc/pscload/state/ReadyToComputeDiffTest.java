@@ -197,7 +197,7 @@ class ReadyToComputeDiffTest {
 		assertEquals(1,psToCreate2.size());
 		assertEquals(2, psToUpdate2.size());
 		
-		// Test UUID
+		// Test that a PS in database with a NationalId which is an UUID (PSI), not present in RASS file, is not deleted
 		LoadProcess p3 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File extractFile3 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
 		p3.setExtractedFilename(extractFile3.getPath());
@@ -215,7 +215,30 @@ class ReadyToComputeDiffTest {
 
         assertFalse(psToDelete3.values().stream().anyMatch(re -> ( ReadyToComputeDiff.isValidUUID(((Professionnel)re).getNationalId()))));
         assertFalse(psToDelete3.values().stream().anyMatch(re -> "TESTUUID".equals(((Professionnel)re).getId())));
-
+    
+		// Test that a PS in database with a NationalId which is an UUID (PSI), also in
+		// present in RASS file, has only its professions updated
+		LoadProcess p4 = new LoadProcess(
+				new ReadyToComputeDiff(List.of("60"), customMetrics, httpMockServer.baseUrl()));
+		File extractFile4 = FileUtils
+				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_fakeUUID_profession_202112140854.txt");
+		p4.setExtractedFilename(extractFile4.getPath());
+		p4.getState().setProcess(p4);
+		File uuidProfFile = new File(Thread.currentThread().getContextClassLoader().getResource("test-uuid-profession.json").getPath());
+		String uuidProfFileJSON = Files.readString(uuidProfFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0")).willReturn(
+				aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(uuidProfFileJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
+		p4.nextStep();
+		
+		OperationMap<String, RassEntity> psToDelete4 = p4.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
+		Professionnel ps = (Professionnel) psToDelete4.get("550e8400-e29b-41d4-a716-446655440000");
+		assertEquals("tonkine@gmail.com", ps.getEmail()); // Database value unchanged
+		assertEquals("31/10/1990", ps.getDateOfBirth()); // Database value unchanged
+		assertEquals("NEW_STREET",
+				ps.getProfessions().get(0).getWorkSituations().get(0).getStructure().getStreetLabel()); // RASS update
 	}
 	
 	

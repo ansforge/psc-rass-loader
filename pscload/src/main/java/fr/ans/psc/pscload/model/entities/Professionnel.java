@@ -89,8 +89,8 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(ps.getPhone());
 		setEmail(ps.getEmail());
 		setSalutationCode(ps.getSalutationCode());
-		setOrigin(calculateOrigin(ps.getNationalId()));
-		setQuality(1);
+		setOrigin(ps.getOrigin() != null ? ps.getOrigin() : calculateOrigin(ps.getNationalId()));
+		setQuality(ps.getQuality() != 0 ? ps.getQuality() : 1);
 		if (ps.getProfessions() != null) {
 			List<Profession> professions = new ArrayList<>();
 			for (Profession profession : ps.getProfessions()) {

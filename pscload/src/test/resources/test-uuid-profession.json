@@ -1,0 +1,90 @@
+[
+  {
+    "_id": "6331a7af305bb65268682dd3",
+    "idType": "8",
+    "id": "TESTUUID",
+    "nationalId": "550e8400-e29b-41d4-a716-446655440000",
+    "lastName": "HIRE",
+    "firstNames": [
+      {
+        "firstName": "BRICE",
+        "order": 0
+      },
+      {
+        "firstName": "HENRI",
+        "order": 1
+      },
+      {
+        "firstName": "ALAIN",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "31/10/1990",
+    "birthAddressCode": "2B033",
+    "birthCountryCode": "99000",
+    "birthAddress": "BASTIA",
+    "genderCode": "M",
+    "phone": "+33 111111111",
+    "email": "tonkine@gmail.com",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "70",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "HIRE",
+        "firstName": "BRICE",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA07",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "CNOMK/CNOMK/CNOMK",
+            "structure": {
+              "siteSIRET": "",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "R10000000833997",
+              "legalCommercialName": "PERRIER BERNARD",
+              "publicCommercialName": "Cabinet individuel",
+              "recipientAdditionalInfo": "",
+              "geoLocationAdditionalInfo": "SANT GRISEO",
+              "streetNumber": "",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "LD",
+              "streetLabel": "MORCHITTAJA",
+              "distributionMention": "",
+              "cedexOffice": "20117 ECCIEA SUARELLA",
+              "postalCode": "20117",
+              "communeCode": "2A104",
+              "countryCode": "99000",
+              "phone": "",
+              "phone2": "0681390506",
+              "fax": "",
+              "email": "perrier@gmail.com",
+              "departmentCode": "",
+              "oldStructureId": "410005888853066"
+            }
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "810107592544"
+    ],
+    "activated": 1664198575,
+    "deactivated": null
+  }
+]

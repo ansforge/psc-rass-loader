@@ -229,14 +229,21 @@ public class ReadyToComputeDiff extends ProcessState {
             switch (map.getOperation()) {
                 case UPDATE:
                     diffPs.entriesDiffering().forEach((k, v) -> {
-                        map.put(k, v.rightValue());
-                        map.saveOldValue(k, v.leftValue());
+                    	if(!containsUUID(v.leftValue())) {
+                    		map.put(k, v.rightValue());
+                    		map.saveOldValue(k, v.leftValue());                    		
+                    	}else {
+                    		// RASS cannot change identity of a PSI, only professions
+                    		Professionnel ps = new Professionnel(v.leftValue());
+                    		ps.setProfessions(v.rightValue().getProfessions());
+                    		map.put(k, ps);
+                    		map.saveOldValue(k, v.leftValue());
+                    	}
                     });
                     break;
                 case DELETE:
 				for (Map.Entry<String, Professionnel> entry : diffPs.entriesOnlyOnLeft().entrySet()) {
-					if (entry.getValue() != null && entry.getValue().getNationalId() != null
-							&& !isValidUUID(entry.getValue().getNationalId())) {
+					if (entry.getValue() != null && !isValidUUID(entry.getValue().getNationalId())) {
 						map.put(entry.getKey(), entry.getValue());
 					}else {
 						log.debug("PS {} will not be deleted by RASS because it is a PSI", entry.getValue().getNationalId());
@@ -255,14 +262,33 @@ public class ReadyToComputeDiff extends ProcessState {
     }
     
     
-    public static boolean isValidUUID(String str) {
-        try {
-            UUID.fromString(str);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
+	public static boolean isValidUUID(String id) {
+		if (id == null) {
+			return false;
+		}
+		try {
+			UUID.fromString(id);
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+    
+	private boolean containsUUID(Professionnel ps) {
+		if (ps != null) {
+			if (isValidUUID(ps.getNationalId())) {
+				return true;
+			}
+			if (ps.getIds() != null) {
+				for (String id : ps.getIds()) {
+					if (isValidUUID(id)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
     private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
         Arrays.stream(ID_TYPE.values()).forEach(id_type -> {
