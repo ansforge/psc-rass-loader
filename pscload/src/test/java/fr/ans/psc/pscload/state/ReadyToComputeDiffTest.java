@@ -18,6 +18,7 @@ package fr.ans.psc.pscload.state;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
@@ -195,6 +196,25 @@ class ReadyToComputeDiffTest {
 		assertEquals(1,psToDelete2.size());
 		assertEquals(1,psToCreate2.size());
 		assertEquals(2, psToUpdate2.size());
+		
+		// Test UUID
+		LoadProcess p3 = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
+		File extractFile3 = FileUtils.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+		p3.setExtractedFilename(extractFile3.getPath());
+		p3.getState().setProcess(p3);
+		File uuidFile = new File(Thread.currentThread().getContextClassLoader().getResource("test-uuid.json").getPath());
+		String uuidJSON = Files.readString(uuidFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0"))
+				.willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(uuidJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
+		p3.nextStep();
+
+        OperationMap<String, RassEntity> psToDelete3 = p3.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
+				.findFirst().get();
+
+        assertFalse(psToDelete3.values().stream().anyMatch(re -> ( ReadyToComputeDiff.isValidUUID(((Professionnel)re).getNationalId()))));
+        assertFalse(psToDelete3.values().stream().anyMatch(re -> "TESTUUID".equals(((Professionnel)re).getId())));
 
 	}
 	
@@ -204,9 +224,9 @@ class ReadyToComputeDiffTest {
 	void originTest() throws Exception {
 		LoadProcess process = new LoadProcess(
 				new ReadyToComputeDiff(List.of("60"), customMetrics, httpMockServer.baseUrl()));
-		File extractFile3 = FileUtils
+		File extractFile = FileUtils
 				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
-		process.setExtractedFilename(extractFile3.getPath());
+		process.setExtractedFilename(extractFile.getPath());
 		process.getState().setProcess(process);
 		File dayTwoFile = new File(
 				Thread.currentThread().getContextClassLoader().getResource("test-origin.json").getPath());
@@ -217,13 +237,13 @@ class ReadyToComputeDiffTest {
 				.willReturn(aResponse().withStatus(410)));
 		process.nextStep();
 
-		OperationMap<String, RassEntity> psToDelete3 = process.getMaps().stream()
+		OperationMap<String, RassEntity> psToDelete = process.getMaps().stream()
 				.filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get();
 
 		Map<Character, String> origin = Map.of('0', "ADELI", '1', "CAB_ADELI", '3', "FINESS", '4', "SIREN", '5',
 				"SIRET", '6', "CAB_RPPS", '8', "RPPS");
 
-		for (RassEntity entity : psToDelete3.values()) {
+		for (RassEntity entity : psToDelete.values()) {
 			assertEquals(((Professionnel) entity).getOrigin(),
 					origin.get(((Professionnel) entity).getNationalId().charAt(0)));
 			assertEquals(1, ((Professionnel) entity).getQuality());

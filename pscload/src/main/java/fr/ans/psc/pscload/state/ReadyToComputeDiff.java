@@ -234,7 +234,14 @@ public class ReadyToComputeDiff extends ProcessState {
                     });
                     break;
                 case DELETE:
-                    map.putAll(diffPs.entriesOnlyOnLeft());
+				for (Map.Entry<String, Professionnel> entry : diffPs.entriesOnlyOnLeft().entrySet()) {
+					if (entry.getValue() != null && entry.getValue().getNationalId() != null
+							&& !isValidUUID(entry.getValue().getNationalId())) {
+						map.put(entry.getKey(), entry.getValue());
+					}else {
+						log.debug("PS {} will not be deleted by RASS because it is a PSI", entry.getValue().getNationalId());
+					}
+				}
                     break;
                 case CREATE:
                     map.putAll(diffPs.entriesOnlyOnRight());
