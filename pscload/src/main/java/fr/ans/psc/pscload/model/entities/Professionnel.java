@@ -114,8 +114,6 @@ public class Professionnel extends Ps implements RassEntity {
 		items[RassItems.PHONE.column] = getPhone();
 		items[RassItems.EMAIL.column] = getEmail();
 		items[RassItems.SALUTATION_CODE.column] = getSalutationCode();
-		items[RassItems.ORIGIN.column] = getOrigin();
-		items[RassItems.QUALITY.column] = String.valueOf(getQuality());
 	}
 
 	/**
