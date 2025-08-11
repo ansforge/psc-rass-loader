@@ -46,8 +46,11 @@ import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.entities.RassItems;
 import fr.ans.psc.pscload.model.entities.SituationExercice;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import fr.ans.psc.pscload.state.exception.DiffException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +66,7 @@ public class ReadyToComputeDiff extends ProcessState {
     private static final int ROW_LENGTH = RassItems.values().length + 1;
     private Map<String, Professionnel> newPsMap = new HashMap<>();
     private Map<String, Professionnel> oldPsMap = new HashMap<>();
+
     private PsApi psApi;
     private List<String> excludedProfessionCodes=Collections.emptyList();
 
@@ -91,16 +95,25 @@ public class ReadyToComputeDiff extends ProcessState {
     public void nextStep() throws LoadProcessException {
         File fileToLoad = new File(process.getExtractedFilename());
         cleanup(fileToLoad.getParent());
-
+        Map<String, Professionnel> indexPSByAnyId = new HashMap<>();
+        
         try {
             newPsMap = loadMapsFromFile(fileToLoad);
             oldPsMap = loadMapFromDB();
-            if (!oldPsMap.isEmpty()) {
-                setReferenceSizeMetricsAfterDeserializing(oldPsMap);
-            }
+			if (!oldPsMap.isEmpty()) {
+				oldPsMap.values().stream().parallel().forEach(ps -> {
+					indexPSByAnyId.put(ps.getNationalId(), ps);
+					if (ps.getIds() != null) {
+						for (String id : ps.getIds()) {
+							indexPSByAnyId.put(id, ps);
+						}
+					}
+				});
+				setReferenceSizeMetricsAfterDeserializing(oldPsMap);
+			}
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
-            fillChangesMaps(diffPs);
+            fillChangesMaps(diffPs, indexPSByAnyId);
 
         } catch (IOException e) {
             throw new DiffException("I/O Error when deserializing file", e);
@@ -221,7 +234,7 @@ public class ReadyToComputeDiff extends ProcessState {
         oldPsMap = (Map<String, Professionnel>) kryo.readObject(input, HashMap.class);
     }
 
-    private void fillChangesMaps(MapDifference<String, Professionnel> diffPs) {
+    private void fillChangesMaps(MapDifference<String, Professionnel> diffPs, Map<String, Professionnel> indexByAnyId) {
 
         log.info("filling changes maps");
 
@@ -229,15 +242,13 @@ public class ReadyToComputeDiff extends ProcessState {
             switch (map.getOperation()) {
                 case UPDATE:
                     diffPs.entriesDiffering().forEach((k, v) -> {
-                    	if(!containsUUID(v.leftValue())) {
-                    		map.put(k, v.rightValue());
-                    		map.saveOldValue(k, v.leftValue());                    		
+                    	Professionnel psInDB = v.leftValue();
+                    	Professionnel psInRass = v.rightValue();
+                    	if(!containsUUID(psInDB)) {
+                    		map.put(k, psInRass);
+                    		map.saveOldValue(k, psInDB);                    		
                     	}else {
-                    		// RASS cannot change identity of a PSI, only professions
-                    		Professionnel ps = new Professionnel(v.leftValue());
-                    		ps.setProfessions(v.rightValue().getProfessions());
-                    		map.put(k, ps);
-                    		map.saveOldValue(k, v.leftValue());
+                    		updateProfessions(psInDB, psInRass, k, map);
                     	}
                     });
                     break;
@@ -251,7 +262,23 @@ public class ReadyToComputeDiff extends ProcessState {
 				}
                     break;
                 case CREATE:
-                    map.putAll(diffPs.entriesOnlyOnRight());
+                    for (Map.Entry<String, Professionnel> entry : diffPs.entriesOnlyOnRight().entrySet()) {
+                    	Professionnel psInDb = indexByAnyId.get(entry.getValue().getNationalId());
+                    	Professionnel psInRass = entry.getValue();
+                    	if(psInDb == null) {
+                    		map.put(entry.getKey(), psInRass);                    		
+                    	}else {
+							log.debug("PS {} will not be created by RASS because it is in merged PS {}",
+									entry.getValue().getNationalId(), psInDb.getNationalId());
+							if(psInRass.getProfessions() != null && !psInRass.getProfessions().equals(psInDb.getProfessions())) {
+								log.debug("Different professions, update will be performed");
+								OperationMap<String, RassEntity> mapUpdate = process.getMaps().stream()
+									    .filter(m -> OperationType.UPDATE.equals(m.getOperation()))
+									    .findFirst().get();
+								updateProfessions(psInDb, psInRass, entry.getKey(), mapUpdate);
+							}
+                    	}
+                    }
                     break;
                 default:
                     break;
@@ -259,6 +286,21 @@ public class ReadyToComputeDiff extends ProcessState {
         });
 
         log.info("operation maps filled.");
+    }
+    
+    
+    /**
+     * RASS cannot change identity of a PSI, only professions
+     * @param psInDB
+     * @param psInRass
+     * @param key
+     * @param map
+     */
+    private void updateProfessions(Professionnel psInDB, Professionnel psInRass, String key, OperationMap<String, RassEntity> map) {
+    	Professionnel ps = new Professionnel(psInDB);
+		ps.setProfessions(psInRass.getProfessions());
+		map.put(key, ps);
+		map.saveOldValue(key, psInDB);
     }
     
     

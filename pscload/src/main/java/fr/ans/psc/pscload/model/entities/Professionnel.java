@@ -91,6 +91,7 @@ public class Professionnel extends Ps implements RassEntity {
 		setSalutationCode(ps.getSalutationCode());
 		setOrigin(ps.getOrigin() != null ? ps.getOrigin() : calculateOrigin(ps.getNationalId()));
 		setQuality(ps.getQuality() != 0 ? ps.getQuality() : 1);
+		setIds(ps.getIds());
 		if (ps.getProfessions() != null) {
 			List<Profession> professions = new ArrayList<>();
 			for (Profession profession : ps.getProfessions()) {
@@ -203,7 +204,6 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getSalutationCode(), professionnel.getSalutationCode()) &&
 				Objects.equals(this.getExercicesProfessionels().size(), professionnel.getExercicesProfessionels().size()) &&
 				this.getExercicesProfessionels().containsAll(professionnel.getExercicesProfessionels()) &&
-				(this.getIds()==null || this.getIds().containsAll(professionnel.getIds())) &&
 				Objects.equals(this.getActivated(), professionnel.getActivated()) &&
 				Objects.equals(this.getDeactivated(), professionnel.getDeactivated()) &&
 				Objects.equals(this.getOrigin(), professionnel.getOrigin()) &&

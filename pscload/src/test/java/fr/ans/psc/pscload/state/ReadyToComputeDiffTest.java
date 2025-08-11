@@ -17,6 +17,7 @@ package fr.ans.psc.pscload.state;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -232,13 +233,44 @@ class ReadyToComputeDiffTest {
 				.willReturn(aResponse().withStatus(410)));
 		p4.nextStep();
 		
-		OperationMap<String, RassEntity> psToDelete4 = p4.getMaps().stream()
+		OperationMap<String, RassEntity> psToUpdate4 = p4.getMaps().stream()
 				.filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
-		Professionnel ps = (Professionnel) psToDelete4.get("550e8400-e29b-41d4-a716-446655440000");
+		Professionnel ps = (Professionnel) psToUpdate4.get("550e8400-e29b-41d4-a716-446655440000");
 		assertEquals("tonkine@gmail.com", ps.getEmail()); // Database value unchanged
 		assertEquals("31/10/1990", ps.getDateOfBirth()); // Database value unchanged
 		assertEquals("NEW_STREET",
 				ps.getProfessions().get(0).getWorkSituations().get(0).getStructure().getStreetLabel()); // RASS update
+		
+		
+		
+		// Test that a PS from RASS is not created if its Id is in a ps's Ids in db
+		LoadProcess p5 = new LoadProcess(
+				new ReadyToComputeDiff(List.of("60"), customMetrics, httpMockServer.baseUrl()));
+		File extractFile5 = FileUtils
+				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_ids_202112140856.txt");
+		p5.setExtractedFilename(extractFile5.getPath());
+		p5.getState().setProcess(p5);
+		File testIdsFile = new File(Thread.currentThread().getContextClassLoader().getResource("test-ids.json").getPath());
+		String testIdsJSON = Files.readString(testIdsFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0")).willReturn(
+				aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(testIdsJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
+		p5.nextStep();
+		
+		OperationMap<String, RassEntity> psToCreate5 = p5.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.CREATE)).findFirst().get();
+		assertThat(psToCreate5).isEmpty(); // No user to create even if their Id is not in db Id but in Ids
+		OperationMap<String, RassEntity> psToUpdate5 = p5.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
+
+		Professionnel ps2 = (Professionnel) psToUpdate5.get("810107592544");
+		assertEquals("tonkine@gmail.com", ps2.getEmail()); // Database value unchanged
+		assertEquals("31/10/1990", ps2.getDateOfBirth()); // Database value unchanged
+		assertEquals("NEW_STREET",
+				ps2.getProfessions().get(0).getWorkSituations().get(0).getStructure().getStreetLabel()); // RASS update
+		
+		assertEquals(1, psToUpdate5.size()); // Second user PINGOT needs no update as profession is unchanged
 	}
 	
 	
