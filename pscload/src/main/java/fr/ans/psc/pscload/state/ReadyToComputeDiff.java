@@ -270,7 +270,7 @@ public class ReadyToComputeDiff extends ProcessState {
                     	}else {
 							log.debug("PS {} will not be created by RASS because it is in merged PS {}",
 									entry.getValue().getNationalId(), psInDb.getNationalId());
-							if(psInRass.getProfessions() != null && !psInRass.getProfessions().equals(psInDb.getProfessions())) {
+							if("RPPS".equals(psInRass.getOrigin()) && psInRass.getProfessions() != null && !psInRass.getProfessions().equals(psInDb.getProfessions())) {
 								log.debug("Different professions, update will be performed");
 								OperationMap<String, RassEntity> mapUpdate = process.getMaps().stream()
 									    .filter(m -> OperationType.UPDATE.equals(m.getOperation()))
