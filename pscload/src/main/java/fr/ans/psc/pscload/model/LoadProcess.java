@@ -173,5 +173,12 @@ public class LoadProcess implements KryoSerializable {
         state = (ProcessState) kryo.readClassAndObject(input);
         maps = (List<OperationMap<String, RassEntity>>) kryo.readObjectOrNull(input, ArrayList.class);
     }
+    
+    public OperationMap<String, RassEntity> getOperationMap(OperationType type){
+    	OperationMap<String, RassEntity> map = getMaps().stream()
+			    .filter(m -> type.equals(m.getOperation()))
+			    .findFirst().get();
+    	return map;
+    }
 
 }

@@ -1,0 +1,279 @@
+[
+  {
+    "_id": "6331a7af305bb65268682dd3",
+    "idType": "8",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "nationalId": "550e8400-e29b-41d4-a716-446655440000",
+    "lastName": "HIRE",
+    "firstNames": [
+      {
+        "firstName": "BRICE",
+        "order": 0
+      },
+      {
+        "firstName": "HENRI",
+        "order": 1
+      },
+      {
+        "firstName": "ALAIN",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "31/10/1990",
+    "birthAddressCode": "2B033",
+    "birthCountryCode": "99000",
+    "birthAddress": "BASTIA",
+    "genderCode": "M",
+    "phone": "+33 111111111",
+    "email": "tonkine@gmail.com",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "70",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "HIRE",
+        "firstName": "BRICE",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "L",
+            "activitySectorCode": "SA07",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "CNOMK/CNOMK/CNOMK",
+            "structure": {
+              "siteSIRET": "",
+              "siteSIREN": "",
+              "siteFINESS": "",
+              "legalEstablishmentFINESS": "",
+              "structureTechnicalId": "R10000000833997",
+              "legalCommercialName": "PERRIER BERNARD",
+              "publicCommercialName": "Cabinet individuel",
+              "recipientAdditionalInfo": "",
+              "geoLocationAdditionalInfo": "SANT GRISEO",
+              "streetNumber": "",
+              "streetNumberRepetitionIndex": "",
+              "streetCategoryCode": "LD",
+              "streetLabel": "MORCHITTAJA",
+              "distributionMention": "",
+              "cedexOffice": "20117 ECCIEA SUARELLA",
+              "postalCode": "20117",
+              "communeCode": "2A104",
+              "countryCode": "99000",
+              "phone": "",
+              "phone2": "0681390506",
+              "fax": "",
+              "email": "perrier@gmail.com",
+              "departmentCode": "",
+              "oldStructureId": "410005888853066"
+            }
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "810107592544", "550e8400-e29b-41d4-a716-446655440000", "22222222222222"
+    ],
+    "activated": 1664198575,
+    "deactivated": null
+  },
+  {
+    "_id": "6321efc3ca0fd7188e4df301",
+    "idType": "0",
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "nationalId": "550e8400-e29b-41d4-a716-446655440001",
+    "lastName": "PINGOT",
+    "firstNames": [
+      {
+        "firstName": "Louis",
+        "order": 0
+      },
+      {
+        "firstName": "",
+        "order": 1
+      },
+      {
+        "firstName": "",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "22/07/1971",
+    "birthAddressCode": "",
+    "birthCountryCode": "",
+    "birthAddress": "",
+    "genderCode": "",
+    "phone": "",
+    "email": "",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "71",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "PINGOT",
+        "firstName": "Louis",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "S",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "",
+            "structure": null
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "8010000206","550e8400-e29b-41d4-a716-446655440001", "0000000000000"
+    ],
+    "activated": 1663168451,
+    "deactivated": null
+  },
+  {
+    "_id": "6321ef4k8a0fd7188e4df301",
+    "idType": "0",
+    "id": "8010000207",
+    "nationalId": "8010000207",
+    "lastName": "MUNOZ",
+    "firstNames": [
+      {
+        "firstName": "Louis",
+        "order": 0
+      },
+      {
+        "firstName": "",
+        "order": 1
+      },
+      {
+        "firstName": "",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "22/07/1971",
+    "birthAddressCode": "",
+    "birthCountryCode": "",
+    "birthAddress": "",
+    "genderCode": "",
+    "phone": "",
+    "email": "",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "71",
+        "categoryCode": "C",
+        "salutationCode": "",
+        "lastName": "MUNOZ",
+        "firstName": "Louis",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "S",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "",
+            "structure": null
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "8010000207","2333333333", "01111111111"
+    ],
+    "activated": 1663168451,
+    "deactivated": null
+  },
+   {
+    "_id": "6321efc3ca0fd7188e4df301",
+    "idType": "0",
+    "id": "8010000208",
+    "nationalId": "8010000208",
+    "lastName": "LEGER",
+    "firstNames": [
+      {
+        "firstName": "Louis",
+        "order": 0
+      },
+      {
+        "firstName": "",
+        "order": 1
+      },
+      {
+        "firstName": "",
+        "order": 2
+      }
+    ],
+    "dateOfBirth": "22/07/1971",
+    "birthAddressCode": "",
+    "birthCountryCode": "",
+    "birthAddress": "",
+    "genderCode": "",
+    "phone": "",
+    "email": "",
+    "salutationCode": "M",
+    "professions": [
+      {
+        "exProId": null,
+        "code": "71",
+        "categoryCode": "B",
+        "salutationCode": "",
+        "lastName": "LEGER",
+        "firstName": "Louis",
+        "expertises": [
+          {
+            "expertiseId": null,
+            "typeCode": "",
+            "code": ""
+          }
+        ],
+        "workSituations": [
+          {
+            "situId": null,
+            "modeCode": "S",
+            "activitySectorCode": "",
+            "pharmacistTableSectionCode": "",
+            "roleCode": "",
+            "activityKindCode": "",
+            "registrationAuthority": "",
+            "structure": null
+          }
+        ]
+      }
+    ],
+    "ids": [
+      "8010000208", "2444444444"
+    ],
+    "activated": 1663168451,
+    "deactivated": null
+  }
+]

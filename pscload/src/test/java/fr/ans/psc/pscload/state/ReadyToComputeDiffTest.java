@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -260,7 +261,7 @@ class ReadyToComputeDiffTest {
 		
 		OperationMap<String, RassEntity> psToCreate5 = p5.getMaps().stream()
 				.filter(map -> map.getOperation().equals(OperationType.CREATE)).findFirst().get();
-		assertThat(psToCreate5).isEmpty(); // No user to create even if their Id is not in db Id but in Ids
+		assertThat(psToCreate5).isEmpty(); // No user to create even if their Id is not in db because it's in Ids
 		OperationMap<String, RassEntity> psToUpdate5 = p5.getMaps().stream()
 				.filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
 
@@ -271,6 +272,37 @@ class ReadyToComputeDiffTest {
 				ps2.getProfessions().get(0).getWorkSituations().get(0).getStructure().getStreetLabel()); // RASS update
 		
 		assertEquals(1, psToUpdate5.size()); // Second user PINGOT needs no update as profession is unchanged
+		
+		
+		// Ids cleaning if not anymore in RASS file
+		LoadProcess p6 = new LoadProcess(
+				new ReadyToComputeDiff(List.of("60"), customMetrics, httpMockServer.baseUrl()));
+		File extractFile6 = FileUtils
+				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_ids_removal_202112140858.txt");
+		p6.setExtractedFilename(extractFile6.getPath());
+		p6.getState().setProcess(p6);
+		File testIdsDeletionFile = new File(Thread.currentThread().getContextClassLoader().getResource("test-ids-removal.json").getPath());
+		String testIdsDeletionFileJSON = Files.readString(testIdsDeletionFile.toPath());
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0")).willReturn(
+				aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(testIdsDeletionFileJSON)));
+		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("1"))
+				.willReturn(aResponse().withStatus(410)));
+		p6.nextStep();
+		
+
+		OperationMap<String, RassEntity> psToUpdate6 = p6.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
+		OperationMap<String, RassEntity> psToDelete6 = p6.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get();
+		 // HIRE is not in RASS file but in Db with uuid, RASS ids will be removed
+		assertTrue(psToUpdate6.containsKey("550e8400-e29b-41d4-a716-446655440000")); 
+		Professionnel ps01 = (Professionnel) psToUpdate6.get("550e8400-e29b-41d4-a716-446655440000");
+		assertTrue(ps01.getIds().contains("550e8400-e29b-41d4-a716-446655440000") && ps01.getIds().size() ==1);
+		// PINGOT is in RASS file with an RPPS id, ADELI won't be removed
+		assertFalse(psToUpdate6.containsKey("550e8400-e29b-41d4-a716-446655440001")); 
+		
+		// MUNOZ is not anymore in RASS file and in Db with RASS National ID, he must be deleted, not updated			
+		assertTrue(!psToUpdate6.containsKey("8010000207") && psToDelete6.containsKey("8010000207"));
 	}
 	
 	

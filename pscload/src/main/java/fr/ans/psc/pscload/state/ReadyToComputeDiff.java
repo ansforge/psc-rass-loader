@@ -95,17 +95,18 @@ public class ReadyToComputeDiff extends ProcessState {
     public void nextStep() throws LoadProcessException {
         File fileToLoad = new File(process.getExtractedFilename());
         cleanup(fileToLoad.getParent());
-        Map<String, Professionnel> indexPSByAnyId = new HashMap<>();
+        Map<String, Professionnel> indexPSByOtherIds = new HashMap<>();
         
         try {
             newPsMap = loadMapsFromFile(fileToLoad);
             oldPsMap = loadMapFromDB();
 			if (!oldPsMap.isEmpty()) {
 				oldPsMap.values().stream().parallel().forEach(ps -> {
-					indexPSByAnyId.put(ps.getNationalId(), ps);
 					if (ps.getIds() != null) {
 						for (String id : ps.getIds()) {
-							indexPSByAnyId.put(id, ps);
+							if(!ps.getNationalId().equals(id)) {
+								indexPSByOtherIds.put(id, ps);								
+							}
 						}
 					}
 				});
@@ -113,7 +114,10 @@ public class ReadyToComputeDiff extends ProcessState {
 			}
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
-            fillChangesMaps(diffPs, indexPSByAnyId);
+            fillChangesMaps(diffPs, indexPSByOtherIds);
+         
+            // Delete Ids not anymore on RASS
+            cleanOtherIds(indexPSByOtherIds);
 
         } catch (IOException e) {
             throw new DiffException("I/O Error when deserializing file", e);
@@ -122,6 +126,62 @@ public class ReadyToComputeDiff extends ProcessState {
         }
 
     }
+
+	private void cleanOtherIds(Map<String, Professionnel> indexPSByOtherIds) {
+		
+		MapDifference<String, Professionnel> diffPsOtherIds = Maps.difference(indexPSByOtherIds, newPsMap);
+		
+		if (!diffPsOtherIds.entriesOnlyOnLeft().isEmpty()) {
+			OperationMap<String, RassEntity> updateMap = process.getOperationMap(OperationType.UPDATE);
+			OperationMap<String, RassEntity> deleteMap = process.getOperationMap(OperationType.DELETE);
+			for (Map.Entry<String, Professionnel> entry : diffPsOtherIds.entriesOnlyOnLeft().entrySet()) {
+				String id =  entry.getKey();
+				String nationalId =  entry.getValue().getNationalId();
+
+				if(!deleteMap.containsKey(nationalId)) {
+					
+					Professionnel professionnelToUpdate = updateMap.containsKey(nationalId)
+							? (Professionnel) updateMap.get(nationalId)
+							: entry.getValue();
+					
+					boolean needUpdate = false;
+					
+					if(!ReadyToComputeDiff.isValidUUID(id)) {
+						 if (id.startsWith("8")) {
+							 // Remove RRPS id and professions
+							 professionnelToUpdate.setProfessions(new ArrayList<>());
+							 if(professionnelToUpdate.getIds() != null) {
+								 professionnelToUpdate.getIds().remove(id);			
+								 needUpdate = true;
+							 }
+						 } else if (id.startsWith("0")) {
+							 // Remove ADELI id only if RRPS id is not present in Ids
+							 if(professionnelToUpdate.getIds() != null) {
+									boolean hasRPPS = professionnelToUpdate.getIds().stream().anyMatch(
+											currentId -> !ReadyToComputeDiff.isValidUUID(currentId) && currentId.startsWith("8"));
+									if(!hasRPPS) {
+										 professionnelToUpdate.getIds().remove(id);
+										 needUpdate = true;	
+									}
+									
+								 }
+						 } else {
+							 //Remove Id if not ADELI or RPPS
+							 if(professionnelToUpdate.getIds() != null) {
+								 professionnelToUpdate.getIds().remove(id);
+								 needUpdate = true;
+							 }
+						 }
+					}
+					
+					if(needUpdate) {
+						updateMap.put(nationalId, professionnelToUpdate);
+					}
+					
+				}
+			}
+		}
+	}
 
     private Map<String, Professionnel> loadMapFromDB() {
         log.info("retrieving all Ps");
@@ -234,7 +294,7 @@ public class ReadyToComputeDiff extends ProcessState {
         oldPsMap = (Map<String, Professionnel>) kryo.readObject(input, HashMap.class);
     }
 
-    private void fillChangesMaps(MapDifference<String, Professionnel> diffPs, Map<String, Professionnel> indexByAnyId) {
+    private void fillChangesMaps(MapDifference<String, Professionnel> diffPs, Map<String, Professionnel> indexPSByOtherIds) {
 
         log.info("filling changes maps");
 
@@ -263,7 +323,7 @@ public class ReadyToComputeDiff extends ProcessState {
                     break;
                 case CREATE:
                     for (Map.Entry<String, Professionnel> entry : diffPs.entriesOnlyOnRight().entrySet()) {
-                    	Professionnel psInDb = indexByAnyId.get(entry.getValue().getNationalId());
+                    	Professionnel psInDb = indexPSByOtherIds.get(entry.getValue().getNationalId());
                     	Professionnel psInRass = entry.getValue();
                     	if(psInDb == null) {
                     		map.put(entry.getKey(), psInRass);                    		
@@ -272,9 +332,7 @@ public class ReadyToComputeDiff extends ProcessState {
 									entry.getValue().getNationalId(), psInDb.getNationalId());
 							if("RPPS".equals(psInRass.getOrigin()) && psInRass.getProfessions() != null && !psInRass.getProfessions().equals(psInDb.getProfessions())) {
 								log.debug("Different professions, update will be performed");
-								OperationMap<String, RassEntity> mapUpdate = process.getMaps().stream()
-									    .filter(m -> OperationType.UPDATE.equals(m.getOperation()))
-									    .findFirst().get();
+								OperationMap<String, RassEntity> mapUpdate = process.getOperationMap(OperationType.UPDATE);
 								updateProfessions(psInDb, psInRass, entry.getKey(), mapUpdate);
 							}
                     	}
