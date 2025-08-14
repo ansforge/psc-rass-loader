@@ -1,7 +1,7 @@
 [
   {
     "_id": "6331a7af305bb65268682dd3",
-    "idType": "8",
+    "idType": "",
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "nationalId": "550e8400-e29b-41d4-a716-446655440000",
     "lastName": "HIRE",
@@ -89,7 +89,7 @@
   },
   {
     "_id": "6321efc3ca0fd7188e4df301",
-    "idType": "0",
+    "idType": "",
     "id": "550e8400-e29b-41d4-a716-446655440001",
     "nationalId": "550e8400-e29b-41d4-a716-446655440001",
     "lastName": "PINGOT",
@@ -152,7 +152,7 @@
   },
   {
     "_id": "6321ef4k8a0fd7188e4df301",
-    "idType": "0",
+    "idType": "8",
     "id": "8010000207",
     "nationalId": "8010000207",
     "lastName": "MUNOZ",
@@ -215,7 +215,7 @@
   },
    {
     "_id": "6321efc3ca0fd7188e4df301",
-    "idType": "0",
+    "idType": "8",
     "id": "8010000208",
     "nationalId": "8010000208",
     "lastName": "LEGER",

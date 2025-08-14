@@ -294,14 +294,15 @@ class ReadyToComputeDiffTest {
 				.filter(map -> map.getOperation().equals(OperationType.UPDATE)).findFirst().get();
 		OperationMap<String, RassEntity> psToDelete6 = p6.getMaps().stream()
 				.filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get();
-		 // HIRE is not in RASS file but in Db with uuid, RASS ids will be removed
+		 // HIRE is not in RASS file but in Db with uuid, RASS ids will be removed, as one of its ids is RPPS, professions will also be removed
 		assertTrue(psToUpdate6.containsKey("550e8400-e29b-41d4-a716-446655440000")); 
 		Professionnel ps01 = (Professionnel) psToUpdate6.get("550e8400-e29b-41d4-a716-446655440000");
 		assertTrue(ps01.getIds().contains("550e8400-e29b-41d4-a716-446655440000") && ps01.getIds().size() ==1);
+		assertTrue(ps01.getProfessions().isEmpty());
 		// PINGOT is in RASS file with an RPPS id, ADELI won't be removed
-		assertFalse(psToUpdate6.containsKey("550e8400-e29b-41d4-a716-446655440001")); 
+		assertFalse(psToUpdate6.containsKey("550e8400-e29b-41d4-a716-446655440001"));
 		
-		// MUNOZ is not anymore in RASS file and in Db with RASS National ID, he must be deleted, not updated			
+		// MUNOZ is not anymore in RASS file and in Db with RASS National ID, he must be deleted, not updated
 		assertTrue(!psToUpdate6.containsKey("8010000207") && psToDelete6.containsKey("8010000207"));
 	}
 	
@@ -312,11 +313,11 @@ class ReadyToComputeDiffTest {
 		LoadProcess process = new LoadProcess(
 				new ReadyToComputeDiff(List.of("60"), customMetrics, httpMockServer.baseUrl()));
 		File extractFile = FileUtils
-				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120515.txt");
+				.copyFileToWorkspace("Extraction_ProSanteConnect_Personne_activite_202112120516.txt");
 		process.setExtractedFilename(extractFile.getPath());
 		process.getState().setProcess(process);
 		File dayTwoFile = new File(
-				Thread.currentThread().getContextClassLoader().getResource("test-origin.json").getPath());
+				Thread.currentThread().getContextClassLoader().getResource("empty.json").getPath());
 		String dayTwoJSON = Files.readString(dayTwoFile.toPath());
 		httpMockServer.stubFor(get(urlPathEqualTo("/v2/ps")).withQueryParam("page", equalTo("0")).willReturn(
 				aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody(dayTwoJSON)));
@@ -324,13 +325,13 @@ class ReadyToComputeDiffTest {
 				.willReturn(aResponse().withStatus(410)));
 		process.nextStep();
 
-		OperationMap<String, RassEntity> psToDelete = process.getMaps().stream()
-				.filter(map -> map.getOperation().equals(OperationType.DELETE)).findFirst().get();
+		OperationMap<String, RassEntity> psToCreate = process.getMaps().stream()
+				.filter(map -> map.getOperation().equals(OperationType.CREATE)).findFirst().get();
 
 		Map<Character, String> origin = Map.of('0', "ADELI", '1', "CAB_ADELI", '3', "FINESS", '4', "SIREN", '5',
 				"SIRET", '6', "CAB_RPPS", '8', "RPPS");
 
-		for (RassEntity entity : psToDelete.values()) {
+		for (RassEntity entity : psToCreate.values()) {
 			assertEquals(((Professionnel) entity).getOrigin(),
 					origin.get(((Professionnel) entity).getNationalId().charAt(0)));
 			assertEquals(1, ((Professionnel) entity).getQuality());
