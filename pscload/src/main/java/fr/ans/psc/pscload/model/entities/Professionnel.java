@@ -15,6 +15,7 @@
  */
 package fr.ans.psc.pscload.model.entities;
 
+import fr.ans.psc.model.AlternativeIdentifier;
 import fr.ans.psc.model.FirstName;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
@@ -42,8 +43,10 @@ public class Professionnel extends Ps implements RassEntity {
 	 */
 	public Professionnel() {
 		super();
-		setOrigin(calculateOrigin(getNationalId()));
-		setQuality(1);
+		List<AlternativeIdentifier> alternativeIds = getAlternativeIds() != null ? getAlternativeIds()
+				: new ArrayList<>();
+		addAlternativeId(getNationalId(), alternativeIds);
+		setAlternativeIds(alternativeIds);
 	}
 
 	/**
@@ -67,11 +70,26 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(items[RassItems.PHONE.column]);
 		setEmail(items[RassItems.EMAIL.column]);
 		setSalutationCode(items[RassItems.SALUTATION_CODE.column]);
-		setOrigin(calculateOrigin(items[RassItems.NATIONAL_ID.column]));
-		setQuality(1);
+		
+		List<AlternativeIdentifier> alternativeIds = getAlternativeIds() != null ? getAlternativeIds()
+				: new ArrayList<>();
+		addAlternativeId(items[RassItems.NATIONAL_ID.column], alternativeIds);
+		setAlternativeIds(alternativeIds);
+		
 		if (deep) {
 			addProfessionsItem(new ExerciceProfessionnel(items));
 		}
+	}
+	
+	/**
+	 * Add new alternative id calculated from given idNat, to alternativeIds
+	 * @param idNat
+	 * @param alternativeIds
+	 */
+	private void addAlternativeId(String idNat, List<AlternativeIdentifier> alternativeIds){
+		alternativeIds.add(
+				new AlternativeIdentifier().quality(1).origine(calculateOrigin(idNat))
+						.identifier(idNat));
 	}
 
 	public Professionnel(Ps ps) {
@@ -89,8 +107,16 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(ps.getPhone());
 		setEmail(ps.getEmail());
 		setSalutationCode(ps.getSalutationCode());
-		setOrigin(ps.getOrigin() != null ? ps.getOrigin() : calculateOrigin(ps.getNationalId()));
-		setQuality(ps.getQuality() != 0 ? ps.getQuality() : 1);
+		
+		if(ps.getAlternativeIds() != null && !ps.getAlternativeIds().isEmpty()) {
+			setAlternativeIds(ps.getAlternativeIds());
+		}else {
+			List<AlternativeIdentifier> alternativeIds = getAlternativeIds() != null ? getAlternativeIds()
+					: new ArrayList<>();
+			addAlternativeId(getNationalId(), alternativeIds);
+			setAlternativeIds(alternativeIds);
+		}
+
 		setIds(ps.getIds());
 		if (ps.getProfessions() != null) {
 			List<Profession> professions = new ArrayList<>();
@@ -151,6 +177,10 @@ public class Professionnel extends Ps implements RassEntity {
 		}
 		return origin;
 	}
+	
+	public String calculateOrigin() {
+		return calculateOrigin(this.getNationalId());
+	}
 
 	@Override
 	public int getReturnStatus() {
@@ -205,9 +235,7 @@ public class Professionnel extends Ps implements RassEntity {
 				Objects.equals(this.getExercicesProfessionels().size(), professionnel.getExercicesProfessionels().size()) &&
 				this.getExercicesProfessionels().containsAll(professionnel.getExercicesProfessionels()) &&
 				Objects.equals(this.getActivated(), professionnel.getActivated()) &&
-				Objects.equals(this.getDeactivated(), professionnel.getDeactivated()) &&
-				Objects.equals(this.getOrigin(), professionnel.getOrigin()) &&
-				Objects.equals(this.getQuality(), professionnel.getQuality());
+				Objects.equals(this.getDeactivated(), professionnel.getDeactivated());
 	}
 
 //	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
@@ -217,6 +245,6 @@ public class Professionnel extends Ps implements RassEntity {
 				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
 				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
 				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum),
-				(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated(), getOrigin(), getQuality());
+				(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated());
 	}
 }

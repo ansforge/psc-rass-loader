@@ -332,9 +332,9 @@ class ReadyToComputeDiffTest {
 				"SIRET", '6', "CAB_RPPS", '8', "RPPS");
 
 		for (RassEntity entity : psToCreate.values()) {
-			assertEquals(((Professionnel) entity).getOrigin(),
+			assertEquals(((Professionnel)entity).getAlternativeIds().get(0).getOrigine(),
 					origin.get(((Professionnel) entity).getNationalId().charAt(0)));
-			assertEquals(1, ((Professionnel) entity).getQuality());
+			assertEquals(1, ((Professionnel)entity).getAlternativeIds().get(0).getQuality());
 		}
 
 	}
