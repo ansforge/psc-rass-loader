@@ -144,7 +144,8 @@ public class Runner {
             	
                 // Step 2 : Extract
             	process.setExtractedFilename("/app/files-repo/test.txt");
-                process.nextStep();
+            	customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
+                //process.nextStep();
                 
                 final List<String> excludedProfessionList = List.of(Objects.requireNonNullElse(excludedProfessions, new String[]{}));
                 process.setState(new ReadyToComputeDiff(excludedProfessionList, customMetrics, apiBaseUrl));
