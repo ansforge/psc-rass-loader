@@ -41,8 +41,6 @@ public class Professionnel extends Ps implements RassEntity {
 	 */
 	public Professionnel() {
 		super();
-		setOrigin("RASS");
-		setQuality(1);
 	}
 
 	/**
@@ -66,8 +64,6 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(items[RassItems.PHONE.column]);
 		setEmail(items[RassItems.EMAIL.column]);
 		setSalutationCode(items[RassItems.SALUTATION_CODE.column]);
-		setOrigin("RASS");
-		setQuality(1);
 		if (deep) {
 			addProfessionsItem(new ExerciceProfessionnel(items));
 		}
@@ -88,8 +84,6 @@ public class Professionnel extends Ps implements RassEntity {
 		setPhone(ps.getPhone());
 		setEmail(ps.getEmail());
 		setSalutationCode(ps.getSalutationCode());
-		setOrigin("RASS");
-		setQuality(1);
 		if (ps.getProfessions() != null) {
 			List<Profession> professions = new ArrayList<>();
 			for (Profession profession : ps.getProfessions()) {
@@ -113,8 +107,6 @@ public class Professionnel extends Ps implements RassEntity {
 		items[RassItems.PHONE.column] = getPhone();
 		items[RassItems.EMAIL.column] = getEmail();
 		items[RassItems.SALUTATION_CODE.column] = getSalutationCode();
-		items[RassItems.ORIGIN.column] = getOrigin();
-		items[RassItems.QUALITY.column] = String.valueOf(getQuality());
 	}
 
 	/**
@@ -184,9 +176,7 @@ public class Professionnel extends Ps implements RassEntity {
 				this.getExercicesProfessionels().containsAll(professionnel.getExercicesProfessionels()) &&
 				(this.getIds()==null || this.getIds().containsAll(professionnel.getIds())) &&
 				Objects.equals(this.getActivated(), professionnel.getActivated()) &&
-				Objects.equals(this.getDeactivated(), professionnel.getDeactivated()) &&
-				Objects.equals(this.getOrigin(), professionnel.getOrigin()) &&
-				Objects.equals(this.getQuality(), professionnel.getQuality());
+				Objects.equals(this.getDeactivated(), professionnel.getDeactivated());
 	}
 
 //	we have to reduce all list hash codes to ensure unsorted lists always return the same hash code
@@ -196,6 +186,6 @@ public class Professionnel extends Ps implements RassEntity {
 				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
 				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
 				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum),
-				(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated(), getOrigin(), getQuality());
+					(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated());
 	}
 }
