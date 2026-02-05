@@ -126,17 +126,20 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				Professionnel prof = (Professionnel) item;
-				log.info("{} -> DELETE", prof.getNationalId());
+				String nationalId = prof.getNationalId() != null ? prof.getNationalId() : prof.getId();
+				log.info("{} -> DELETE", nationalId);
 				List<Profession> psExPros = prof.getProfessions();
 				AtomicBoolean deletable = new AtomicBoolean(true);
 				if (psExPros != null) {
 					psExPros.forEach(exerciceProfessionnel -> {
 						if (exerciceProfessionnel != null && exerciceProfessionnel.getCode() != null 
-								&& !exerciceProfessionnel.getCode().isEmpty()
-								&& excludedProfessions != null && Arrays.stream(excludedProfessions)
-								.filter(profession -> profession != null)
-								.anyMatch(profession -> profession.equals(exerciceProfessionnel.getCode()))) {
-							deletable.set(false);
+								&& !exerciceProfessionnel.getCode().isEmpty() && excludedProfessions != null) {
+							for (String excludedCode : excludedProfessions) {
+								if (excludedCode != null && excludedCode.equals(exerciceProfessionnel.getCode())) {
+									deletable.set(false);
+									break;
+								}
+							}
 						}
 					});
 				}
