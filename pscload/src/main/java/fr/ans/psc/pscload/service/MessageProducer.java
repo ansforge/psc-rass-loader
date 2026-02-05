@@ -41,6 +41,11 @@ public class MessageProducer {
     public void sendPsMessage(Professionnel professionnel, OperationType operation) {
         log.debug("Sending message for Ps {}", professionnel.getNationalId());
 
+        // Ensure alternativeIds is initialized for old PS from database
+        if (professionnel.getAlternativeIds() == null) {
+            professionnel.setAlternativeIds(new java.util.ArrayList<>());
+        }
+
         String routingKey;
         switch (operation) {
             case CREATE:
