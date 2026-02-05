@@ -148,10 +148,18 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					});
 				}
 				if (deletable.get()) {
-					psApi.deletePsById(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
+					String internalId = item.getInternalId();
+					if (internalId != null) {
+						psApi.deletePsById(URLEncoder.encode(internalId, StandardCharsets.UTF_8));
+					} else {
+						log.warn("PS {} has null internalId, cannot delete", nationalId);
+					}
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
-				map.remove(item.getInternalId());
+				String internalId = item.getInternalId();
+				if (internalId != null) {
+					map.remove(internalId);
+				}
 				if (messagesEnabled && deletable.get()) {
 					messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
 				}
