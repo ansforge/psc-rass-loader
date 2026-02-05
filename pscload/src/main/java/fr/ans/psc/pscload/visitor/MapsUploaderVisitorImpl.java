@@ -86,6 +86,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
+				log.info("{} -> CREATE", ((Professionnel) item).getNationalId());
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
 				if (messagesEnabled) {
@@ -125,6 +126,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				Professionnel prof = (Professionnel) item;
+				log.info("{} -> DELETE", prof.getNationalId());
 				List<Profession> psExPros = prof.getProfessions();
 				AtomicBoolean deletable = new AtomicBoolean(true);
 				if (psExPros != null) {
@@ -178,12 +180,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
-				log.info("MapsUploaderVisitorImpl.visit(PsUpdateMap map) : Début");
+				log.info("{} -> UPDATE", ((Professionnel) item).getNationalId());
 				psApi.updatePs((Professionnel) item);
-				log.info("MapsUploaderVisitorImpl.visit(PsUpdateMap map) : Fin");
-				log.info(item.getIdType());
-				log.info(item.getInternalId());
-				log.info(((Professionnel) item).toString());
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 				if (messagesEnabled) {
