@@ -128,7 +128,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				List<Profession> psExPros = prof.getProfessions();
 				AtomicBoolean deletable = new AtomicBoolean(true);
 				psExPros.forEach(exerciceProfessionnel -> {
-					if (excludedProfessions != null && Arrays.stream(excludedProfessions)
+					if (exerciceProfessionnel != null && excludedProfessions != null && Arrays.stream(excludedProfessions)
 							.anyMatch(profession -> exerciceProfessionnel.getCode().equals(profession))) {
 						deletable.set(false);
 					}
