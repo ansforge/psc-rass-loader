@@ -161,7 +161,11 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					map.remove(internalId);
 				}
 				if (messagesEnabled && deletable.get()) {
-					messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+					try {
+						messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+					} catch (Exception e) {
+						log.error("Error sending DELETE message for PS {}: {}", nationalId, e.getMessage(), e);
+					}
 				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
