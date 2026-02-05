@@ -132,14 +132,18 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				AtomicBoolean deletable = new AtomicBoolean(true);
 				if (psExPros != null) {
 					psExPros.forEach(exerciceProfessionnel -> {
-						if (exerciceProfessionnel != null && exerciceProfessionnel.getCode() != null 
-								&& !exerciceProfessionnel.getCode().isEmpty() && excludedProfessions != null) {
-							for (String excludedCode : excludedProfessions) {
-								if (excludedCode != null && excludedCode.equals(exerciceProfessionnel.getCode())) {
-									deletable.set(false);
-									break;
+						try {
+							if (exerciceProfessionnel != null && exerciceProfessionnel.getCode() != null 
+									&& !exerciceProfessionnel.getCode().isEmpty() && excludedProfessions != null) {
+								for (String excludedCode : excludedProfessions) {
+									if (excludedCode != null && excludedCode.equals(exerciceProfessionnel.getCode())) {
+										deletable.set(false);
+										break;
+									}
 								}
 							}
+						} catch (Exception e) {
+							log.error("Error checking profession for PS {}: {}", nationalId, e.getMessage(), e);
 						}
 					});
 				}
