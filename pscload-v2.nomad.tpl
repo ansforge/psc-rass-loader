@@ -78,7 +78,7 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms1g -Xmx13g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
+JAVA_TOOL_OPTIONS="-Xms2g -Xmx16g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
 EOH
       }
       template {
