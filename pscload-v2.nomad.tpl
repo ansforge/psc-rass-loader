@@ -123,7 +123,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 15312
+        memory = 25600  # 25GB pour Java heap 24GB + overhead
       }
       service {
  	 name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
