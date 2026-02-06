@@ -123,7 +123,7 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 15312
+        memory = 13312  # Réduction temporaire à 13GB
       }
       service {
  	 name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
