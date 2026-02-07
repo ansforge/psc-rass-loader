@@ -203,6 +203,9 @@ public class Runner {
             process.nextStep();
             processRegistry.unregister(process.getId());
             customMetrics.setStageMetric(Stage.FINISHED);
+            // Clear maps to release memory after processing
+            log.info("Clearing process maps to release memory...");
+            process.clearMaps();
         } catch (LoadProcessException e) {
             // error during uploading
             if (e.getClass().equals(UploadException.class)) {
