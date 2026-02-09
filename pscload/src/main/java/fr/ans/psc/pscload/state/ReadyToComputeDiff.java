@@ -101,6 +101,14 @@ public class ReadyToComputeDiff extends ProcessState {
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
             fillChangesMaps(diffPs);
+            
+            // Clear maps immediately after use to free memory
+            log.info("Clearing oldPsMap and newPsMap to release memory...");
+            oldPsMap.clear();
+            oldPsMap = null;
+            newPsMap.clear();
+            newPsMap = null;
+            System.gc();
 
         } catch (IOException e) {
             throw new DiffException("I/O Error when deserializing file", e);
@@ -123,6 +131,18 @@ public class ReadyToComputeDiff extends ProcessState {
                 log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
                 log.debug("page {} received", page);
+                
+                // Debug: Check if projection is working
+                if (!psPage.isEmpty()) {
+                    Ps firstPs = psPage.get(0);
+                    if (firstPs.getAlternativeIds() == null) {
+                        log.info("Page {}: alternativeIds is NULL (projection working)", page);
+                    } else {
+                        log.warn("Page {}: alternativeIds NOT NULL, size = {} (projection NOT working!)", 
+                                 page, firstPs.getAlternativeIds().size());
+                    }
+                }
+                
                 List<Ps> adeliFiltered = psPage.stream()
                         .filter(ps -> ps.getDeactivated() == null || ps.getDeactivated() < ps.getActivated())
                         .filter(ps -> !(
