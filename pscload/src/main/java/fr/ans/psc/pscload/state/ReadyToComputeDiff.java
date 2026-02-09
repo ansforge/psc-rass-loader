@@ -132,6 +132,9 @@ public class ReadyToComputeDiff extends ProcessState {
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
                 log.debug("page {} received", page);
                 
+                // Force clear alternativeIds to reduce memory footprint
+                psPage.forEach(ps -> ps.setAlternativeIds(null));
+                
                 // Debug: Check if projection is working
                 if (!psPage.isEmpty()) {
                     Ps firstPs = psPage.get(0);
@@ -141,6 +144,14 @@ public class ReadyToComputeDiff extends ProcessState {
                         log.warn("Page {}: alternativeIds NOT NULL, size = {} (projection NOT working!)", 
                                  page, firstPs.getAlternativeIds().size());
                     }
+                }
+                
+                // Debug: Check memory usage
+                if (page % 10 == 0) {
+                    Runtime runtime = Runtime.getRuntime();
+                    long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+                    log.info("Page {}: Memory used = {} MB, psList size = {} objects", 
+                             page, usedMemory, psList.size());
                 }
                 
                 List<Ps> adeliFiltered = psPage.stream()
