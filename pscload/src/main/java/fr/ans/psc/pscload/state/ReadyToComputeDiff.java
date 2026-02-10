@@ -160,7 +160,10 @@ public class ReadyToComputeDiff extends ProcessState {
                                 ps.getIdType().equals(ID_TYPE.ADELI.value)
                                 && ps.getProfessions().stream().anyMatch(profession -> this.excludedProfessionCodes.contains(profession.getCode()))
                             )
-                ).collect(Collectors.toList());
+                        )
+                        // Exclude PSI identities (not from RASS) to prevent deletion
+                        .filter(ps -> !isPsi(ps))
+                .collect(Collectors.toList());
                 log.debug("filtering successful for page {}", page);
                 psList.addAll(adeliFiltered);
                 page++;
@@ -179,6 +182,32 @@ public class ReadyToComputeDiff extends ProcessState {
                 Collectors.toMap(Professionnel::getNationalId, Function.identity()));
 
         return psMap;
+    }
+
+    /**
+     * Check if a PS is a PSI identity (ProSanté Identity).
+     * PSI identities are not managed by RASS and should not be deleted.
+     * PSI identities use UUID format for nationalId and have empty idType.
+     * 
+     * @param ps the PS to check
+     * @return true if PSI identity, false otherwise
+     */
+    private boolean isPsi(Ps ps) {
+        String nationalId = ps.getNationalId();
+        // PSI uses UUID format (8-4-4-4-12 hexadecimal pattern)
+        // Example: 550e8400-e29b-41d4-a716-446655440000
+        if (nationalId != null && nationalId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
+            return true;
+        }
+        
+        // PSI has empty idType (not in RASS enum: 0, 3, 5, 8)
+        String idType = ps.getIdType();
+        return (idType == null || idType.isEmpty()) ||
+               (idType != null && 
+                !idType.equals(ID_TYPE.ADELI.value) &&
+                !idType.equals(ID_TYPE.FINESS.value) &&
+                !idType.equals(ID_TYPE.SIRET.value) &&
+                !idType.equals(ID_TYPE.RPPS.value));
     }
 
     public Map<String, Professionnel> loadMapsFromFile(File file) throws IOException, IllegalArgumentException, DataProcessingException {
