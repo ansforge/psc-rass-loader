@@ -27,10 +27,9 @@ job "pscload" {
       mode = "fail"
     }
 
-    affinity {
+    constraint {
       attribute = "$\u007Bnode.unique.name\u007D"
       value     = "psc-node-5"
-      weight    = 100
     }
 
     network {
