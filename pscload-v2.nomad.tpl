@@ -27,11 +27,6 @@ job "pscload" {
       mode = "fail"
     }
 
-    constraint {
-      attribute = "$\u007Bnode.unique.name\u007D"
-      value     = "psc-node-5"
-    }
-
     network {
       port "http" {
         to = 8080
