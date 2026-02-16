@@ -187,27 +187,33 @@ public class ReadyToComputeDiff extends ProcessState {
     /**
      * Check if a PS is a PSI identity (ProSanté Identity).
      * PSI identities are not managed by RASS and should not be deleted.
-     * PSI identities use UUID format for nationalId and have empty idType.
+     * PSI identities use UUID format for nationalId OR have alternativeIds with origine='PSI'.
      * 
      * @param ps the PS to check
      * @return true if PSI identity, false otherwise
      */
     private boolean isPsi(Ps ps) {
+        // Check 1: PSI uses UUID format for nationalId (8-4-4-4-12 hexadecimal pattern)
+        // Matches UUID v4, v7, etc. Examples: 550e8400-e29b-41d4-a716-446655440000, 019c5172-a5c0-7188-b81f-5c16807b9140
         String nationalId = ps.getNationalId();
-        // PSI uses UUID format (8-4-4-4-12 hexadecimal pattern)
-        // Example: 550e8400-e29b-41d4-a716-446655440000
         if (nationalId != null && nationalId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
             return true;
         }
         
-        // PSI has empty idType (not in RASS enum: 0, 3, 5, 8)
-        String idType = ps.getIdType();
-        return (idType == null || idType.isEmpty()) ||
-               (idType != null && 
-                !idType.equals(ID_TYPE.ADELI.value) &&
-                !idType.equals(ID_TYPE.FINESS.value) &&
-                !idType.equals(ID_TYPE.SIRET.value) &&
-                !idType.equals(ID_TYPE.RPPS.value));
+        // Check 2: Check if alternativeIds contains a PSI identity
+        // Even if nationalId is RPPS/ADELI/SIRET, if there's a PSI alternative, protect the account
+        if (ps.getAlternativeIds() != null && !ps.getAlternativeIds().isEmpty()) {
+            boolean hasPsiAlternativeId = ps.getAlternativeIds().stream()
+                .anyMatch(altId -> "PSI".equalsIgnoreCase(altId.getOrigine()));
+            if (hasPsiAlternativeId) {
+                log.debug("PS {} has PSI alternativeId, protecting from deletion", ps.getNationalId());
+                return true;
+            }
+        }
+        
+        // Check 3: PSI may have empty idType (but this alone is not sufficient, must have UUID nationalId)
+        // This check is removed as it was too permissive and marked non-PSI accounts as PSI
+        return false;
     }
 
     public Map<String, Professionnel> loadMapsFromFile(File file) throws IOException, IllegalArgumentException, DataProcessingException {
