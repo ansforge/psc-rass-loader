@@ -28,11 +28,6 @@ job "pscload" {
     }
 
     affinity {
-      attribute = "$\u007Bnode.class\u007D"
-      value     = "compute"
-    }
-
-    affinity {
       attribute = "$\u007Bnode.unique.name\u007D"
       value     = "psc-node-5"
       weight    = 100
