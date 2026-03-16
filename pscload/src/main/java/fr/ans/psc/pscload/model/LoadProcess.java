@@ -119,6 +119,22 @@ public class LoadProcess implements KryoSerializable {
 
     }
 
+    /**
+     * Clear all maps to release memory after processing
+     */
+    public void clearMaps() {
+        if (maps != null) {
+            maps.forEach(map -> {
+                if (map != null) {
+                    map.clear();
+                }
+            });
+        }
+        // Force garbage collection suggestion
+        System.gc();
+    }
+
+
     public ProcessInfo getProcessInfos(boolean withDetails) {
         ProcessInfo processInfo = new ProcessInfo();
         processInfo.setProcessId(id);

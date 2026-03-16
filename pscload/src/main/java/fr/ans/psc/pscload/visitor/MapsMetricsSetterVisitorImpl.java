@@ -55,6 +55,7 @@ public class MapsMetricsSetterVisitorImpl implements MapsVisitor {
 
     @Override
     public void visit(PsUpdateMap map) {
+    	log.info("MapsMetricsSetterVisitorImpl.visit(PsUpdateMap map)");
         setPsMetricFromPsMap(map);
     }
 

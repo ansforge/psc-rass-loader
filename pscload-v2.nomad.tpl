@@ -27,11 +27,6 @@ job "pscload" {
       mode = "fail"
     }
 
-    affinity {
-      attribute = "$\u007Bnode.class\u007D"
-      value     = "compute"
-    }
-
     network {
       port "http" {
         to = 8080
@@ -78,7 +73,7 @@ EOH
         env = true
         data = <<EOH
 PUBLIC_HOSTNAME={{ with secret "psc-ecosystem/${nomad_namespace}/pscload" }}{{ .Data.data.public_hostname }}{{ end }}
-JAVA_TOOL_OPTIONS="-Xms1g -Xmx13g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
+JAVA_TOOL_OPTIONS="-Xms1g -Xmx17g -XX:+UseG1GC -Dspring.config.location=/secrets/application.properties -Dkryo.unsafe=false -Dlogging.level.root=${log_level} -Ddisable.messages=${disable_messages}"
 EOH
       }
       template {
@@ -123,23 +118,22 @@ EOF
       }
       resources {
         cpu = 300
-        memory = 15312
+        memory = 20480
       }
       service {
-        name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
-        tags = ["urlprefix-$\u007BPUBLIC_HOSTNAME\u007D/pscload/v2/"]
-        port = "http"
-        check {
-          type = "http"
-          path = "/pscload/v2/check"
-          port = "http"
-          interval = "30s"
-          timeout = "2s"
-          failures_before_critical = 5
-        }
+ 	 name = "$\u007BNOMAD_NAMESPACE\u007D-$\u007BNOMAD_JOB_NAME\u007D"
+  	tags = ["urlprefix-$\u007BPUBLIC_HOSTNAME\u007D/pscload/v2/ proto=http"]
+  	port = "http"
+  	check {
+    		type = "http"
+    		path = "/pscload/v2/check"
+    		port = "http"
+    		interval = "30s"
+    		timeout = "2s"
+    		failures_before_critical = 5
+  	      }
       }
-    }
-
+}
     task "log-shipper" {
       driver = "docker"
       restart {

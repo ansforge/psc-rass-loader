@@ -86,6 +86,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
+				log.info("{} -> CREATE", ((Professionnel) item).getNationalId());
 				psApi.createNewPs((Professionnel) item);
 				map.remove(item.getInternalId());
 				if (messagesEnabled) {
@@ -99,6 +100,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException();
 			}
 		});
 
@@ -122,21 +126,46 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					throw new LockedMapException();
 				}
 				Professionnel prof = (Professionnel) item;
+				String nationalId = prof.getNationalId() != null ? prof.getNationalId() : prof.getId();
+				log.info("{} -> DELETE", nationalId);
 				List<Profession> psExPros = prof.getProfessions();
 				AtomicBoolean deletable = new AtomicBoolean(true);
-				psExPros.forEach(exerciceProfessionnel -> {
-					if (excludedProfessions != null && Arrays.stream(excludedProfessions)
-							.anyMatch(profession -> exerciceProfessionnel.getCode().equals(profession))) {
-						deletable.set(false);
-					}
-				});
+				if (psExPros != null) {
+					psExPros.forEach(exerciceProfessionnel -> {
+						try {
+							if (exerciceProfessionnel != null && exerciceProfessionnel.getCode() != null 
+									&& !exerciceProfessionnel.getCode().isEmpty() && excludedProfessions != null) {
+								for (String excludedCode : excludedProfessions) {
+									if (excludedCode != null && excludedCode.equals(exerciceProfessionnel.getCode())) {
+										deletable.set(false);
+										break;
+									}
+								}
+							}
+						} catch (Exception e) {
+							log.error("Error checking profession for PS {}: {}", nationalId, e.getMessage(), e);
+						}
+					});
+				}
 				if (deletable.get()) {
-					psApi.deletePsById(URLEncoder.encode(item.getInternalId(), StandardCharsets.UTF_8));
+					String internalId = item.getInternalId();
+					if (internalId != null) {
+						psApi.deletePsById(URLEncoder.encode(internalId, StandardCharsets.UTF_8));
+					} else {
+						log.warn("PS {} has null internalId, cannot delete", nationalId);
+					}
 				}
 				// remove anyway : extract Ps from maps either successful or ignored
-				map.remove(item.getInternalId());
+				String internalId = item.getInternalId();
+				if (internalId != null) {
+					map.remove(internalId);
+				}
 				if (messagesEnabled && deletable.get()) {
-					messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+					try {
+						messageProducer.sendPsMessage((Professionnel) item, OperationType.DELETE);
+					} catch (Exception e) {
+						log.error("Error sending DELETE message for PS {}: {}", nationalId, e.getMessage(), e);
+					}
 				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
@@ -146,6 +175,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException();
 			}
 		});
 
@@ -154,6 +186,8 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void visit(PsUpdateMap map) {
+		log.info("MapsUploaderVisitorImpl.visit(PsUpdateMap map)");
+		log.info("map.size()" + map.size());
 		Collection<RassEntity> items = map.values();
 		items.stream().forEach(item -> {
 			try {
@@ -168,6 +202,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
+				log.info("{} -> UPDATE", ((Professionnel) item).getNationalId());
 				psApi.updatePs((Professionnel) item);
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
@@ -182,6 +217,9 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
 				throw new UploadException(e);
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				throw new RuntimeException();
 			}
 		});
 
