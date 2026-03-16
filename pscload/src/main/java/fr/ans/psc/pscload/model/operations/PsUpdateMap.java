@@ -24,6 +24,9 @@ import fr.ans.psc.pscload.visitor.MapsVisitor;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * The Class PsUpdateMap.
  */
@@ -56,6 +59,8 @@ public class PsUpdateMap extends OperationMap<String, RassEntity> {
 
 	@Override
 	public void accept(MapsVisitor visitor) {
+		Logger log = LogManager.getLogger(PsUpdateMap.class);
+		log.info("PsUpdateMap.accept(MapsVisitor visitor)");
 		visitor.visit(this);
 	}
 }

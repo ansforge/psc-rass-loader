@@ -21,12 +21,12 @@
     <parent>
         <groupId>fr.ans.psc</groupId>
         <artifactId>pscload-root</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
     </parent>
 
     <artifactId>pscload</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
     <name>pscload</name>
     <description>psc loader</description>
 
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>fr.ans.psc</groupId>
             <artifactId>psc-api-client</artifactId>
-            <version>2.2.22</version>
+            <version>2.3.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>fr.ans.psc</groupId>

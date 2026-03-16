@@ -140,7 +140,9 @@ public class Runner {
                 // Step 1 : Download
                 process.nextStep();
                 process.setState(new ReadyToExtract());
+            	//process.setExtractedFilename("/app/files-repo/test.txt");
                 customMetrics.setStageMetric(Stage.READY_TO_EXTRACT);
+            	
                 // Step 2 : Extract
                 process.nextStep();
                 
@@ -201,6 +203,9 @@ public class Runner {
             process.nextStep();
             processRegistry.unregister(process.getId());
             customMetrics.setStageMetric(Stage.FINISHED);
+            // Clear maps to release memory after processing
+            log.info("Clearing process maps to release memory...");
+            process.clearMaps();
         } catch (LoadProcessException e) {
             // error during uploading
             if (e.getClass().equals(UploadException.class)) {
