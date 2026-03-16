@@ -186,6 +186,6 @@ public class Professionnel extends Ps implements RassEntity {
 				getDateOfBirth(), getBirthAddressCode(), getBirthCountryCode(), getBirthAddress(),
 				getGenderCode(), getPhone(), getEmail(), getSalutationCode(),
 				getExercicesProfessionels().stream().map(ExerciceProfessionnel::hashCode).reduce(0, Integer::sum),
-				(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated());
+					(this.getIds() == null ? null : getIds().stream().map(String::hashCode).reduce(0, Integer::sum)), getActivated(), getDeactivated());
 	}
 }

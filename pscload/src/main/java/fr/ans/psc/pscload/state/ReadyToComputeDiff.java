@@ -101,6 +101,14 @@ public class ReadyToComputeDiff extends ProcessState {
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
             fillChangesMaps(diffPs);
+            
+            // Clear maps immediately after use to free memory
+            log.info("Clearing oldPsMap and newPsMap to release memory...");
+            oldPsMap.clear();
+            oldPsMap = null;
+            newPsMap.clear();
+            newPsMap = null;
+            System.gc();
 
         } catch (IOException e) {
             throw new DiffException("I/O Error when deserializing file", e);
@@ -123,13 +131,39 @@ public class ReadyToComputeDiff extends ProcessState {
                 log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
                 log.debug("page {} received", page);
+                
+                // Force clear alternativeIds to reduce memory footprint
+                psPage.forEach(ps -> ps.setAlternativeIds(null));
+                
+                // Debug: Check if projection is working
+                if (!psPage.isEmpty()) {
+                    Ps firstPs = psPage.get(0);
+                    if (firstPs.getAlternativeIds() == null) {
+                        log.info("Page {}: alternativeIds is NULL (projection working)", page);
+                    } else {
+                        log.warn("Page {}: alternativeIds NOT NULL, size = {} (projection NOT working!)", 
+                                 page, firstPs.getAlternativeIds().size());
+                    }
+                }
+                
+                // Debug: Check memory usage
+                if (page % 10 == 0) {
+                    Runtime runtime = Runtime.getRuntime();
+                    long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+                    log.info("Page {}: Memory used = {} MB, psList size = {} objects", 
+                             page, usedMemory, psList.size());
+                }
+                
                 List<Ps> adeliFiltered = psPage.stream()
                         .filter(ps -> ps.getDeactivated() == null || ps.getDeactivated() < ps.getActivated())
                         .filter(ps -> !(
                                 ps.getIdType().equals(ID_TYPE.ADELI.value)
                                 && ps.getProfessions().stream().anyMatch(profession -> this.excludedProfessionCodes.contains(profession.getCode()))
                             )
-                ).collect(Collectors.toList());
+                        )
+                        // Exclude PSI identities (not from RASS) to prevent deletion
+                        .filter(ps -> !isPsi(ps))
+                .collect(Collectors.toList());
                 log.debug("filtering successful for page {}", page);
                 psList.addAll(adeliFiltered);
                 page++;
@@ -148,6 +182,38 @@ public class ReadyToComputeDiff extends ProcessState {
                 Collectors.toMap(Professionnel::getNationalId, Function.identity()));
 
         return psMap;
+    }
+
+    /**
+     * Check if a PS is a PSI identity (ProSanté Identity).
+     * PSI identities are not managed by RASS and should not be deleted.
+     * PSI identities use UUID format for nationalId OR have alternativeIds with origine='PSI'.
+     * 
+     * @param ps the PS to check
+     * @return true if PSI identity, false otherwise
+     */
+    private boolean isPsi(Ps ps) {
+        // Check 1: PSI uses UUID format for nationalId (8-4-4-4-12 hexadecimal pattern)
+        // Matches UUID v4, v7, etc. Examples: 550e8400-e29b-41d4-a716-446655440000, 019c5172-a5c0-7188-b81f-5c16807b9140
+        String nationalId = ps.getNationalId();
+        if (nationalId != null && nationalId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
+            return true;
+        }
+        
+        // Check 2: Check if alternativeIds contains a PSI identity
+        // Even if nationalId is RPPS/ADELI/SIRET, if there's a PSI alternative, protect the account
+        if (ps.getAlternativeIds() != null && !ps.getAlternativeIds().isEmpty()) {
+            boolean hasPsiAlternativeId = ps.getAlternativeIds().stream()
+                .anyMatch(altId -> "PSI".equalsIgnoreCase(altId.getOrigine()));
+            if (hasPsiAlternativeId) {
+                log.debug("PS {} has PSI alternativeId, protecting from deletion", ps.getNationalId());
+                return true;
+            }
+        }
+        
+        // Check 3: PSI may have empty idType (but this alone is not sufficient, must have UUID nationalId)
+        // This check is removed as it was too permissive and marked non-PSI accounts as PSI
+        return false;
     }
 
     public Map<String, Professionnel> loadMapsFromFile(File file) throws IOException, IllegalArgumentException, DataProcessingException {

@@ -47,6 +47,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsCreateMap map) {
+		log.info("MapsCleanerVisitorImpl.visit(PsCreateMap map)");
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if(map.isLocked()) {
@@ -66,6 +67,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsUpdateMap map) {
+		log.info("MapsCleanerVisitorImpl.visit(PsUpdateMap map)");
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if(map.isLocked()) {
@@ -85,6 +87,7 @@ public class MapsCleanerVisitorImpl implements MapsVisitor {
 
 	@Override
 	public void visit(PsDeleteMap map) {
+		log.info("MapsCleanerVisitorImpl.visit(PsDeleteMap map)");
 		Collection<RassEntity> items = map.values();
 		items.forEach(item -> {
 			if(map.isLocked()) {
