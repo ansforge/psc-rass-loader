@@ -101,11 +101,10 @@ public class ChangesApplied extends ProcessState {
     public void nextStep() {
     	//First step
     	processRemainingPS();
-    	// after this memory is cleared
-        callPscExtract();
+    	// callPscExtract is now called from Runner after Phase 2 purge
     }
 
-	private void callPscExtract() throws ExtractTriggeringException{
+	public void callPscExtract() throws ExtractTriggeringException{
         log.info("calling Pscextract...");
 		RestTemplate restTemplate = new RestTemplate();
 		try {

@@ -40,7 +40,10 @@ public enum Stage {
     
     /** The upload changes finished. */
     UPLOAD_CHANGES_FINISHED(70),
-    
+
+    /** The purging secondary ids. */
+    PURGING_SECONDARY_IDS(75),
+
     /** The current map serialized. */
     CURRENT_MAP_SERIALIZED(80);
 
