@@ -44,6 +44,7 @@ import fr.ans.psc.pscload.state.UploadingChanges;
 import fr.ans.psc.pscload.state.PurgingSecondaryIds;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import fr.ans.psc.pscload.state.exception.NoNewFileAvailableException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import java.util.Objects;
@@ -166,6 +167,9 @@ public class Runner {
                     log.info("No differences with previous upload, unregistering process...");
                     processRegistry.unregister(id);
                 }
+            } catch (NoNewFileAvailableException e) {
+                log.info("No new RASS file available, nothing to load this cycle.");
+                processRegistry.unregister(id);
             } catch (LoadProcessException e) {
                 log.error("Error when loading RASS data", e);
                 customMetrics.setStageMetric(customMetrics.getStageMetricValue());
