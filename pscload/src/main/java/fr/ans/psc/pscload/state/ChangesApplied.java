@@ -27,6 +27,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -42,6 +44,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
+import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.EmailTemplate;
 import fr.ans.psc.pscload.model.Stage;
 import fr.ans.psc.pscload.service.EmailService;
@@ -101,11 +105,10 @@ public class ChangesApplied extends ProcessState {
     public void nextStep() {
     	//First step
     	processRemainingPS();
-    	// after this memory is cleared
-        callPscExtract();
+    	// callPscExtract is now called from Runner after Phase 2 purge
     }
 
-	private void callPscExtract() throws ExtractTriggeringException{
+	public void callPscExtract() throws ExtractTriggeringException{
         log.info("calling Pscextract...");
 		RestTemplate restTemplate = new RestTemplate();
 		try {
@@ -126,6 +129,11 @@ public class ChangesApplied extends ProcessState {
 
             message.append("Le process PSCLOAD s'est terminé, le fichier " + process.getExtractedFilename() +
                     " a été traité.\n\n");
+
+            Map<SizeMetric, Integer> effective = process.getEffectiveCounts();
+            Map<String, Integer> failures = process.getEffectiveFailures();
+            publishEffectiveMetrics(effective);
+            message.append(formatEffectiveSummary(effective, failures));
 
             MapsVisitor cleaner = new MapsCleanerVisitorImpl(dataLines);
             // Clean all maps and collect reports infos
@@ -153,6 +161,40 @@ public class ChangesApplied extends ProcessState {
             log.error("Shutdown was initiated during Changes Applied stage. ");
             throw new SerFileGenerationException("Shutdown initiated during Changes Applied stage, will mutate in SerializationInterrupted");
         }
+    }
+
+    private void publishEffectiveMetrics(Map<SizeMetric, Integer> effective) {
+        if (effective == null || effective.isEmpty() || customMetrics == null) {
+            return;
+        }
+        effective.forEach(customMetrics::setPsMetricSize);
+    }
+
+    private String formatEffectiveSummary(Map<SizeMetric, Integer> effective, Map<String, Integer> failures) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Résumé des opérations appliquées :\n");
+        sb.append("  CREATE (HTTP 201) : ").append(formatLine("CREATE", effective)).append('\n');
+        sb.append("  UPDATE (HTTP 200) : ").append(formatLine("UPDATE", effective)).append('\n');
+        sb.append("  DELETE (HTTP 204) : ").append(formatLine("DELETE", effective)).append('\n');
+        if (failures == null || failures.isEmpty()) {
+            sb.append("  Échecs            : aucun\n");
+        } else {
+            StringJoiner joiner = new StringJoiner(", ");
+            failures.forEach((k, v) -> joiner.add(k + "=" + v));
+            sb.append("  Échecs            : ").append(joiner.toString()).append('\n');
+        }
+        sb.append('\n');
+        return sb.toString();
+    }
+
+    private String formatLine(String operation, Map<SizeMetric, Integer> effective) {
+        StringJoiner joiner = new StringJoiner(" ");
+        for (ID_TYPE idType : ID_TYPE.values()) {
+            SizeMetric key = SizeMetric.valueOf(operation + "_" + idType.name() + "_SIZE");
+            int value = (effective == null) ? 0 : effective.getOrDefault(key, 0);
+            joiner.add(idType.name() + "=" + value);
+        }
+        return joiner.toString();
     }
 
     private File generateReport(File csvOutputFile, List<String> dataLines) throws FileNotFoundException {

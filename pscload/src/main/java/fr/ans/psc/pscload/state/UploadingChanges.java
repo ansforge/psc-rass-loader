@@ -19,6 +19,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
+import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.service.MessageProducer;
@@ -26,10 +28,11 @@ import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.LockedMapException;
 import fr.ans.psc.pscload.state.exception.UploadException;
 import fr.ans.psc.pscload.visitor.MapsUploaderVisitorImpl;
-import fr.ans.psc.pscload.visitor.MapsVisitor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * The Class UploadingChanges.
@@ -74,8 +77,8 @@ public class UploadingChanges extends ProcessState {
 	@Override
     public void nextStep() throws LoadProcessException {
         log.info("calling API...");
-    	
-		MapsVisitor visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, messageProducer);
+
+		MapsUploaderVisitorImpl visitor = new MapsUploaderVisitorImpl(excludedProfessions, apiBaseUrl, messageProducer);
 
         List<OperationMap<String, RassEntity>> processMaps = process.getMaps();
         if (excludedOperations != null) {
@@ -88,12 +91,41 @@ public class UploadingChanges extends ProcessState {
             for (OperationMap<String, RassEntity> map : processMaps) {
                 map.accept(visitor);
             }
+            Map<SizeMetric, Integer> effective = visitor.getEffectiveCounts();
+            Map<String, Integer> failures = visitor.getFailureCounts();
+            process.setEffectiveCounts(effective);
+            process.setEffectiveFailures(failures);
+            logSummary(effective, failures);
             log.info("API operations done.");
         } catch (LockedMapException e) {
             log.error("Shutdown was initiated during Uploading Changes stage.");
             throw new UploadException("Shutdown was initiated during Uploading Changes stage.");
         }
 
+    }
+
+    private void logSummary(Map<SizeMetric, Integer> effective, Map<String, Integer> failures) {
+        log.info("===== PSCLOAD EFFECTIVE OPERATIONS SUMMARY =====");
+        log.info("CREATE (HTTP 201) : {}", formatLine("CREATE", effective));
+        log.info("UPDATE (HTTP 200) : {}", formatLine("UPDATE", effective));
+        log.info("DELETE (HTTP 204) : {}", formatLine("DELETE", effective));
+        if (failures.isEmpty()) {
+            log.info("FAILURES          : none");
+        } else {
+            StringJoiner joiner = new StringJoiner(", ");
+            failures.forEach((k, v) -> joiner.add(k + "=" + v));
+            log.info("FAILURES          : {}", joiner.toString());
+        }
+        log.info("================================================");
+    }
+
+    private String formatLine(String operation, Map<SizeMetric, Integer> effective) {
+        StringJoiner joiner = new StringJoiner(" ");
+        for (ID_TYPE idType : ID_TYPE.values()) {
+            SizeMetric key = SizeMetric.valueOf(operation + "_" + idType.name() + "_SIZE");
+            joiner.add(idType.name() + "=" + effective.getOrDefault(key, 0));
+        }
+        return joiner.toString();
     }
 
     @Override
