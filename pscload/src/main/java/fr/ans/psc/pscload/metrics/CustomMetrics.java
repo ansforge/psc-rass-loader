@@ -212,12 +212,16 @@ public class CustomMetrics {
 	 * Reset size metrics.
 	 */
 	public void resetSizeMetrics() {
-		// reset all PsSizeMetrics
+		// Reset CREATE/UPDATE/DELETE gauges to -1 before a new upload.
+		// REFERENCE is preserved: it reflects the baseline registry size and is needed
+		// by AlertManager rules to compute relative thresholds (e.g. delete > reference/100).
 		Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
-			Arrays.stream(CustomMetrics.OPERATION.values()).forEach(operation -> {
-				String metricKey = String.join("_", operation.name(), id_type.name(), "SIZE");
-				appSizeGauges.get(SizeMetric.valueOf(metricKey)).set(-1);
-			});
+			Arrays.stream(CustomMetrics.OPERATION.values())
+					.filter(operation -> operation != OPERATION.REFERENCE)
+					.forEach(operation -> {
+						String metricKey = String.join("_", operation.name(), id_type.name(), "SIZE");
+						appSizeGauges.get(SizeMetric.valueOf(metricKey)).set(-1);
+					});
 		});
 	}
 
