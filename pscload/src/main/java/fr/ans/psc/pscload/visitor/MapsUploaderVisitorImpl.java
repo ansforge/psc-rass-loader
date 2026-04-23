@@ -19,15 +19,23 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.PsApi;
 import fr.ans.psc.model.Profession;
+import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
+import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.entities.Professionnel;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationType;
@@ -53,6 +61,10 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 
 	private boolean messagesEnabled = !Boolean.getBoolean("disable.messages");
 
+	private final Map<SizeMetric, AtomicInteger> effectiveCounts = new EnumMap<>(SizeMetric.class);
+
+	private final Map<String, AtomicInteger> failureCounts = new LinkedHashMap<>();
+
 	/**
 	 * Instantiates a new maps uploader visitor impl.
 	 *
@@ -66,7 +78,62 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 		apiClient.setBasePath(apiBaseUrl);
 		this.psApi = new PsApi(apiClient);
 		this.messageProducer = messageProducer;
+		Arrays.stream(ID_TYPE.values()).forEach(idType -> {
+			for (String op : new String[] { "CREATE", "UPDATE", "DELETE" }) {
+				effectiveCounts.put(SizeMetric.valueOf(op + "_" + idType.name() + "_SIZE"), new AtomicInteger(0));
+			}
+		});
+	}
 
+	/**
+	 * Returns the count of operations actually applied on the ps-api side, keyed by
+	 * {@link SizeMetric}. Differs from the diff prediction when a predicted CREATE
+	 * (POST) already exists on server and is served as a partial update (HTTP 200);
+	 * these are counted as UPDATE.
+	 */
+	public Map<SizeMetric, Integer> getEffectiveCounts() {
+		Map<SizeMetric, Integer> snapshot = new EnumMap<>(SizeMetric.class);
+		effectiveCounts.forEach((k, v) -> snapshot.put(k, v.get()));
+		return snapshot;
+	}
+
+	/**
+	 * Returns the failure count per "OPERATION_IDTYPE_HTTPSTATUS" key (e.g.
+	 * "CREATE_RPPS_500").
+	 */
+	public Map<String, Integer> getFailureCounts() {
+		Map<String, Integer> snapshot = new LinkedHashMap<>();
+		failureCounts.forEach((k, v) -> snapshot.put(k, v.get()));
+		return snapshot;
+	}
+
+	private ID_TYPE idTypeOf(Professionnel ps) {
+		String raw = ps.getIdType();
+		if (raw == null) {
+			return null;
+		}
+		for (ID_TYPE t : ID_TYPE.values()) {
+			if (t.value.equals(raw)) {
+				return t;
+			}
+		}
+		return null;
+	}
+
+	private void incrementEffective(OperationType effectiveOp, Professionnel ps) {
+		ID_TYPE type = idTypeOf(ps);
+		if (type == null) {
+			return;
+		}
+		SizeMetric key = SizeMetric.valueOf(effectiveOp.name() + "_" + type.name() + "_SIZE");
+		effectiveCounts.get(key).incrementAndGet();
+	}
+
+	private void incrementFailure(OperationType predictedOp, Professionnel ps, int httpStatus) {
+		ID_TYPE type = idTypeOf(ps);
+		String typeName = type == null ? "UNKNOWN" : type.name();
+		String key = predictedOp.name() + "_" + typeName + "_" + httpStatus;
+		failureCounts.computeIfAbsent(key, k -> new AtomicInteger(0)).incrementAndGet();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -86,16 +153,24 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
-				log.info("{} -> CREATE", ((Professionnel) item).getNationalId());
-				psApi.createNewPs((Professionnel) item);
+				Professionnel ps = (Professionnel) item;
+				log.info("{} -> CREATE", ps.getNationalId());
+				ResponseEntity<Void> response = psApi.createNewPsWithHttpInfo(ps);
+				HttpStatus status = response.getStatusCode();
+				OperationType effectiveOp = status == HttpStatus.CREATED ? OperationType.CREATE : OperationType.UPDATE;
+				incrementEffective(effectiveOp, ps);
+				if (status != HttpStatus.CREATED && status != HttpStatus.OK) {
+					log.warn("Unexpected HTTP status on CREATE {} : {}", ps.getNationalId(), status);
+				}
 				map.remove(item.getInternalId());
 				if (messagesEnabled) {
-					messageProducer.sendPsMessage((Professionnel) item, OperationType.CREATE);
+					messageProducer.sendPsMessage(ps, effectiveOp);
 				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
 				item.setReturnStatus(e.getRawStatusCode());
+				incrementFailure(OperationType.CREATE, (Professionnel) item, e.getRawStatusCode());
 			} catch (RestClientException e) {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
@@ -150,7 +225,12 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				if (deletable.get()) {
 					String internalId = item.getInternalId();
 					if (internalId != null) {
-						psApi.deletePsById(URLEncoder.encode(internalId, StandardCharsets.UTF_8));
+						ResponseEntity<Void> response = psApi.deletePsByIdWithHttpInfo(
+								URLEncoder.encode(internalId, StandardCharsets.UTF_8));
+						if (response.getStatusCode() != HttpStatus.NO_CONTENT) {
+							log.warn("Unexpected HTTP status on DELETE {} : {}", nationalId, response.getStatusCode());
+						}
+						incrementEffective(OperationType.DELETE, prof);
 					} else {
 						log.warn("PS {} has null internalId, cannot delete", nationalId);
 					}
@@ -171,6 +251,7 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
 				item.setReturnStatus(e.getRawStatusCode());
+				incrementFailure(OperationType.DELETE, (Professionnel) item, e.getRawStatusCode());
 			} catch (RestClientException e) {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());
@@ -202,17 +283,23 @@ public class MapsUploaderVisitorImpl implements MapsVisitor {
 					}
 					throw new LockedMapException();
 				}
-				log.info("{} -> UPDATE", ((Professionnel) item).getNationalId());
-				psApi.updatePs((Professionnel) item);
+				Professionnel ps = (Professionnel) item;
+				log.info("{} -> UPDATE", ps.getNationalId());
+				ResponseEntity<Void> response = psApi.updatePsWithHttpInfo(ps);
+				if (response.getStatusCode() != HttpStatus.OK) {
+					log.warn("Unexpected HTTP status on UPDATE {} : {}", ps.getNationalId(), response.getStatusCode());
+				}
+				incrementEffective(OperationType.UPDATE, ps);
 				map.remove(item.getInternalId());
 				map.getOldValues().remove(item.getInternalId());
 				if (messagesEnabled) {
-					messageProducer.sendPsMessage((Professionnel) item, OperationType.UPDATE);
+					messageProducer.sendPsMessage(ps, OperationType.UPDATE);
 				}
 			} catch (RestClientResponseException e) {
 				log.error("error when {} : {}, return code : {}", map.getOperation().toString(), item.getInternalId(),
 						e.getLocalizedMessage());
 				item.setReturnStatus(e.getRawStatusCode());
+				incrementFailure(OperationType.UPDATE, (Professionnel) item, e.getRawStatusCode());
 			} catch (RestClientException e) {
 				log.error("error when {} : {}, return message : {}", map.getOperation().toString(),
 						item.getInternalId(), e.getLocalizedMessage());

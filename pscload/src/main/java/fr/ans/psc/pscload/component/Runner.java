@@ -41,6 +41,7 @@ import fr.ans.psc.pscload.state.SerializationInterrupted;
 import fr.ans.psc.pscload.state.Submitted;
 import fr.ans.psc.pscload.state.UploadInterrupted;
 import fr.ans.psc.pscload.state.UploadingChanges;
+import fr.ans.psc.pscload.state.PurgingSecondaryIds;
 import fr.ans.psc.pscload.state.exception.ExtractTriggeringException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
 import fr.ans.psc.pscload.state.exception.SerFileGenerationException;
@@ -192,18 +193,39 @@ public class Runner {
     @Async("processExecutor")
     public void runContinue(LoadProcess process, List<String> excludedOperations) {
         try {
-            // upload changes
+            // Phase 1: upload changes (CREATE/UPDATE/DELETE)
             log.info("Received request to process in Runner.runContinue()");
             process.setState(new UploadingChanges(excludedProfessions, apiBaseUrl, excludedOperations, messageProducer));
             customMetrics.resetSizeMetrics();
             customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_STARTED);
             process.nextStep();
-            process.setState(new ChangesApplied(customMetrics, pscextractBaseUrl, emailService));
-            // Step 5 : call pscload
+
+            // Reports + email (without pscextract)
+            ChangesApplied changesApplied = new ChangesApplied(customMetrics, pscextractBaseUrl, emailService);
+            process.setState(changesApplied);
             process.nextStep();
+
+            // Phase 2: purge disappeared secondary identifiers from PSI accounts
+            try {
+                process.setState(new PurgingSecondaryIds(apiBaseUrl));
+                customMetrics.setStageMetric(Stage.PURGING_SECONDARY_IDS);
+                process.nextStep();
+            } catch (Exception e) {
+                log.error("Phase 2 purge failed, continuing to finish process", e);
+            }
+
+            // Trigger pscextract AFTER Phase 2 (data is cleaned up)
+            try {
+                changesApplied.callPscExtract();
+            } catch (ExtractTriggeringException e) {
+                log.warn("Error when triggering pscextract", e);
+                customMetrics.setStageMetric(Stage.UPLOAD_CHANGES_FINISHED);
+                emailService.sendMail(EmailTemplate.TRIGGER_EXTRACT_FAILED);
+            }
+
+            // Cleanup
             processRegistry.unregister(process.getId());
             customMetrics.setStageMetric(Stage.FINISHED);
-            // Clear maps to release memory after processing
             log.info("Clearing process maps to release memory...");
             process.clearMaps();
         } catch (LoadProcessException e) {

@@ -20,14 +20,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.operations.OperationMap;
 import fr.ans.psc.pscload.model.operations.OperationMapFactory;
@@ -57,6 +61,10 @@ public class LoadProcess implements KryoSerializable {
     private ProcessState state;
 
     private String id;
+
+    private transient Map<SizeMetric, Integer> effectiveCounts = Collections.emptyMap();
+
+    private transient Map<String, Integer> effectiveFailures = Collections.emptyMap();
 
     /**
      * Instantiates a new load process.
@@ -188,6 +196,8 @@ public class LoadProcess implements KryoSerializable {
         tmpMapsPath = input.readString();
         state = (ProcessState) kryo.readClassAndObject(input);
         maps = (List<OperationMap<String, RassEntity>>) kryo.readObjectOrNull(input, ArrayList.class);
+        effectiveCounts = new LinkedHashMap<>();
+        effectiveFailures = new LinkedHashMap<>();
     }
 
 }

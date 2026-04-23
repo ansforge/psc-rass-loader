@@ -41,11 +41,14 @@ import fr.ans.psc.ApiClient;
 import fr.ans.psc.api.PsApi;
 import fr.ans.psc.model.Profession;
 import fr.ans.psc.model.Ps;
+import fr.ans.psc.pscload.model.operations.OperationMap;
+import fr.ans.psc.pscload.model.operations.OperationType;
 import fr.ans.psc.pscload.metrics.CustomMetrics;
 import fr.ans.psc.pscload.metrics.CustomMetrics.ID_TYPE;
 import fr.ans.psc.pscload.metrics.CustomMetrics.SizeMetric;
 import fr.ans.psc.pscload.model.entities.ExerciceProfessionnel;
 import fr.ans.psc.pscload.model.entities.Professionnel;
+import fr.ans.psc.pscload.model.entities.RassEntity;
 import fr.ans.psc.pscload.model.entities.RassItems;
 import fr.ans.psc.pscload.model.entities.SituationExercice;
 import fr.ans.psc.pscload.state.exception.DiffException;
@@ -94,20 +97,25 @@ public class ReadyToComputeDiff extends ProcessState {
 
         try {
             newPsMap = loadMapsFromFile(fileToLoad);
-            oldPsMap = loadMapFromDB();
+            Map<String, List<ExerciceProfessionnel>> fusedProfessions = new HashMap<>();
+            oldPsMap = loadMapFromDB(fusedProfessions);
             if (!oldPsMap.isEmpty()) {
                 setReferenceSizeMetricsAfterDeserializing(oldPsMap);
             }
             // Launch diff
             MapDifference<String, Professionnel> diffPs = Maps.difference(oldPsMap, newPsMap);
             fillChangesMaps(diffPs);
-            
+
+            // Filter unchanged fused CREATEs to avoid unnecessary HTTP calls
+            filterUnchangedFusedCreates(fusedProfessions);
+
             // Clear maps immediately after use to free memory
             log.info("Clearing oldPsMap and newPsMap to release memory...");
             oldPsMap.clear();
             oldPsMap = null;
             newPsMap.clear();
             newPsMap = null;
+            fusedProfessions.clear();
             System.gc();
 
         } catch (IOException e) {
@@ -118,7 +126,7 @@ public class ReadyToComputeDiff extends ProcessState {
 
     }
 
-    private Map<String, Professionnel> loadMapFromDB() {
+    private Map<String, Professionnel> loadMapFromDB(Map<String, List<ExerciceProfessionnel>> fusedProfessions) {
         log.info("retrieving all Ps");
         int page = 0;
         BigDecimal size = BigDecimal.valueOf(50000);
@@ -131,29 +139,46 @@ public class ReadyToComputeDiff extends ProcessState {
                 log.debug("get all Ps, page {}", page);
                 List<Ps> psPage = psApi.getPsByPage(BigDecimal.valueOf(page), size);
                 log.debug("page {} received", page);
-                
+
+                // Collect fused professions from PSI accounts before filtering them out
+                for (Ps ps : psPage) {
+                    if (isPsi(ps) && ps.getIds() != null && ps.getProfessions() != null) {
+                        for (String id : ps.getIds()) {
+                            if (!isUUID(id)) {
+                                List<ExerciceProfessionnel> profs = ps.getProfessions().stream()
+                                        .filter(p -> id.equals(p.getSourceId()))
+                                        .map(ExerciceProfessionnel::new)
+                                        .collect(Collectors.toList());
+                                if (!profs.isEmpty()) {
+                                    fusedProfessions.put(id, profs);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Force clear alternativeIds to reduce memory footprint
                 psPage.forEach(ps -> ps.setAlternativeIds(null));
-                
+
                 // Debug: Check if projection is working
                 if (!psPage.isEmpty()) {
                     Ps firstPs = psPage.get(0);
                     if (firstPs.getAlternativeIds() == null) {
                         log.info("Page {}: alternativeIds is NULL (projection working)", page);
                     } else {
-                        log.warn("Page {}: alternativeIds NOT NULL, size = {} (projection NOT working!)", 
+                        log.warn("Page {}: alternativeIds NOT NULL, size = {} (projection NOT working!)",
                                  page, firstPs.getAlternativeIds().size());
                     }
                 }
-                
+
                 // Debug: Check memory usage
                 if (page % 10 == 0) {
                     Runtime runtime = Runtime.getRuntime();
                     long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
-                    log.info("Page {}: Memory used = {} MB, psList size = {} objects", 
+                    log.info("Page {}: Memory used = {} MB, psList size = {} objects",
                              page, usedMemory, psList.size());
                 }
-                
+
                 List<Ps> adeliFiltered = psPage.stream()
                         .filter(ps -> ps.getDeactivated() == null || ps.getDeactivated() < ps.getActivated())
                         .filter(ps -> !(
@@ -311,6 +336,41 @@ public class ReadyToComputeDiff extends ProcessState {
         });
 
         log.info("operation maps filled.");
+    }
+
+    /**
+     * Filters out CREATE entries for fused RPPS whose professions haven't changed.
+     * This avoids unnecessary HTTP POST calls for RPPS accounts that are already
+     * fused into a PSI with identical profession data.
+     */
+    private void filterUnchangedFusedCreates(Map<String, List<ExerciceProfessionnel>> fusedProfessions) {
+        if (fusedProfessions.isEmpty()) return;
+
+        OperationMap<String, RassEntity> createMap = process.getMaps().stream()
+                .filter(m -> m.getOperation() == OperationType.CREATE)
+                .findFirst().orElse(null);
+        if (createMap == null) return;
+
+        List<String> toRemove = new ArrayList<>();
+        for (Map.Entry<String, RassEntity> entry : createMap.entrySet()) {
+            String nationalId = entry.getKey();
+            if (fusedProfessions.containsKey(nationalId)) {
+                Professionnel prof = (Professionnel) entry.getValue();
+                List<ExerciceProfessionnel> existingProfs = fusedProfessions.get(nationalId);
+                List<ExerciceProfessionnel> newProfs = prof.getExercicesProfessionels();
+                if (existingProfs.size() == newProfs.size() && existingProfs.containsAll(newProfs)) {
+                    toRemove.add(nationalId);
+                }
+            }
+        }
+
+        toRemove.forEach(createMap::remove);
+        log.info("Filtered {} unchanged fused CREATEs out of {} fused entries",
+                toRemove.size(), fusedProfessions.size());
+    }
+
+    private static boolean isUUID(String id) {
+        return id != null && id.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     }
 
     private void setReferenceSizeMetricsAfterDeserializing(Map<String, Professionnel> psMap) {
