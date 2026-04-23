@@ -52,6 +52,7 @@ import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.state.exception.DownloadException;
 import fr.ans.psc.pscload.state.exception.LoadProcessException;
+import fr.ans.psc.pscload.state.exception.NoNewFileAvailableException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -241,8 +242,12 @@ public class Submitted extends ProcessState {
 
 			return zipFile;
 		}
-		log.info("No files to download. Server replied with HTTP code: {}", responseCode);
 		httpConn.disconnect();
+		if (responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
+			log.info("No new RASS file available (HTTP 503).");
+			throw new NoNewFileAvailableException(Integer.toString(responseCode));
+		}
+		log.warn("RASS download failed. Server replied with HTTP code: {}", responseCode);
 		throw new DownloadException(Integer.toString(responseCode));
 	}
 
