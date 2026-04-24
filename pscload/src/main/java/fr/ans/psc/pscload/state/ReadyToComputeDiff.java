@@ -325,7 +325,16 @@ public class ReadyToComputeDiff extends ProcessState {
                     });
                     break;
                 case DELETE:
-                    map.putAll(diffPs.entriesOnlyOnLeft());
+                    // Schema RG01 pre-filter: ADELI ids that disappear from RASS must NOT be
+                    // deleted directly. They are cleaned up only via the Phase 2 RPPS→ADELI
+                    // cascade inside fused accounts.
+                    diffPs.entriesOnlyOnLeft().forEach((k, v) -> {
+                        if (ID_TYPE.ADELI.value.equals(v.getIdType())) {
+                            log.debug("Skipping ADELI {} from PsDeleteMap (schema pre-filter)", k);
+                            return;
+                        }
+                        map.put(k, v);
+                    });
                     break;
                 case CREATE:
                     map.putAll(diffPs.entriesOnlyOnRight());
