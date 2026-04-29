@@ -160,18 +160,22 @@ public class DiffComputedStateTest {
         assertEquals(2, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
                 SizeMetric.REFERENCE_RPPS_SIZE).get());
 
-        // DIFFERENCE BETWEEN FILE1 AND FILE2
-        assertEquals(0, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.CREATE_ADELI_SIZE).get());
-        assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.CREATE_RPPS_SIZE).get());
-        assertEquals(0, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.DELETE_ADELI_SIZE).get());
-        assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.DELETE_RPPS_SIZE).get());
-        assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.UPDATE_ADELI_SIZE).get());
-        assertEquals(1, diffComputed2.getCustomMetrics().getAppSizeGauges().get(
-                SizeMetric.UPDATE_RPPS_SIZE).get());
+        // CREATE/UPDATE/DELETE sizes are no longer published at DiffComputed stage :
+        // since E01-U005 (and the previous "EFFECTIVE OPERATIONS SUMMARY" change), only
+        // ChangesApplied.publishEffectiveMetrics writes those gauges, with the real
+        // post-upload counts. Here we validate the diff itself via the operation maps.
+        java.util.function.Function<fr.ans.psc.pscload.model.operations.OperationType,
+                fr.ans.psc.pscload.model.operations.OperationMap<String,
+                        fr.ans.psc.pscload.model.entities.RassEntity>> findMap =
+                op -> p2.getMaps().stream().filter(m -> m.getOperation().equals(op))
+                        .findFirst().get();
+        assertEquals(1, findMap.apply(
+                fr.ans.psc.pscload.model.operations.OperationType.CREATE).size());
+        assertEquals(2, findMap.apply(
+                fr.ans.psc.pscload.model.operations.OperationType.UPDATE).size());
+        // DELETE contains the sole RPPS entry (the ADELI pre-filter from RG01 removes
+        // any ADELI entry from PsDeleteMap before it reaches Phase 1).
+        assertEquals(1, findMap.apply(
+                fr.ans.psc.pscload.model.operations.OperationType.DELETE).size());
     }
 }
