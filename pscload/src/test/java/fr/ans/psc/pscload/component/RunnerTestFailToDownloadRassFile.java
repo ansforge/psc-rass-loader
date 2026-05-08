@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
-public class RunnerTestFailToDownloadRassFile {
+class RunnerTestFailToDownloadRassFile {
 
 	@Autowired
 	private ProcessRegistry registry;
