@@ -61,7 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
-public class UploadingStateTest {
+class UploadingStateTest {
 
     @Autowired
     private CustomMetrics customMetrics;
@@ -69,8 +69,8 @@ public class UploadingStateTest {
     @Autowired
     private ProcessRegistry registry;
 
-	@Autowired
-	private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
     /**
      * The http api mock server.
@@ -97,23 +97,23 @@ public class UploadingStateTest {
         propertiesRegistry.add("files.directory", ()-> Thread.currentThread().getContextClassLoader().getResource("work").getPath());
     }
 
-	/**
-	 * Setup.
-	 *
-	 * @throws Exception the exception
-	 */
-	@BeforeEach
-	void setup() {
-		registry.clear();
-		// clear work directory
-		File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
-		File[] files = outputfolder.listFiles();
-		if (files != null) { // some JVMs return null for empty dirs
-			for (File f : files) {
-				f.delete();
-			}
-		}
-	}
+    /**
+     * Setup.
+     *
+     * @throws Exception the exception
+     */
+    @BeforeEach
+    void setup() {
+        registry.clear();
+        // clear work directory
+        File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
+        File[] files = outputfolder.listFiles();
+        if (files != null) { // some JVMs return null for empty dirs
+            for (File f : files) {
+                f.delete();
+            }
+        }
+    }
 
     /**
      * Upload changes delete PS.
@@ -162,12 +162,12 @@ public class UploadingStateTest {
         p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p2.getState().setProcess(p2);
         p2.nextStep();
-		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
-				.findFirst().get();
+        OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
+                .findFirst().get();
         OperationMap<String, RassEntity> psToDelete2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
-				.findFirst().get();
+                .findFirst().get();
         OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.UPDATE))
-				.findFirst().get();
+                .findFirst().get();
         assertEquals(0, psToCreate2.size());
         assertEquals(0, psToDelete2.size());
         assertEquals(0, psToUpdate2.size());
@@ -227,12 +227,12 @@ public class UploadingStateTest {
 
         p2.setState(new UploadingChanges(exclusions, httpApiMockServer.baseUrl()));
         p2.nextStep();
-		OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
-				.findFirst().get();
+        OperationMap<String, RassEntity> psToCreate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
+                .findFirst().get();
         OperationMap<String, RassEntity> psToDelete2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
-				.findFirst().get();
+                .findFirst().get();
         OperationMap<String, RassEntity> psToUpdate2 = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.UPDATE))
-				.findFirst().get();
+                .findFirst().get();
         assertEquals(0, psToCreate2.size());
         assertEquals(1, psToDelete2.size());
         assertEquals(0, psToUpdate2.size());

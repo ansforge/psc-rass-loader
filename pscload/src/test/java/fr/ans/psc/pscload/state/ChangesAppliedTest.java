@@ -59,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
-public class ChangesAppliedTest {
+class ChangesAppliedTest {
 
     @Autowired
     private CustomMetrics customMetrics;
@@ -67,8 +67,8 @@ public class ChangesAppliedTest {
     @Autowired
     private ProcessRegistry registry;
 
-	@Autowired
-	private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
 
     /**
@@ -101,7 +101,7 @@ public class ChangesAppliedTest {
      * @throws Exception the exception
      */
     @BeforeEach
-    public void setup() {
+    void setup() {
         File outputfolder = new File(Thread.currentThread().getContextClassLoader().getResource("work").getPath());
         File[] files = outputfolder.listFiles();
         if (files != null) { // some JVMs return null for empty dirs
@@ -124,7 +124,7 @@ public class ChangesAppliedTest {
     // CAS 100% PASSANT : pas de message généré, appel à extract
     @Test
     @DisplayName("Changes applied with no errors")
-    public void changesApplied() throws DuplicateKeyException, IOException, ClassNotFoundException {
+    void changesApplied() throws DuplicateKeyException, IOException, ClassNotFoundException {
         httpMockServer.stubFor(post("/v2/ps").willReturn(aResponse().withStatus(200)));
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -176,11 +176,11 @@ public class ChangesAppliedTest {
         p2.nextStep();
 
         OperationMap<String, RassEntity> psToCreate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.CREATE))
-				.findFirst().get();
+                .findFirst().get();
         OperationMap<String, RassEntity> psToUpdate = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.UPDATE))
-				.findFirst().get();
+                .findFirst().get();
         OperationMap<String, RassEntity> psToDelete = p2.getMaps().stream().filter(map -> map.getOperation().equals(OperationType.DELETE))
-				.findFirst().get();
+                .findFirst().get();
         // 2xx return status should have been removed from update map
         assertEquals(1, psToCreate.size());
         assertEquals(1, psToDelete.size());
