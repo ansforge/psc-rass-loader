@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SpringBootTest
-public class DiffComputedStateTest {
+class DiffComputedStateTest {
 
     /**
      * The custom metrics.
