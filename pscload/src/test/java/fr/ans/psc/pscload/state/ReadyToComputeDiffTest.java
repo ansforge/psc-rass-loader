@@ -204,7 +204,7 @@ class ReadyToComputeDiffTest {
 	 */
 	@Test
 	@DisplayName("initial diff from large file (100000 lines)")
-	public void diffFromLargeFile() throws Exception {
+	void diffFromLargeFile() throws Exception {
 //		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 //		String rootpath = cl.getResource("work").getPath();
 //		File mapser = new File(rootpath + File.separator + "maps.ser");
@@ -225,7 +225,7 @@ class ReadyToComputeDiffTest {
 	@Test
 	@Disabled
 	@DisplayName("check order impact on hashCode and equals methods")
-	public void checkDifferentOrderForPs() throws IOException {
+	void checkDifferentOrderForPs() throws IOException {
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File file1 = FileUtils.copyFileToWorkspace("2WorkSituationsOrder1");
 		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();
@@ -246,7 +246,7 @@ class ReadyToComputeDiffTest {
 	@Test
 	@Disabled
 	@DisplayName("check that the order of first names is handled correctly")
-	public void checkCorrectFirstNameOrder() throws IOException {
+	void checkCorrectFirstNameOrder() throws IOException {
 		LoadProcess p = new LoadProcess(new ReadyToComputeDiff(List.of("60"),customMetrics, httpMockServer.baseUrl()));
 		File file1 = FileUtils.copyFileToWorkspace("FirstNameOrder");
 		ReadyToComputeDiff state = (ReadyToComputeDiff) p.getState();

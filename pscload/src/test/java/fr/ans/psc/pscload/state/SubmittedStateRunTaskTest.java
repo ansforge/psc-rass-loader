@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
-public class SubmittedStateRunTaskTest {
+class SubmittedStateRunTaskTest {
 
 	/** The http rass mock server. */
 	@RegisterExtension
