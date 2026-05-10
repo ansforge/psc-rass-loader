@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DirtiesContext
 @SpringBootTest
 @ContextConfiguration(classes = PscloadApplication.class)
-public class RegistryDeserializationTest {
+class RegistryDeserializationTest {
 
     private static Kryo kryo;
 
@@ -86,7 +86,7 @@ public class RegistryDeserializationTest {
      */
     @Disabled
     @Test
-    public void readRegistryAfterShutdownTest() throws IOException {
+    void readRegistryAfterShutdownTest() throws IOException {
 //        File registryFile = FileUtils.copyFileToWorkspace("registry.ser");
         File registryFile = new File(Thread.currentThread().getContextClassLoader().getResource("work/registry.ser").getPath());
         FileInputStream fileInputStream = new FileInputStream(registryFile);

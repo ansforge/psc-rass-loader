@@ -206,7 +206,7 @@ class ProcessRegistryTest {
 	 * @throws DuplicateKeyException the duplicate key exception
 	 */
 	@Test
-	public void readRegistrySerFile() throws IOException, DuplicateKeyException {
+	void readRegistrySerFile() throws IOException, DuplicateKeyException {
 		File registryFile = new File(rootpath + File.separator + "registry.ser");
 		if(registryFile.exists()) {
 			registryFile.delete();
