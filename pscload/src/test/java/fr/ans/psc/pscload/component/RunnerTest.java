@@ -69,7 +69,7 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @ContextConfiguration(classes = PscloadApplication.class)
 @AutoConfigureMockMvc
-public class RunnerTest {
+class RunnerTest {
 
 	@Autowired
 	private ProcessRegistry registry;
@@ -163,7 +163,7 @@ public class RunnerTest {
 
 	@Test
 	@DisplayName("continue process with exclusions")
-	public void continueProcessWithExclusionsTest() throws Exception {
+	void continueProcessWithExclusionsTest() throws Exception {
 		String contextPath = "/V300/services/extraction/Extraction_ProSanteConnect";
 		String filename = "Extraction_ProSanteConnect_Personne_activite_202112120512.txt";
 		zipFile(filename);
