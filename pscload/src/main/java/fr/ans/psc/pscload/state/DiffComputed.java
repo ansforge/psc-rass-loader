@@ -22,6 +22,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 import fr.ans.psc.pscload.metrics.CustomMetrics;
+import fr.ans.psc.pscload.model.entities.RassEntity;
+import fr.ans.psc.pscload.model.operations.OperationMap;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -53,6 +55,30 @@ public class DiffComputed extends ProcessState {
 	public void nextStep() {
 		log.info("publishing reference metrics...");
 		logReferenceMetrics();
+		log.info("publishing diff metrics...");
+		publishDiffMetrics();
+	}
+
+	/**
+	 * Publishes the CREATE/UPDATE/DELETE sizes of the computed diff, per id type.
+	 * AlertManager thresholds (e.g. update > 5% of reference) are evaluated on these
+	 * gauges BEFORE the continue is triggered: they must reflect the current diff,
+	 * not the effective counts of the previous run (published by ChangesApplied).
+	 */
+	private void publishDiffMetrics() {
+		if (customMetrics == null || process == null) {
+			return;
+		}
+		for (OperationMap<String, RassEntity> map : process.getMaps()) {
+			Arrays.stream(CustomMetrics.ID_TYPE.values()).forEach(id_type -> {
+				String metricKey = String.join("_", map.getOperation().name(), id_type.name(), "SIZE");
+				CustomMetrics.SizeMetric metric = CustomMetrics.SizeMetric.valueOf(metricKey);
+				int size = Math.toIntExact(map.values().stream()
+						.filter(item -> id_type.value.equals(item.getIdType())).count());
+				customMetrics.setPsMetricSize(metric, size);
+				log.info("{} --- {}", metricKey, size);
+			});
+		}
 	}
 
 	private void logReferenceMetrics() {
